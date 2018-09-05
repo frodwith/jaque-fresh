@@ -2,6 +2,8 @@ package net.frodwith.jaque.data;
 
 import java.io.Serializable;
 
+import net.frodwith.jaque.exception.CellRequiredException;
+
 import net.frodwith.jaque.runtime.Mug;
 import net.frodwith.jaque.runtime.Equality;
 
@@ -12,7 +14,7 @@ import net.frodwith.jaque.runtime.Equality;
  * this. No real checking is done at runtime.
  */
 
-public class Cell implements Serializable {
+public final class Cell implements Serializable {
   // head and tail are not final because we set them during unifying equals
   public Object head, tail;
   public int mug;
@@ -28,5 +30,14 @@ public class Cell implements Serializable {
 
   public boolean equals(Object o) {
     return (o instanceof Cell) && Equality.equals(this, (Cell) o);
+  }
+
+  public static Cell require(Object o) throws CellRequiredException {
+    if ( o instanceof Cell ) {
+      return (Cell) o;
+    }
+    else {
+      throw new CellRequiredException(o);
+    }
   }
 }

@@ -5,7 +5,7 @@ import net.frodwith.jaque.data.Cell;
 
 import net.frodwith.jaque.runtime.Atom;
 
-public class Mug {
+public final class Mug {
   private static final int FNV_START_WORDS = 0x811c9dc5;
 
   public static int get(Cell c) {

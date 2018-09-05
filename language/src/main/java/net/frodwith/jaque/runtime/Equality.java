@@ -11,7 +11,7 @@ import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.BigAtom;
 
-public class Equality {
+public final class Equality {
 
   private static abstract class ComparisonStep {
     public abstract boolean execute(ArrayDeque<ComparisonStep> stack);

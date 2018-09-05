@@ -5,7 +5,7 @@ import java.io.Serializable;
 import net.frodwith.jaque.runtime.Mug;
 import net.frodwith.jaque.runtime.Equality;
 
-public class BigAtom implements Serializable {
+public final class BigAtom implements Serializable {
   public int[] words;
   public int mug;
 
