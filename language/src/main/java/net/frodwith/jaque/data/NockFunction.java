@@ -1,8 +1,6 @@
-package net.frodwith.jaque.runtime;
+package net.frodwith.jaque.data;
 
 import com.oracle.truffle.api.RootCallTarget;
-
-import net.frodwith.jaque.data.Cell;
 
 import net.frodwith.jaque.exception.FormulaRequiredException;
 
@@ -18,65 +16,26 @@ public final class NockFunction {
   private NockFunction(RootCallTarget callTarget) {
     this.callTarget = callTarget;
   }
-  /*
 
-  private abstract class ExpressionFactory {
-    public abstract Object getHead();
-    public abstract Object getTail();
-  }
-
-  private static class AxisFactory extends ExpressionFactory {
-    private final Cell formula;
-    private final Object axisInParent;
-
-    public AxisFactory(Cell formula, Object axisInParent) {
-      this.formula = formula;
-      this.axisInParent = axisInParent;
-    }
-
-    public AxisFactory(Cell formula) {
-      this(formula, 1L);
-    }
-
-    @Override
-    public Object getHead() {
-      return formula.head;
-    }
-
-    @Override
-    public Object getTail() {
-      return formula.tail;
-    }
-  }
-
-  private static class ParsedFactory extends ExpressionFactory {
-    private final ParsedCell formula;
-
-    public ParsedFactory(ParsedCell formula) {
-      this.formula = formula;
-    }
-
-    @Override
-    public Object getTail() {
-      return formula.head;
-    }
-
-    @Override
-    public Object getTail() {
-      return formula.tail;
-    }
-  }
-  */
-
-  public static NockFunction fromCell(Cell formula) throws FormulaRequiredException {
-    final NockExpressionNode expr = parseExpr(formula, true);
-    final RootCallTarget     root = new NockRootNode(expr);
+  public static NockFunction fromCell(NockLanguage language,
+                                      FrameDesciptor frameDescriptor,
+                                      Cell formula)
+      throws FormulaRequiredException {
+    Supplier<SourceMappedNoun> sourceSupplier = () -> {
+      return SourceMappedNoun.fromCell(formula);
+    };
+    final NockExpressionNode expr = parseExpr(formula, 1L, true);
+    final RootCallTarget     root = new NockRootNode(language, frameDescriptor, expr, sourceSupplier);
     return new NockFunction(root);
   }
 
-  public static NockFunction fromParsed(ParsedCell formula) throws FormulaRequiredException {
-    final NockExpressionNode expr = parseExpr(formula, true);
-    final RootCallTarget     root = new NockRootNode(expr);
+  public static NockFunction fromMapped(NockLanguage language,
+                                        FrameDesciptor frameDescriptor,
+                                        SourceMappedNoun mapped)
+      throws FormulaRequiredException {
+    Supplier<SourceMappedNoun> sourceSupplier = () -> { return mapped };
+    final NockExpressionNode expr = parseExpr(mapped.noun, 1L, true);
+    final RootCallTarget     root = new NockRootNode(language, frameDescriptor, expr, sourceSupplier);
     return new NockFunction(root);
   }
 

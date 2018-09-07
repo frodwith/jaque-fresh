@@ -7,59 +7,40 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 import net.frodwith.jaque.NockLanguage;
+import net.frodwith.jaque.data.SourceMappedNoun;
+import net.frodwith.jaque.data.SourceMappedNoun.IndexLength;
 
 @NodeInfo(language = "nock")
 public final class NockRootNode extends RootNode {
 
-  public static final class IndexLength {
-    public int index;
-    public int length;
-
-    public IndexLength(int index, int length) {
-      this.index  = index;
-      this.length = length;
-    }
-  }
-
   @Child private NockExpressionNode bodyNode;
-  private SourceSection sourceSection;
-  private Map<Object, IndexLength> where;
+  private final Supplier<SourceMappedNoun> sourceSupplier;
+  private SourceMappedNoun source;
 
   public NockRootNode(NockLanguage language,
                       FrameDescriptor frameDescriptor,
-                      SourceSection sourceSection) {
+                      Supplier<SourceMappedNoun> sourceSupplier,
+                      NockExpressionNode bodyNode) {
     super(language, frameDescriptor);
-    this.sourceSection = sourceSection;
+    this.sourceSupplier = sourceSupplier;
+    this.bodyNode       = bodyNode;
+    this.source         = null;
   }
 
-  @TruffleBoundary
-  private void forceSourceSection() {
-    if ( null == sourceSection ) {
-      assert( null == where );
-      StringBuilder buf = new StringBuilder();
-      where = new HashMap<>();
-      bodyNode.populateSection(buf, where);
-      String content = buf.toString();
-      sourceSection = Source.newBuilder("nock", content, "(generated)")
-        .internal(true)
-        .buildLiteral()
-        .createSection(0, content.length());
+  private SourceMappedNoun getSource() {
+    if ( null == source ) {
+      source = sourceSupplier.get();
     }
+    return source;
   }
 
   public SourceSection getChildSourceSection(Object axis) {
-    forceSourceSection();
-    IndexLength il = where.get(axis);
-    if ( null == il ) {
-      return null;
-    }
-    return sourceSection.getSource().createSection(il.index, il.length);
+    return getSource().lookupAxis(axis);
   }
 
   @Override
   public SourceSection getSourceSection() {
-    forceSourceSection();
-    return sourceSection;
+    return getSource().sourceSection;
   }
 
   @Override

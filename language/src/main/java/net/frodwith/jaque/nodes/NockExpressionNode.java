@@ -20,7 +20,6 @@ import net.frodwith.jaque.data.BigAtom;
 @GenerateWrapper
 @ReportPolymorphism
 public abstract class NockExpressionNode extends Node implements InstrumentableNode {
-  private SourceSection sourceSection = null;
   private final Object axisInFormula;
 
   protected NockExpressionNode(SourceSection sourceSection, Object axisInFormula) {
@@ -38,8 +37,6 @@ public abstract class NockExpressionNode extends Node implements InstrumentableN
 
   public abstract Object executeGeneric(VirtualFrame frame);
 
-  public abstract void populateSection(StringBuuilder buffer, Map<Object,RootNode.IndexLength>);
-
   public long executeLong(VirtualFrame frame) throws UnexpectedResultException {
     return NockTypesGen.expectLong(executeGeneric(frame));
   }
@@ -55,14 +52,7 @@ public abstract class NockExpressionNode extends Node implements InstrumentableN
   @Override
   @TruffleBoundary
   public final SourceSection getSourceSection() {
-    if ( null == sourceSection ) {
-      NockRootNode root = getNockRootNode();
-      if ( null != root ) {
-        sourceSection = root.getChildSourceSection(axisInFormula);
-      }
-    }
-
-    return sourceSection;
+    return getNockRootNode().getChildSourceSection(axisInFormula);
   }
 
   @Override
