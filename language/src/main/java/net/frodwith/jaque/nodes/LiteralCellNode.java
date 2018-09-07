@@ -10,8 +10,7 @@ import net.frodwith.jaque.data.Cell;
 public final class LiteralCellNode extends NockExpressionNode {
   private final Cell value;
 
-  public LiteralCellNode(Cell value, Object axisInParent) {
-    super(axisInParent);
+  public LiteralCellNode(Cell value) {
     this.value = value;
   }
 

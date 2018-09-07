@@ -1,8 +1,6 @@
 package net.frodwith.jaque.exception;
 
-import com.oracle.truffle.api.nodes.SlowPathException;
-
-public abstract class RequireException extends SlowPathException {
+public abstract class RequireException extends FailException {
   protected final Object value;
 
   protected RequireException(String kind, Object value) {

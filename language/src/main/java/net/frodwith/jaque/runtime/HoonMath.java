@@ -1,5 +1,14 @@
 package net.frodwith.jaque.runtime;
 
+import java.util.Arrays;
+
+import com.oracle.truffle.api.CompilerDirectives;
+
+import gnu.math.MPN;
+
+import net.frodwith.jaque.data.BigAtom;
+import net.frodwith.jaque.exception.FailException;
+
 public final class HoonMath {
   public static int met(byte bloq, Object atom) {
     int gal, daz;
@@ -60,7 +69,7 @@ public final class HoonMath {
     return met((byte)0, atom);
   }
 
-  public static Object lsh(byte bloq, int count, Object atom) {
+  public static Object lsh(byte bloq, int count, Object atom) throws FailException {
     int len = met(bloq, atom),
         big;
 
@@ -71,13 +80,28 @@ public final class HoonMath {
       big = Math.addExact(count, len);
     }
     catch (ArithmeticException e) {
-      assert(false);
+      throw new FailException("lsh count overflow");
     }
     
     int[] sal = Atom.slaq(bloq, big);
     Atom.chop(bloq, 0, len, count, sal, atom);
 
     return Atom.malt(sal);
+  }
+
+  public static Object rsh(byte bloq, int count, Object atom) {
+    int len = met(bloq, atom);
+
+    if ( count >= len ) {
+      return 0L;
+    }
+    else {
+      int[] sal = Atom.slaq(bloq, len - count);
+
+      Atom.chop(bloq, count, len - count, 0, sal, atom);
+
+      return Atom.malt(sal);
+    }
   }
 
   public static Object addWords(int[] a, int[] b) {
@@ -107,49 +131,87 @@ public final class HoonMath {
     return add(Atom.words(a), Atom.words(b));
   }
 
+  public static long dec(long atom) throws FailException {
+    if ( atom == 0 ) {
+      throw new FailException("decrement underflow");
+    }
+    else {
+      return atom - 1;
+    }
+  }
 
-  public static Object subtractWords(int[] a, int[] b) {
+  public static Object dec(BigAtom atom) {
+    int[] result;
+    if ( atom.words[0] == 0 ) {
+      result = new int[atom.words.length - 1];
+      Arrays.fill(result, 0xFFFFFFFF);
+    }
+    else {
+      result = Arrays.copyOf(atom.words, atom.words.length);
+      result[0] -= 1;
+    }
+
+    return Atom.malt(result);
+  }
+
+  public static Object dec(Object atom) throws FailException {
+    if ( atom instanceof Long ) {
+      return dec((long) atom);
+    }
+    else {
+      return dec((BigAtom) atom);
+    }
+  }
+
+
+  public static Object subtractWords(int[] a, int[] b) throws FailException {
     MPNSquare s = new MPNSquare(a, b);
     int[] dst = new int[s.len];
     int bor = MPN.sub_n(dst, s.x, s.y, s.len);
     if ( bor != 0 ) {
-      throw new Bail();
+      CompilerDirectives.transferToInterpreter();
+      throw new FailException("subtract underflow");
     }
     return Atom.malt(dst);
   }
 
-  public static long sub(long a, long b) {
+  public static long sub(long a, long b) throws FailException {
     if ( -1 == Long.compareUnsigned(a, b) ) {
-      throw new Bail();
+      throw new FailException("subtract underflow");
     }
     else {
       return a - b;
     }
   }
 
-  public static Object sub(BigAtom a, BigAtom b) {
+  public static Object sub(BigAtom a, BigAtom b) throws FailException {
     return subtractWords(a.words, b.words);
   }
   
-  public static Object sub(Object a, Object b) {
+  public static Object sub(Object a, Object b) throws FailException {
     return ( a instanceof Long && b instanceof Long )
       ? sub((long) a, (long) b)
       : subtractWords(Atom.words(a), Atom.words(b));
   }
 
   public static Object peg(Object axis, Object to) {
-    if ( 1L == to ) {
+    if ( (to instanceof Long) && (1L == (long) to) ) {
       return axis;
     }
     else {
       int c = met(to),
           d = c - 1;
 
-      Object e = lsh((byte) 0, d, 1L),
-             f = sub(to, e),
-             g = lsh((byte) 0, d, axis);
-      
-      return add(f, g);
+      try {
+        Object e = lsh((byte) 0, d, 1L),
+               f = sub(to, e),
+               g = lsh((byte) 0, d, axis);
+        
+        return add(f, g);
+      }
+      catch (FailException fe) {
+        throw new RuntimeException("impossible peg sub underflow");
+      }
     }
   }
 }

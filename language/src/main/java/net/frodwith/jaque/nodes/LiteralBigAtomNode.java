@@ -10,13 +10,12 @@ import net.frodwith.jaque.data.BigAtom;
 public final class LiteralBigAtomNode extends NockExpressionNode {
   private final BigAtom value;
 
-  public LiteralBigAtomNode(BigAtom value, Object axisInParent) {
-    super(axisInParent);
+  public LiteralBigAtomNode(BigAtom value) {
     this.value = value;
   }
 
   @Override
-  public long executeBigAtom(VirtualFrame frame) throws UnexpectedResultException {
+  public BigAtom executeBigAtom(VirtualFrame frame) throws UnexpectedResultException {
     return value;
   }
 

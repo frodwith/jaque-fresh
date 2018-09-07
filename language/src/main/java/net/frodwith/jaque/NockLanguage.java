@@ -4,8 +4,8 @@ import com.oracle.truffle.api.TruffleLanguage;
 
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.BigAtom;
+import net.frodwith.jaque.data.NockFunction;
 import net.frodwith.jaque.runtime.NockContext;
-import net.frodwith.jaque.runtime.NockFunction;
 
 @TruffleLanguage.Registration(id = NockLanguage.ID, 
                               name = "nock",
@@ -20,5 +20,10 @@ public final class NockLanguage extends TruffleLanguage<NockContext> {
       || o instanceof Cell
       || o instanceof BigAtom
       || o instanceof Long;
+  }
+
+  @Override
+  protected NockContext createContext(Env env) {
+    return new NockContext(this, env);
   }
 }

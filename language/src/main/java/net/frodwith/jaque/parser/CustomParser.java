@@ -5,11 +5,17 @@ import java.util.ArrayDeque;
 import java.util.Map;
 import java.util.HashMap;
 
+import com.oracle.truffle.api.source.SourceSection;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+
+import gnu.math.MPN;
+
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.SourceMappedNoun;
 import net.frodwith.jaque.data.SourceMappedNoun.IndexLength;
 import net.frodwith.jaque.runtime.Atom;
-import gnu.math.MPN;
+import net.frodwith.jaque.runtime.HoonMath;
+import net.frodwith.jaque.exception.FailException;
 
 public final class CustomParser {
 
@@ -115,7 +121,7 @@ public final class CustomParser {
     }
   }
 
-  private Object readRec(Object o, Objext axis) {
+  private Object readRec(Object o, Object axis) {
     if (o instanceof ParsedAtom) {
       ParsedAtom parsedAtom = (ParsedAtom) o;
       axisMap.put(axis, new IndexLength(parsedAtom.index, parsedAtom.length));
@@ -123,32 +129,40 @@ public final class CustomParser {
     }
     else if (o instanceof ArrayList<?>) {
       ArrayList<Object> a = (ArrayList<Object>) o;
-      int startPos = a.remove(0);
-      int endPos   = a.remove(0);
+      int startPos = (int) a.remove(0);
+      int endPos   = (int) a.remove(0);
+      int len      = a.size();
 
       // [2   3]
       // [2  6  7]
       // [2 6 14  15]
       // [2 6 14 30 31]
-      Object top    = HoonMath.lsh(0, a.size(), 1L),
-             riteAx = HoonMath.dec(top),
-             leftAx = HoonMath.dec(riteAx);
+      Object top, riteAx, leftAx;
 
-      Object tail = readRec(a.remove(--len), HoonMath.peg(axis, riteAx)),
-             head = readRec(a.remove(--len), HoonMath.peg(axis, leftAx));
-
-      Cell end = new Cell(head, tail);
-
-      while ( len-- > 0 ) {
-        riteAx = HoonMath.rsh(0, 1, leftAx);
+      try {
+        top    = HoonMath.lsh((byte) 0, a.size(), 1L);
+        riteAx = HoonMath.dec(top);
         leftAx = HoonMath.dec(riteAx);
 
-        Object mor = readRec(a.remove(len), leftAx);
-        end = new Cell(mor, end);
-      }
+        Object tail = readRec(a.remove(--len), HoonMath.peg(axis, riteAx)),
+               head = readRec(a.remove(--len), HoonMath.peg(axis, leftAx));
 
-      axisMap.put(axis, new IndexLength(startPos, endPos - startPos));
-      return end;
+        Cell end = new Cell(head, tail);
+
+        while ( len-- > 0 ) {
+          riteAx = HoonMath.rsh((byte) 0, 1, leftAx);
+          leftAx = HoonMath.dec(riteAx);
+
+          Object mor = readRec(a.remove(len), leftAx);
+          end = new Cell(mor, end);
+        }
+
+        axisMap.put(axis, new IndexLength(startPos, endPos - startPos));
+        return end;
+      }
+      catch ( FailException e) {
+        throw new RuntimeException("readRec internal fail");
+      }
     }
     else {
       throw new IllegalArgumentException();

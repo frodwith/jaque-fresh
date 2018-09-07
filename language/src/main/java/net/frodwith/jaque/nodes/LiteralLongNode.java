@@ -8,8 +8,7 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
 public final class LiteralLongNode extends NockExpressionNode {
   private final long value;
 
-  public LiteralLongNode(long value, Object axisInParent) {
-    super(axisInParent);
+  public LiteralLongNode(long value) {
     this.value = value;
   }
 

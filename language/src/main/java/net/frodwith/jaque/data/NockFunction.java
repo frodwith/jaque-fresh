@@ -1,14 +1,21 @@
 package net.frodwith.jaque.data;
 
-import com.oracle.truffle.api.RootCallTarget;
+import java.util.function.Supplier;
 
+import com.oracle.truffle.api.Truffle;
+import com.oracle.truffle.api.RootCallTarget;
+import com.oracle.truffle.api.frame.FrameDescriptor;
+
+import net.frodwith.jaque.exception.RequireException;
 import net.frodwith.jaque.exception.FormulaRequiredException;
 
+import net.frodwith.jaque.NockLanguage;
 import net.frodwith.jaque.nodes.NockExpressionNode;
 import net.frodwith.jaque.nodes.LiteralCellNode;
 import net.frodwith.jaque.nodes.LiteralBigAtomNode;
 import net.frodwith.jaque.nodes.LiteralLongNode;
 import net.frodwith.jaque.nodes.NockRootNode;
+import net.frodwith.jaque.runtime.Atom;
 
 public final class NockFunction {
   public final RootCallTarget callTarget;
@@ -18,25 +25,27 @@ public final class NockFunction {
   }
 
   public static NockFunction fromCell(NockLanguage language,
-                                      FrameDesciptor frameDescriptor,
+                                      FrameDescriptor frameDescriptor,
                                       Cell formula)
       throws FormulaRequiredException {
     Supplier<SourceMappedNoun> sourceSupplier = () -> {
       return SourceMappedNoun.fromCell(formula);
     };
     final NockExpressionNode expr = parseExpr(formula, 1L, true);
-    final RootCallTarget     root = new NockRootNode(language, frameDescriptor, expr, sourceSupplier);
-    return new NockFunction(root);
+    final NockRootNode       root = new NockRootNode(language, frameDescriptor, sourceSupplier, expr);
+    return new NockFunction(Truffle.getRuntime().createCallTarget(root));
   }
 
   public static NockFunction fromMapped(NockLanguage language,
-                                        FrameDesciptor frameDescriptor,
+                                        FrameDescriptor frameDescriptor,
                                         SourceMappedNoun mapped)
       throws FormulaRequiredException {
-    Supplier<SourceMappedNoun> sourceSupplier = () -> { return mapped };
+    Supplier<SourceMappedNoun> sourceSupplier = () -> {
+      return mapped;
+    };
     final NockExpressionNode expr = parseExpr(mapped.noun, 1L, true);
-    final RootCallTarget     root = new NockRootNode(language, frameDescriptor, expr, sourceSupplier);
-    return new NockFunction(root);
+    final NockRootNode       root = new NockRootNode(language, frameDescriptor, sourceSupplier, expr);
+    return new NockFunction(Truffle.getRuntime().createCallTarget(root));
   }
 
   /*
@@ -57,19 +66,12 @@ public final class NockFunction {
   }
   */
 
-  private static NockExpressionNode parseQuot(Object arg, Object axisInParent) {
-    if ( arg instanceof Cell ) {
-      return new LiteralCellNode((Cell) arg, axisInParent);
-    }
-    else if ( arg instanceof BigAtom ) {
-      return new LiteralBigAtomNode((BigAtom) arg, axisInParent);
-    }
-    else if ( arg instanceof Long ) {
-      return new LiteralLongNode((long) arg, axisInParent);
-    }
-    else {
-      assert(false);
-    }
+  private static NockExpressionNode parseQuot(Object arg) {
+    return ( arg instanceof Cell )
+      ? new LiteralCellNode((Cell) arg)
+      : ( arg instanceof BigAtom )
+      ? new LiteralBigAtomNode((BigAtom) arg)
+      : new LiteralLongNode((long) arg);
   }
 
   /*
@@ -189,26 +191,28 @@ public final class NockFunction {
   }
 */
 
-  private static NockExpressionNode parseExpr(ExpressionFactory factory, boolean tail) throws FormulaRequiredException {
-    Object op  = formula.head;
-    Object arg = formula.tail;
+  private static NockExpressionNode parseExpr(Object formula, Object axis, boolean tail) throws FormulaRequiredException {
+    try {
+      Cell c = Cell.require(formula);
+      Object op   = c.head,
+             arg  = c.tail;
 
-    if ( op instanceof Cell ) {
-      assert(false);
-      //return parseCons(op, arg);
-    }
-    else {
-      int code;
+      NockExpressionNode node;
 
-      try {
-        code = Atom.requireInt(op);
+      if ( op instanceof Cell ) {
+        // do nothing yet
+        node = null;
+      }
+      else {
+        int code = Atom.requireInt(op);
         switch ( code ) {
           /*
           case 0:
             return parseFrag(arg);
             */
           case 1:
-            return parseQuot(arg);
+            node = parseQuot(arg);
+            break;
             /*
           case 2:
             return parseEval(arg);
@@ -234,12 +238,14 @@ public final class NockFunction {
             return parseEdit(arg);
             */
           default:
-            throw FormulaRequiredException(formula);
+            throw new FormulaRequiredException(op);
         }
       }
-      catch ( RequireException e ) {
-        throw new FormulaRequiredException(formula, e);
-      }
+      node.setAxisInFormula(axis);
+      return node;
+    }
+    catch ( RequireException e ) {
+      throw new FormulaRequiredException(formula, e);
     }
   }
 }

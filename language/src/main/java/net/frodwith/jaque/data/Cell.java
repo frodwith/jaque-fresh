@@ -2,10 +2,11 @@ package net.frodwith.jaque.data;
 
 import java.io.Serializable;
 
-import net.frodwith.jaque.exception.CellRequiredException;
+import com.oracle.truffle.api.CompilerDirectives;
 
 import net.frodwith.jaque.runtime.Mug;
 import net.frodwith.jaque.runtime.Equality;
+import net.frodwith.jaque.exception.CellRequiredException;
 
 /* Because we must use Object fields for the head and the tail to accomodate the atom
  * types that we are using, it is unfortunately possible to construct a cell of any
@@ -37,6 +38,7 @@ public final class Cell implements Serializable {
       return (Cell) o;
     }
     else {
+      CompilerDirectives.transferToInterpreter();
       throw new CellRequiredException(o);
     }
   }

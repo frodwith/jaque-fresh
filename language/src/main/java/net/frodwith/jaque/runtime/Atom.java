@@ -2,7 +2,10 @@ package net.frodwith.jaque.runtime;
 
 import java.util.Arrays;
 
+import com.oracle.truffle.api.CompilerDirectives;
+
 import net.frodwith.jaque.exception.AtomRequiredException;
+import net.frodwith.jaque.exception.IntRequiredException;
 
 import net.frodwith.jaque.data.BigAtom;
 
@@ -13,8 +16,20 @@ public final class Atom {
       return o;
     }
     else {
+      CompilerDirectives.transferToInterpreter();
       throw new AtomRequiredException(o);
     }
+  }
+
+  public static int requireInt(Object o) throws IntRequiredException {
+    if ( o instanceof Long ) {
+      long atom = (long) o;
+      if ( 1 != Long.compareUnsigned(atom, 0xFFFFFFFF) ) {
+        return (int) atom;
+      }
+    }
+    CompilerDirectives.transferToInterpreter();
+    throw new IntRequiredException(o);
   }
 
   public static int[] words(long l) {

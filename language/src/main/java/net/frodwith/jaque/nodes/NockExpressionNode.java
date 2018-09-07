@@ -20,15 +20,12 @@ import net.frodwith.jaque.data.BigAtom;
 @GenerateWrapper
 @ReportPolymorphism
 public abstract class NockExpressionNode extends Node implements InstrumentableNode {
-  private final Object axisInFormula;
+  private Object axisInFormula;
 
-  protected NockExpressionNode(SourceSection sourceSection, Object axisInFormula) {
-    this.sourceSection = sourceSection;
-    this.axisInFormula = axisInFormula;
-  }
-
-  protected NockExpressionNode(Object axisInFormula) {
-    this(null, axisInFormula);
+  // Called by the creating code, not in a constructor because it messes with
+  // GenerateWrapper etc.
+  public final void setAxisInFormula(Object axis) {
+    this.axisInFormula = axis;
   }
 
   protected final NockRootNode getNockRootNode() {
@@ -42,7 +39,7 @@ public abstract class NockExpressionNode extends Node implements InstrumentableN
   }
 
   public BigAtom executeBigAtom(VirtualFrame frame) throws UnexpectedResultException {
-    return NockTypesGen.executeBigAtom(executeGeneric(frame));
+    return NockTypesGen.expectBigAtom(executeGeneric(frame));
   }
 
   public Cell executeCell(VirtualFrame frame) throws UnexpectedResultException {
@@ -52,11 +49,21 @@ public abstract class NockExpressionNode extends Node implements InstrumentableN
   @Override
   @TruffleBoundary
   public final SourceSection getSourceSection() {
-    return getNockRootNode().getChildSourceSection(axisInFormula);
+    if ( null == axisInFormula ) {
+      return null;
+    }
+    else {
+      return getNockRootNode().getChildSourceSection(axisInFormula);
+    }
   }
 
   @Override
   public WrapperNode createWrapper(ProbeNode probeNode) {
     return new NockExpressionNodeWrapper(this, probeNode);
+  }
+
+  @Override
+  public final boolean isInstrumentable() {
+    return true;
   }
 }

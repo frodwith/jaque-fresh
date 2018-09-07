@@ -2,20 +2,23 @@ package net.frodwith.jaque.test;
 
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
 
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.BigAtom;
 
-import static net.frodwith.jaque.SimpleParser.parse;
+public final class SourceMappedNounTest {
+  @Test
+  public void testSmall() {
+    assertEquals(42L, parse("42").noun);
+  }
+}
 
+/*
 public class SimpleParserTest {
   @Test
   public void testSmall() {
-    assertEquals(42L, parse("42").toNoun());
+    assertEquals(42L, parse("42").noun);
   }
   
   @Test
@@ -30,3 +33,4 @@ public class SimpleParserTest {
     assertEquals(a, parse("[0 1 2]").toNoun());
   }
 }
+*/

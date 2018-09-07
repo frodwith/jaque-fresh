@@ -1,5 +1,7 @@
 package net.frodwith.jaque.nodes;
 
+import java.util.function.Supplier;
+
 import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.source.SourceSection;

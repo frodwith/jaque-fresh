@@ -1,7 +1,13 @@
 package net.frodwith.jaque.data;
 
-import com.oracle.truffle.api.source.SourceSection;
+import java.io.StringWriter;
+import java.io.IOException;
 import java.util.Map;
+
+import com.oracle.truffle.api.source.SourceSection;
+import com.oracle.truffle.api.source.Source;
+
+import net.frodwith.jaque.printer.MappedNounPrinter;
 
 public final class SourceMappedNoun {
   public static final class IndexLength {
@@ -39,10 +45,19 @@ public final class SourceMappedNoun {
 
   public static SourceMappedNoun fromCell(Cell cell) {
     StringWriter out = new StringWriter();
-    Map<Object,IndexLength> axisMap = MappedNounPrinter.print(out, cell);
+    Map<Object,IndexLength> axisMap;
+    try {
+      axisMap = MappedNounPrinter.print(out, cell);
+    }
+    catch (IOException e) {
+      // StringWriter doesn't throw IOException
+      return null;
+    }
     String text = out.toString();
-    Source source = Source.newBuilder("nock", text, "(generated)")
-      .internal(true)
+    Source source = Source.newBuilder(text)
+      .language("nock")
+      .name("(generated)")
+      .internal()
       .build();
     SourceSection whole = source.createSection(0, text.length());
     return new SourceMappedNoun(whole, axisMap, cell);

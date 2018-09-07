@@ -1,13 +1,24 @@
 package net.frodwith.jaque.printer;
 
+import java.io.Writer;
+import java.io.IOException;
+import java.util.ArrayDeque;
+import java.util.Arrays;
+
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+
+import gnu.math.MPN;
+
+import net.frodwith.jaque.runtime.Atom;
+
 public final class SimpleAtomPrinter {
   
-  public static int print(Writer out, Object atom) {
+  public static int print(Writer out, Object atom) throws IOException {
     return raw(out, Atom.words(atom), 10, 3);
   }
 
   @TruffleBoundary
-  public static int raw(Writer out, int[] cur, int radix, int dot) {
+  public static int raw(Writer out, int[] cur, int radix, int dot) throws IOException {
     ArrayDeque<Character> digits = new ArrayDeque<Character>();
 
     int len = cur.length,
