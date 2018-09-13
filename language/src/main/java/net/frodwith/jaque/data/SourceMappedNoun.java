@@ -8,6 +8,7 @@ import com.oracle.truffle.api.source.SourceSection;
 import com.oracle.truffle.api.source.Source;
 
 import net.frodwith.jaque.printer.MappedNounPrinter;
+import net.frodwith.jaque.exception.Fail;
 
 public final class SourceMappedNoun {
   public static final class IndexLength {
@@ -43,15 +44,14 @@ public final class SourceMappedNoun {
     return noun;
   }
 
-  public static SourceMappedNoun fromCell(Cell cell) {
+  public static SourceMappedNoun fromCell(Cell cell) throws Fail {
     StringWriter out = new StringWriter();
     Map<Object,IndexLength> axisMap;
     try {
       axisMap = MappedNounPrinter.print(out, cell);
     }
     catch (IOException e) {
-      // StringWriter doesn't throw IOException
-      return null;
+      throw new AssertionError("StringWriter doesn't throw IOException");
     }
     String text = out.toString();
     Source source = Source.newBuilder(text)

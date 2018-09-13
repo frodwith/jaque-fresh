@@ -9,6 +9,7 @@ import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.runtime.HoonMath;
+import net.frodwith.jaque.exception.Fail;
 import net.frodwith.jaque.data.SourceMappedNoun.IndexLength;
 
 // take a single noun, get a string and a location map
@@ -20,7 +21,7 @@ public final class MappedNounPrinter {
     this.out = out;
   }
 
-  public static Map<Object,IndexLength> print(Writer out, Object noun) throws IOException {
+  public static Map<Object,IndexLength> print(Writer out, Object noun) throws IOException, Fail {
     MappedNounPrinter printer = new MappedNounPrinter(out);
     printer.print(noun, 1L, 0, false);
     return printer.axisMap;
@@ -29,7 +30,7 @@ public final class MappedNounPrinter {
   // much simpler to print this recursively, and since it's only used for
   // debug info it's safe for now not to worry about stack overflows
   @TruffleBoundary
-  private int print(Object noun, Object axis, int pos, boolean tail) throws IOException {
+  private int print(Object noun, Object axis, int pos, boolean tail) throws IOException, Fail {
     int begin = pos;
     if ( noun instanceof Cell ) {
       Cell c = (Cell) noun;

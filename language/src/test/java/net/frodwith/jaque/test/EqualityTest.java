@@ -61,4 +61,11 @@ public class EqualityTest {
     assertEquals("=mug", a.mug, b.mug);
   }
 
+  @Test
+  public void testBugOne() {
+    Cell a = new Cell(40L, new Cell(new Cell(0L, 42L), 1042L)),
+         b = new Cell(40L, new Cell(new Cell(0L, 42L), 1042L));
+
+    assertTrue(Equality.equals(a, b));
+  }
 }

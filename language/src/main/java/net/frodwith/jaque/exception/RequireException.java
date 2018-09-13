@@ -1,6 +1,6 @@
 package net.frodwith.jaque.exception;
 
-public abstract class RequireException extends FailException {
+public abstract class RequireException extends Fail {
   protected final Object value;
 
   protected RequireException(String kind, Object value) {

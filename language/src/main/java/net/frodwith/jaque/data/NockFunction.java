@@ -8,6 +8,7 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 
 import net.frodwith.jaque.exception.RequireException;
 import net.frodwith.jaque.exception.FormulaRequiredException;
+import net.frodwith.jaque.exception.Fail;
 
 import net.frodwith.jaque.NockLanguage;
 import net.frodwith.jaque.nodes.NockExpressionNode;
@@ -27,9 +28,14 @@ public final class NockFunction {
   public static NockFunction fromCell(NockLanguage language,
                                       FrameDescriptor frameDescriptor,
                                       Cell formula)
-      throws FormulaRequiredException {
+      throws Fail {
     Supplier<SourceMappedNoun> sourceSupplier = () -> {
-      return SourceMappedNoun.fromCell(formula);
+      try {
+        return SourceMappedNoun.fromCell(formula);
+      }
+      catch ( Fail e ) {
+        throw new RuntimeException("NockFunction.fromCell:supplier", e);
+      }
     };
     final NockExpressionNode expr = parseExpr(formula, 1L, true);
     final NockRootNode       root = new NockRootNode(language, frameDescriptor, sourceSupplier, expr);

@@ -7,7 +7,7 @@ import com.oracle.truffle.api.CompilerDirectives;
 import gnu.math.MPN;
 
 import net.frodwith.jaque.data.BigAtom;
-import net.frodwith.jaque.exception.FailException;
+import net.frodwith.jaque.exception.Fail;
 
 public final class HoonMath {
   public static int met(byte bloq, Object atom) {
@@ -69,7 +69,8 @@ public final class HoonMath {
     return met((byte)0, atom);
   }
 
-  public static Object lsh(byte bloq, int count, Object atom) throws FailException {
+  // lsh fails because we don't really have infinitely sized atoms
+  public static Object lsh(byte bloq, int count, Object atom) throws Fail {
     int len = met(bloq, atom),
         big;
 
@@ -80,7 +81,7 @@ public final class HoonMath {
       big = Math.addExact(count, len);
     }
     catch (ArithmeticException e) {
-      throw new FailException("lsh count overflow");
+      throw new Fail("slaq count doesn't fit in int");
     }
     
     int[] sal = Atom.slaq(bloq, big);
@@ -131,9 +132,9 @@ public final class HoonMath {
     return add(Atom.words(a), Atom.words(b));
   }
 
-  public static long dec(long atom) throws FailException {
+  public static long dec(long atom) throws Fail {
     if ( atom == 0 ) {
-      throw new FailException("decrement underflow");
+      throw new Fail("decrement underflow");
     }
     else {
       return atom - 1;
@@ -154,7 +155,7 @@ public final class HoonMath {
     return Atom.malt(result);
   }
 
-  public static Object dec(Object atom) throws FailException {
+  public static Object dec(Object atom) throws Fail {
     if ( atom instanceof Long ) {
       return dec((long) atom);
     }
@@ -164,37 +165,38 @@ public final class HoonMath {
   }
 
 
-  public static Object subtractWords(int[] a, int[] b) throws FailException {
+  public static Object subtractWords(int[] a, int[] b) throws Fail {
     MPNSquare s = new MPNSquare(a, b);
     int[] dst = new int[s.len];
     int bor = MPN.sub_n(dst, s.x, s.y, s.len);
     if ( bor != 0 ) {
       CompilerDirectives.transferToInterpreter();
-      throw new FailException("subtract underflow");
+      throw new Fail("subtract underflow");
     }
     return Atom.malt(dst);
   }
 
-  public static long sub(long a, long b) throws FailException {
+  public static long sub(long a, long b) throws Fail {
     if ( -1 == Long.compareUnsigned(a, b) ) {
-      throw new FailException("subtract underflow");
+      throw new Fail("subtract underflow");
     }
     else {
       return a - b;
     }
   }
 
-  public static Object sub(BigAtom a, BigAtom b) throws FailException {
+  public static Object sub(BigAtom a, BigAtom b) throws Fail {
     return subtractWords(a.words, b.words);
   }
   
-  public static Object sub(Object a, Object b) throws FailException {
+  public static Object sub(Object a, Object b) throws Fail {
     return ( a instanceof Long && b instanceof Long )
       ? sub((long) a, (long) b)
       : subtractWords(Atom.words(a), Atom.words(b));
   }
 
-  public static Object peg(Object axis, Object to) {
+  // fails when the atoms get too big
+  public static Object peg(Object axis, Object to) throws Fail {
     if ( (to instanceof Long) && (1L == (long) to) ) {
       return axis;
     }
@@ -202,16 +204,11 @@ public final class HoonMath {
       int c = met(to),
           d = c - 1;
 
-      try {
-        Object e = lsh((byte) 0, d, 1L),
-               f = sub(to, e),
-               g = lsh((byte) 0, d, axis);
-        
-        return add(f, g);
-      }
-      catch (FailException fe) {
-        throw new RuntimeException("impossible peg sub underflow");
-      }
+      Object e = lsh((byte) 0, d, 1L),
+             f = sub(to, e),
+             g = lsh((byte) 0, d, axis);
+      
+      return add(f, g);
     }
   }
 }

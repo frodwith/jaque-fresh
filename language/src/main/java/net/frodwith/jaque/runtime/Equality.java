@@ -200,6 +200,9 @@ public final class Equality {
     else if ( (a instanceof BigAtom) && (b instanceof BigAtom) ) {
       return equals((BigAtom) a, (BigAtom) b);
     }
+    else if ( (a instanceof Long) && (b instanceof Long) ) {
+      return a.equals(b);
+    }
     else {
       return false;
     }
