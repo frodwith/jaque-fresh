@@ -32,6 +32,10 @@ public final class MappedNounPrinter {
   @TruffleBoundary
   private int print(Object noun, Object axis, int pos, boolean tail) throws IOException, Fail {
     int begin = pos;
+
+    // for cells in tail position, position includes parent's closing ]
+    boolean includeParentBracket = false;
+
     if ( noun instanceof Cell ) {
       Cell c = (Cell) noun;
       if ( !tail ) {
@@ -39,8 +43,13 @@ public final class MappedNounPrinter {
         ++pos;
       }
       pos = print(c.head, HoonMath.peg(axis, 2L), pos, false);
+      out.write(' '); ++pos;
       pos = print(c.tail, HoonMath.peg(axis, 3L), pos, true);
-      if ( !tail ) {
+
+      if ( tail ) {
+        includeParentBracket = true;
+      }
+      else {
         out.write(']');
         ++pos;
       }
@@ -48,7 +57,9 @@ public final class MappedNounPrinter {
     else {
       pos += SimpleAtomPrinter.print(out, noun);
     }
-    axisMap.put(axis, new IndexLength(begin, pos - begin));
+
+    axisMap.put(axis, new IndexLength(begin,
+          (includeParentBracket ? pos+1 : pos) - begin));
     return pos;
   }
 }

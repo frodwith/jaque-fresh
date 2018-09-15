@@ -40,10 +40,6 @@ public final class SourceMappedNoun {
     return sourceSection.getSource().createSection(il.index, il.length);
   }
 
-  public Object getNoun() {
-    return noun;
-  }
-
   public static SourceMappedNoun fromCell(Cell cell) throws Fail {
     StringWriter out = new StringWriter();
     Map<Object,IndexLength> axisMap;
@@ -56,7 +52,7 @@ public final class SourceMappedNoun {
     String text = out.toString();
     Source source = Source.newBuilder(text)
       .language("nock")
-      .name("(generated)")
+      .name(Integer.toString(cell.hashCode(), 32))
       .internal()
       .build();
     SourceSection whole = source.createSection(0, text.length());

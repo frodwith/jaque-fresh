@@ -41,9 +41,15 @@ public final class SourceMappedNounTest {
     assertEquals(1042L, r.noun);
     assertEquals("1.042", r.lookupAxis(1L).getCharacters());
   }
+
+  @Test
+  public void testBig() throws Fail {
+    Object a = new BigAtom(new int[] { 0xdeadbeef, 0xbeefdead, 0xfeedbeef });
+    assertEquals(a, parse("big", "78.896.609.586.032.353.644.659.982.063").noun);
+  }
   
   @Test
-  public void testCell() throws Fail {
+  public void testWeirdString() throws Fail {
     SourceMappedNoun r = parse("cell", "  [ 40 [0   42]   1.042 ] ");
     assertEquals("deep", r.noun,
         new Cell(40L, new Cell(new Cell(0L, 42L), 1042L)));
@@ -56,6 +62,20 @@ public final class SourceMappedNounTest {
     assertEquals(".", "[ 40 [0   42]   1.042 ]",
       r.lookupAxis(1L).getCharacters());
   }
+
+  @Test
+  public void testFromCell() throws Fail {
+    SourceMappedNoun r = SourceMappedNoun.fromCell(
+      new Cell(40L, new Cell(new Cell(0L, 42L), 1042L)));
+    assertEquals("-", "40", r.lookupAxis(2L).getCharacters());
+    assertEquals("+", "[0 42] 1.042]", r.lookupAxis(3L).getCharacters());
+    assertEquals("+<", "[0 42]", r.lookupAxis(6L).getCharacters());
+    assertEquals("+<-", "0", r.lookupAxis(12L).getCharacters());
+    assertEquals("+<+", "42", r.lookupAxis(13L).getCharacters());
+    assertEquals("+>", "1.042", r.lookupAxis(7L).getCharacters());
+    assertEquals(".", "[40 [0 42] 1.042]",
+      r.lookupAxis(1L).getCharacters());
+  }
 }
 
 /*
@@ -63,12 +83,6 @@ public class SimpleParserTest {
   @Test
   public void testSmall() {
     assertEquals(42L, parse("42").noun);
-  }
-  
-  @Test
-  public void testBig() {
-    Object a = new BigAtom(new int[] { 0xdeadbeef, 0xbeefdead, 0xfeedbeef });
-    assertEquals(a, parse("78.896.609.586.032.353.644.659.982.063").toNoun());
   }
 
   @Test
