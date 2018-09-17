@@ -21,15 +21,22 @@ public class BasicNockTest {
   @Test
   public void testLiteralAtom() {
     Value  callable = context.eval("nock", "[1 42]");
-    Number product  = callable.execute(0).as(Number.class);
-    assertEquals(42, product);
+    Number product  = callable.execute().as(Number.class);
+    assertEquals(42L, product);
   }
 
   @Test
   public void testLiteralCell() {
     Value callable = context.eval("nock", "[1 0 42]");
-    Cell  product  = callable.execute(0).as(Cell.class);
-    assertEquals(new Cell(0L, 42L), product);
+    Value product  = callable.execute();
+    assertEquals(0L, product.getMember("head").as(Number.class));
+    assertEquals(42L, product.getMember("tail").as(Number.class));
+  }
+
+  @Test
+  public void testFragment() {
+    Value sam = context.eval("nock", "[0 6]");
+    assertEquals(42L, sam.execute(new Cell(0L, new Cell(42L, 0L))));
   }
 
   @After
