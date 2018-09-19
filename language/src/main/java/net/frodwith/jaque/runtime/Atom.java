@@ -127,4 +127,33 @@ public final class Atom {
       }
     }
   }
+
+  public static boolean getNthBit(long atom, int n) {
+    if ( n >= (Long.SIZE - 1) ) {
+      return false;
+    }
+    else {
+      return ((atom & (1L << n)) != 0);
+    }
+  }
+  
+  public static boolean getNthBit(Object atom, int n) {
+    if ( atom instanceof Long ) {
+      return getNthBit((long) atom, n);
+    }
+    else {
+      return getNthBit((BigAtom) atom, n);
+    }
+  }
+
+  public static boolean getNthBit(BigAtom atom, int n) {
+    int pix = n >> 5;
+    
+    if ( pix >= atom.words.length ) {
+      return false;
+    }
+    else {
+      return (1 & (atom.words[pix] >>> (n & 31))) != 0;
+    }
+  }
 }

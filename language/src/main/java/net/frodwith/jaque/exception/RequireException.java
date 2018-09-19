@@ -14,6 +14,6 @@ public abstract class RequireException extends Fail {
   }
 
   private static String buildMessage(String kind, Object value) {
-    return kind + " required, got " + value.getClass().toString();
+    return kind + " required";
   }
 }

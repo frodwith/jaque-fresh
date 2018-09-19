@@ -47,6 +47,7 @@ public final class NockRootNode extends RootNode {
 
   @Override
   public Object execute(VirtualFrame frame) {
+    NockLanguage.setSubject(frame, frame.getArguments()[0]);
     return bodyNode.executeGeneric(frame);
   }
 }
