@@ -1,9 +1,11 @@
 package net.frodwith.jaque.nodes.call;
 
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.dsl.ReportPolymorphism;
 import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.TypeSystemReference;
 import com.oracle.truffle.api.dsl.NodeField;
@@ -23,11 +25,26 @@ import net.frodwith.jaque.nodes.NockExpressionNode;
 @NodeChild(value="cellNode", type=NockExpressionNode.class)
 @NodeField(name="contextReference", type=ContextReference.class)
 public abstract class NockFunctionLookupNode extends Node {
+  public static final int INLINE_CACHE_SIZE = 2;
+
   public abstract NockFunction executeLookup(VirtualFrame frame);
   protected abstract ContextReference<NockContext> getContextReference();
 
+  @Specialization(limit = "INLINE_CACHE_SIZE",
+                  guards = "cachedFormula == formula")
+  protected NockFunction doCached(Cell formula,
+    @Cached("formula") Cell cachedFormula,
+    @Cached("lookup(formula)") NockFunction cachedFunction) {
+    return cachedFunction;
+  }
+
   @Specialization
-  protected NockFunction doCell(Cell formula) {
+  protected NockFunction doUncached(Cell formula) {
+    return lookup(formula);
+  }
+
+  @TruffleBoundary
+  protected NockFunction lookup(Cell formula) {
     try {
       return getContextReference().get().lookupFunction(formula);
     }

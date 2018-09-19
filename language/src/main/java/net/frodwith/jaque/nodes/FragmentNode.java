@@ -16,18 +16,18 @@ public final class FragmentNode extends NockExpressionNode {
   @Children private final FragmentPartNode[] parts;
 
   private static abstract class FragmentPartNode extends Node {
-    public abstract Object executePart(VirtualFrame frame, Object o) throws CellRequiredException;
+    public abstract Object executePart(Cell cell);
   }
 
   private static final class HeadNode extends FragmentPartNode {
-    public Object executePart(VirtualFrame frame, Object o) throws CellRequiredException {
-      return Cell.require(o).head;
+    public Object executePart(Cell cell) {
+      return cell.head;
     }
   }
 
   private static final class TailNode extends FragmentPartNode {
-    public Object executePart(VirtualFrame frame, Object o) throws CellRequiredException {
-      return Cell.require(o).tail;
+    public Object executePart(Cell cell) {
+      return cell.tail;
     }
   }
 
@@ -41,7 +41,7 @@ public final class FragmentNode extends NockExpressionNode {
 
     try {
       for ( FragmentPartNode node : parts ) {
-        o = node.executePart(frame, o);
+        o = node.executePart(Cell.require(o));
       }
     }
     catch ( CellRequiredException e ) {

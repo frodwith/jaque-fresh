@@ -5,6 +5,7 @@ import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.IndirectCallNode;
 
 import com.oracle.truffle.api.profiles.BranchProfile;
+import com.oracle.truffle.api.profiles.ConditionProfile;
 
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.ReportPolymorphism;
@@ -24,8 +25,8 @@ public abstract class NockFunctionDispatchNode extends Node {
   public static final int INLINE_CACHE_SIZE = 2;
 
   public abstract Object executeFunction(Object function, Object subject);
-  public final BranchProfile loopProfile = BranchProfile.create();
-  public final BranchProfile tailProfile = BranchProfile.create();
+  public final BranchProfile controlFlow = BranchProfile.create();
+  public final ConditionProfile sameTarget = ConditionProfile.createBinaryProfile();
 
   @Specialization(limit = "INLINE_CACHE_SIZE",
                   guards = "function == cachedFunction")
@@ -37,12 +38,9 @@ public abstract class NockFunctionDispatchNode extends Node {
         return callNode.call(new Object[] { subject });
       }
       catch ( NockControlFlowException e ) {
+        controlFlow.enter();
         subject = e.subject;
-        if ( e.function == function ) {
-          loopProfile.enter();
-        }
-        else {
-          tailProfile.enter();
+        if ( sameTarget.profile(e.function != function) ) {
           return executeFunction(e.function, subject);
         }
       }
