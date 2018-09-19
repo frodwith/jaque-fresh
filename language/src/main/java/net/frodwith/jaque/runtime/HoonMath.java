@@ -10,6 +10,8 @@ import net.frodwith.jaque.data.BigAtom;
 import net.frodwith.jaque.exception.Fail;
 
 public final class HoonMath {
+  public static final BigAtom MINIMUM_BIGATOM = new BigAtom(new int[] {0, 0, 1});
+
   public static int met(byte bloq, Object atom) {
     int gal, daz;
 
@@ -103,6 +105,45 @@ public final class HoonMath {
 
       return Atom.malt(sal);
     }
+  }
+
+  private static int[] incrementInPlace(int[] vol) {
+    for ( int i = 0; i < vol.length; i++ ) {
+      if ( 0 != ++vol[i] ) {
+        return vol;
+      }
+    }
+    int[] bigger = new int[vol.length + 1];
+    bigger[bigger.length] = 1;
+    return bigger;
+  }
+
+  public static long unsignedIncrementExact(long atom) throws ArithmeticException {
+    if ( 0L == ++atom ) {
+      throw new ArithmeticException();
+    }
+    return atom;
+  }
+  
+  public static Object increment(long atom) {
+    try {
+      return unsignedIncrementExact((long) atom);
+    } 
+    catch (ArithmeticException e) {
+      return MINIMUM_BIGATOM;
+    }
+  }
+
+  public static BigAtom increment(BigAtom atom) {
+    final int[] words = Arrays.copyOf(atom.words, atom.words.length);
+    incrementInPlace(words);
+    return new BigAtom(words);
+  }
+  
+  public static Object increment(Object atom) {
+    return ( atom instanceof Long )
+      ? increment((long) atom)
+      : increment((BigAtom) atom);
   }
 
   public static Object addWords(int[] a, int[] b) {

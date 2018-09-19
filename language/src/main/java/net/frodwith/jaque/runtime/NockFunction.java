@@ -19,19 +19,8 @@ import net.frodwith.jaque.exception.RequireException;
 import net.frodwith.jaque.exception.FormulaRequiredException;
 import net.frodwith.jaque.exception.Fail;
 
-import net.frodwith.jaque.nodes.BailNode;
-import net.frodwith.jaque.nodes.IdentityNode;
-import net.frodwith.jaque.nodes.NockExpressionNode;
-import net.frodwith.jaque.nodes.FragmentNode;
-import net.frodwith.jaque.nodes.LiteralCellNode;
-import net.frodwith.jaque.nodes.LiteralBigAtomNode;
-import net.frodwith.jaque.nodes.LiteralLongNode;
-import net.frodwith.jaque.nodes.NockRootNode;
-
-import net.frodwith.jaque.nodes.call.NockFunctionLookupNode;
-import net.frodwith.jaque.nodes.call.NockFunctionLookupNodeGen;
-import net.frodwith.jaque.nodes.call.HeadInvokeNode;
-import net.frodwith.jaque.nodes.call.TailInvokeNode;
+import net.frodwith.jaque.nodes.*;
+import net.frodwith.jaque.nodes.call.*;
 
 // A NockFunction represents the mathematical idea of a function picked out by
 // a nock formula i.e. it represents the partial application nock(_,formula).
@@ -77,13 +66,20 @@ public final class NockFunction implements TruffleObject {
     return NockFunctionMessageResolutionForeign.ACCESS;
   }
 
-  /*
-  private static ConsNode parseCons(Object head, Object tail) throws FormulaRequiredException {
-    return ConsNodeGen.create(parseExpr(head, false), parseExpr(tail, false));
-  }
-  */
+  private static NockExpressionNode
+    parseCons(NockLanguage language, Object head, Object tail, Object axis)
+      throws Fail {
+    NockExpressionNode headNode =
+      parseExpr(language, head, HoonMath.peg(axis, 2L), false);
+    NockExpressionNode tailNode =
+      parseExpr(language, tail, HoonMath.peg(axis, 3L), false);
 
-  private static NockExpressionNode parseFrag(Object axis) throws AtomRequiredException {
+    return ConsNodeGen.create(headNode, tailNode);
+  }
+
+  private static NockExpressionNode 
+    parseFrag(Object axis)
+      throws AtomRequiredException {
     Atom.require(axis);
     if ( axis instanceof Long ) {
       long l = (long) axis;
@@ -99,7 +95,8 @@ public final class NockFunction implements TruffleObject {
     return FragmentNode.fromAxis(new Axis(axis));
   }
 
-  private static NockExpressionNode parseQuot(Object arg) {
+  private static NockExpressionNode 
+    parseQuot(Object arg) {
     return ( arg instanceof Cell )
       ? new LiteralCellNode((Cell) arg)
       : ( arg instanceof BigAtom )
@@ -107,7 +104,9 @@ public final class NockFunction implements TruffleObject {
       : new LiteralLongNode((long) arg);
   }
 
-  private static NockExpressionNode parseEval(NockLanguage language, Object arg, Object axis, boolean tail) throws Fail {
+  private static NockExpressionNode
+    parseEval(NockLanguage language, Object arg, Object axis, boolean tail)
+      throws Fail {
     Cell args = Cell.require(arg);
 
     NockExpressionNode subject    = parseExpr(language, args.head, HoonMath.peg(axis, 6L), false); 
@@ -119,11 +118,13 @@ public final class NockFunction implements TruffleObject {
       : new HeadInvokeNode(lookup, subject);
   }
 
-  /*
-  private static DeepNode parseDeep(Object arg) throws FormulaRequiredException {
-    return DeepNode.create(parseExpr(arg, false));
+  private static NockExpressionNode
+    parseUnary(NockLanguage language, Object arg, Object axis)
+      throws Fail {
+    return parseExpr(language, arg, HoonMath.peg(axis, 3L), false);
   }
 
+  /*
   private static BumpNode parseBump(Object arg) throws FormulaRequiredException {
     return BumpNode.create(parseExpr(arg, false));
   }
@@ -240,8 +241,7 @@ public final class NockFunction implements TruffleObject {
       NockExpressionNode node;
 
       if ( op instanceof Cell ) {
-        // do nothing yet
-        node = null;
+        node = parseCons(language, op, arg, axis);
       }
       else {
         int code = Atom.requireInt(op);
@@ -255,13 +255,16 @@ public final class NockFunction implements TruffleObject {
           case 2:
             node = parseEval(language, arg, axis, tail);
             break;
-            /*
           case 3:
-            return parseDeep(arg);
+            node = DeepNodeGen.create(parseUnary(language, arg, axis));
+            break;
           case 4:
-            return parseBump(arg);
+            node = BumpNodeGen.create(parseUnary(language, arg, axis));
+            break;
           case 5:
-            return parseSame(arg);
+            node = SameNodeGen.create(parseUnary(language, arg, axis));
+            break;
+            /*
           case 6:
             return parseCond(arg);
           case 7:

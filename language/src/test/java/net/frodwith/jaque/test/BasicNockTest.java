@@ -4,11 +4,14 @@ import org.junit.Test;
 import org.junit.After;
 import org.junit.Before;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertArrayEquals;
 
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Value;
 
 import net.frodwith.jaque.data.Cell;
+import net.frodwith.jaque.data.BigAtom;
+import net.frodwith.jaque.parser.SimpleAtomParser;
 
 public class BasicNockTest {
   private Context context;
@@ -16,6 +19,14 @@ public class BasicNockTest {
   @Before
   public void initEngine() {
     context = Context.create();
+  }
+
+  @Test
+  public void testAutocons() {
+    Value flipper = context.eval("nock", "[[0 3] 0 2]");
+    Value product = flipper.execute(new Cell(42L, 0L));
+    assertEquals(0L, product.getMember("head").as(Number.class));
+    assertEquals(42L, product.getMember("tail").as(Number.class));
   }
 
   @Test
@@ -52,7 +63,40 @@ public class BasicNockTest {
     Cell subFormula = new Cell(0L, 2L);
     Cell subSubject = new Cell(42L, 0L);
     Cell subject    = new Cell(subFormula, subSubject);
-    assertEquals("simple 2", 42L, simple.execute(subject).as(Number.class));
+    assertEquals(42L, simple.execute(subject).as(Number.class));
+  }
+
+  @Test
+  public void testDeep() {
+    Value test = context.eval("nock", "[3 0 1]");
+    assertEquals("@", 1L, test.execute(3L).as(Number.class));
+    assertEquals("^", 0L, test.execute(new Cell(0L, 0L)).as(Number.class));
+  }
+
+  @Test
+  public void testBump() {
+    Value bump = context.eval("nock", "[4 0 1]");
+    assertEquals(1L, bump.execute(0L).as(Number.class));
+    assertEquals(42L, bump.execute(41L).as(Number.class));
+
+    Object big = SimpleAtomParser.parse("1.000.000.000.000.000.000.000.000");
+    BigAtom bigger = (BigAtom) SimpleAtomParser.parse("1.000.000.000.000.000.000.000.001");
+    int[] got = bump.execute(big).as(int[].class);
+    assertArrayEquals("huge", bigger.words, got);
+
+    got = bump.execute(0xFFFFFFFFFFFFFFFFL).as(int[].class);
+    assertArrayEquals("max", new int[] {0,0,1}, got);
+  }
+
+  @Test
+  public void testSame() {
+    Value same = context.eval("nock", "[5 0 1]");
+    assertEquals(0L, same.execute(new Cell(42L, 42L)).as(Number.class));
+    assertEquals(1L, same.execute(new Cell(42L, 43L)).as(Number.class));
+    
+    assertEquals(0L, context.eval("nock", "[5 [1 42] 1 42]")
+                       .execute()
+                       .as(Number.class));
   }
 
   @After
