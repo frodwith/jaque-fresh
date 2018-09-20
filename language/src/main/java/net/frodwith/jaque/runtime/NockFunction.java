@@ -11,6 +11,7 @@ import com.oracle.truffle.api.interop.ForeignAccess;
 
 import net.frodwith.jaque.NockLanguage;
 import net.frodwith.jaque.data.Cell;
+import net.frodwith.jaque.data.Trel;
 import net.frodwith.jaque.data.BigAtom;
 import net.frodwith.jaque.data.SourceMappedNoun;
 
@@ -21,6 +22,8 @@ import net.frodwith.jaque.exception.Fail;
 
 import net.frodwith.jaque.nodes.*;
 import net.frodwith.jaque.nodes.call.*;
+
+import static net.frodwith.jaque.runtime.HoonMath.peg;
 
 // A NockFunction represents the mathematical idea of a function picked out by
 // a nock formula i.e. it represents the partial application nock(_,formula).
@@ -70,9 +73,9 @@ public final class NockFunction implements TruffleObject {
     parseCons(NockLanguage language, Object head, Object tail, Object axis)
       throws Fail {
     NockExpressionNode headNode =
-      parseExpr(language, head, HoonMath.peg(axis, 2L), false);
+      parseExpr(language, head, peg(axis, 2L), false);
     NockExpressionNode tailNode =
-      parseExpr(language, tail, HoonMath.peg(axis, 3L), false);
+      parseExpr(language, tail, peg(axis, 3L), false);
 
     return ConsNodeGen.create(headNode, tailNode);
   }
@@ -109,8 +112,8 @@ public final class NockFunction implements TruffleObject {
       throws Fail {
     Cell args = Cell.require(arg);
 
-    NockExpressionNode subject    = parseExpr(language, args.head, HoonMath.peg(axis, 6L), false); 
-    NockExpressionNode formula    = parseExpr(language, args.tail, HoonMath.peg(axis, 7L), false); 
+    NockExpressionNode subject    = parseExpr(language, args.head, peg(axis, 6L), false); 
+    NockExpressionNode formula    = parseExpr(language, args.tail, peg(axis, 7L), false); 
     NockFunctionLookupNode lookup = NockFunctionLookupNodeGen.create(formula, language.getContextReference());
 
     return tail
@@ -121,31 +124,35 @@ public final class NockFunction implements TruffleObject {
   private static NockExpressionNode
     parseUnary(NockLanguage language, Object arg, Object axis)
       throws Fail {
-    return parseExpr(language, arg, HoonMath.peg(axis, 3L), false);
+    return parseExpr(language, arg, peg(axis, 3L), false);
+  }
+
+  private static NockExpressionNode 
+    parseIf(NockLanguage language, Object arg, Object axis, boolean tail)
+      throws Fail {
+    Trel args = Trel.require(arg);
+    return new IfNode(parseExpr(language, args.p, peg(axis, 6L), false),
+                      parseExpr(language, args.q, peg(axis, 14L), tail),
+                      parseExpr(language, args.r, peg(axis, 15L), tail));
+  }
+
+  private static NockExpressionNode 
+    parseComp(NockLanguage language, Object arg, Object axis, boolean tail)
+      throws Fail {
+    Cell args = Cell.require(arg);
+    return new ComposeNode(parseExpr(language, args.head, peg(axis, 6L), false),
+                           parseExpr(language, args.tail, peg(axis, 7L), tail));
+  }
+
+  private static NockExpressionNode 
+    parsePush(NockLanguage language, Object arg, Object axis, boolean tail)
+      throws Fail {
+    Cell args = Cell.require(arg);
+    return new PushNode(parseExpr(language, args.head, peg(axis, 6L), false),
+                        parseExpr(language, args.tail, peg(axis, 7L), tail));
   }
 
   /*
-  private static BumpNode parseBump(Object arg) throws FormulaRequiredException {
-    return BumpNode.create(parseExpr(arg, false));
-  }
-
-  private static SameNode parseSame(Object arg) throws FormulaRequiredException {
-    return SameNode.create(parseExpr(arg, false));
-  }
-
-  private static IfNode parseCond(Object arg, boolean tail) throws ShapeException, FormulaRequiredException {
-    Trel args = Trel.require(arg);
-
-    return IfNode.create(parseExpr(args.p, false),
-                         parseExpr(args.q, tail),
-                         parseExpr(args.r, tail));
-  }
-
-  private static ComposeNode parseComp(Object arg, boolean tail) throws ShapeException, FormulaRequiredException {
-    Cell args = Cell.require(arg);
-    return ComposeNode.create(parseExpr(args.head, false), parseExpr(args.tail, tail));
-  }
-
   private static PushNode parsePush(Object arg, boolean tail) throws ShapeException, FormulaRequiredException {
     Cell args = Cell.require(arg);
     return PushNode.create(parseExpr(args.head, false), parseExpr(args.tail, tail));
@@ -264,13 +271,16 @@ public final class NockFunction implements TruffleObject {
           case 5:
             node = SameNodeGen.create(parseUnary(language, arg, axis));
             break;
-            /*
           case 6:
-            return parseCond(arg);
+            node = parseIf(language, arg, axis, tail);
+            break;
           case 7:
-            return parseComp(arg);
+            node = parseComp(language, arg, axis, tail);
+            break;
           case 8:
-            return parsePush(arg);
+            node = parsePush(language, arg, axis, tail);
+            break;
+            /*
           case 9:
             return parsePull(arg);
           case 10:

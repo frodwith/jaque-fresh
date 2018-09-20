@@ -3,15 +3,19 @@ package net.frodwith.jaque.test;
 import org.junit.Test;
 import org.junit.After;
 import org.junit.Before;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertNotNull;
 
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Value;
+import org.graalvm.polyglot.PolyglotException;
 
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.BigAtom;
 import net.frodwith.jaque.parser.SimpleAtomParser;
+import net.frodwith.jaque.exception.Bail;
 
 public class BasicNockTest {
   private Context context;
@@ -97,6 +101,48 @@ public class BasicNockTest {
     assertEquals(0L, context.eval("nock", "[5 [1 42] 1 42]")
                        .execute()
                        .as(Number.class));
+  }
+
+  @Test
+  public void testIf() {
+    Value test = context.eval("nock", "[6 [0 1] [1 40] 1 2]");
+    assertEquals(40L, test.execute(0L).as(Number.class));
+    assertEquals(2L, test.execute(1L).as(Number.class));
+    PolyglotException two = null, cell = null;
+
+    try {
+      test.execute(2L);
+    }
+    catch ( PolyglotException e ) {
+      two = e;
+    }
+    assertNotNull(two);
+    assertTrue(two.isGuestException());
+
+    try {
+      test.execute(new Cell(0L, 0L));
+    }
+    catch ( PolyglotException e ) {
+      cell = e;
+    }
+    assertNotNull(cell);
+    assertTrue(cell.isGuestException());
+  }
+
+  @Test
+  public void testComp() {
+    Value comp = context.eval("nock", "[7 [0 2] [0 3] 0 2]");
+    Value r = comp.execute(new Cell(new Cell(1L, 2L), 3L));
+    assertEquals(2L, r.getMember("head").as(Number.class));
+    assertEquals(1L, r.getMember("tail").as(Number.class));
+  }
+
+  @Test
+  public void testPush() {
+    Value push = context.eval("nock", "[8 [1 42] [0 3] 0 2]");
+    Value r = push.execute();
+    assertEquals(0L, r.getMember("head").as(Number.class));
+    assertEquals(42L, r.getMember("tail").as(Number.class));
   }
 
   @After
