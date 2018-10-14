@@ -12,7 +12,7 @@ import net.frodwith.jaque.runtime.Axis;
 import net.frodwith.jaque.exception.CellRequiredException;
 import net.frodwith.jaque.exception.Bail;
 
-public final class FragmentNode extends NockExpressionNode {
+public final class FragmentNode extends Node {
   @Children private final FragmentPartNode[] parts;
 
   private static abstract class FragmentPartNode extends Node {
@@ -36,9 +36,7 @@ public final class FragmentNode extends NockExpressionNode {
   }
 
   @ExplodeLoop
-  public Object executeGeneric(VirtualFrame frame) {
-    Object o = NockLanguage.getSubject(frame);
-
+  public Object executeFragment(Object o) {
     try {
       for ( FragmentPartNode node : parts ) {
         o = node.executePart(Cell.require(o));

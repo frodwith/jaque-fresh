@@ -53,9 +53,7 @@ public final class Equality {
           if ( b instanceof Cell ) {
             Cell ca = (Cell) a, 
                  cb = (Cell) b;
-            if ( (0 != ca.mug) &&
-                 (0 != cb.mug) &&
-                 (ca.mug != cb.mug) ) {
+            if ( Cell.unequalMugs(ca, cb) ) {
               return false;
             }
             else {
@@ -117,9 +115,13 @@ public final class Equality {
     @Override
     public boolean execute(ArrayDeque<ComparisonStep> stack) {
       a.tail = b.tail = pick(a.tail, b.tail);
-      a.mug = b.mug = ( 0 != a.mug ) ? a.mug : b.mug;
+      a.meta = b.meta = unifyMeta(a.meta, b.meta);
       return true;
     }
+  }
+
+  private static Object unifyMeta(Object a, Object b) {
+    // BLAH, fixme
   }
 
   private static Object pick(Object a, Object b) {

@@ -4,12 +4,40 @@ import java.util.Arrays;
 
 import com.oracle.truffle.api.CompilerDirectives;
 
+import gnu.math.MPN;
+
 import net.frodwith.jaque.exception.AtomRequiredException;
 import net.frodwith.jaque.exception.IntRequiredException;
 
 import net.frodwith.jaque.data.BigAtom;
 
 public final class Atom {
+
+	public static int compare(BigAtom a, BigAtom b) {
+    return MPN.cmp(a.words, a.words.length, b.words, b.words.length);
+  }
+  
+  public static int compare(long a, long b) {
+    return Long.compareUnsigned(a, b);
+  }
+  
+  // -1, 0, 1 for less than, equal, or greater than respectively
+  public static int compare(Object a, Object b) {
+    if ( a instanceof Long ) {
+      if ( b instanceof Long ) {
+        return compare((long) a, (long) b);
+      }
+      else {
+        return -1;
+      }
+    }
+    else if ( b instanceof Long ) {
+      return 1;
+    }
+    else {
+      return compare((BigAtom) a, (BigAtom) b);
+    }
+  }
 
   public static Object require(Object o) throws AtomRequiredException {
     if ( o instanceof Long || o instanceof BigAtom ) {

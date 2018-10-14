@@ -81,7 +81,7 @@ public final class NockFunction implements TruffleObject {
   }
 
   private static NockExpressionNode 
-    parseFrag(Object axis)
+    parseSlot(Object axis)
       throws AtomRequiredException {
     Atom.require(axis);
     if ( axis instanceof Long ) {
@@ -95,7 +95,7 @@ public final class NockFunction implements TruffleObject {
         }
       }
     }
-    return FragmentNode.fromAxis(new Axis(axis));
+    return new SlotNode(axis);
   }
 
   private static NockExpressionNode 
@@ -254,7 +254,7 @@ public final class NockFunction implements TruffleObject {
         int code = Atom.requireInt(op);
         switch ( code ) {
           case 0:
-            node = parseFrag(arg);
+            node = parseSlot(arg);
             break;
           case 1:
             node = parseQuot(arg);

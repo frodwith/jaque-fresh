@@ -20,11 +20,12 @@ import net.frodwith.jaque.exception.CellRequiredException;
 public final class Cell implements TruffleObject, Serializable {
   // head and tail are not final because we set them during unifying equals
   public Object head, tail;
-  public int mug;
+  private Object meta;
   
   public Cell(Object head, Object tail) {
     this.head = head;
     this.tail = tail;
+    this.meta = null;
   }
 
   public static Cell require(Object o) throws CellRequiredException {
@@ -39,7 +40,40 @@ public final class Cell implements TruffleObject, Serializable {
 
   @Override
   public int hashCode() {
-    return Mug.get(this);
+    int mug;
+    if ( null == meta ) {
+      meta = mug = Mug.calculate(this);
+    }
+    else if ( meta instanceof Integer ) {
+      mug = (int) meta;
+    }
+    else {
+      mug = ((CellMeta) meta).mug();
+    }
+    return mug;
+  }
+
+  public int cachedMug() {
+    if ( null == meta ) {
+      return 0;
+    }
+    else if ( meta instanceof Integer ) {
+      return (int) meta;
+    }
+    else {
+      return ((CellMeta)meta).cachedMug();
+    }
+  }
+
+  public static boolean unequalMugs(Cell a, Cell b) {
+    int am, bm;
+    if ( 0 == (am = a.cachedMug()) ) {
+      return false;
+    }
+    if ( 0 == (bm = b.cachedMug()) ) {
+      return false;
+    }
+    return am == bm;
   }
 
   @Override

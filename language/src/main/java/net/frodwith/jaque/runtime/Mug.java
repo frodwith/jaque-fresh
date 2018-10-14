@@ -9,10 +9,7 @@ public final class Mug {
   private static final int FNV_START_WORDS = 0x811c9dc5;
 
   public static int get(Cell c) {
-    if ( 0 == c.mug ) {
-      c.mug = both(get(c.head), get(c.tail));
-    }
-    return c.mug;
+    return c.hashCode();
   }
   
   public static int get(BigAtom a) {
@@ -73,6 +70,10 @@ public final class Mug {
       }
     }
     return off;
+  }
+  
+  public static int calculate(Cell c) {
+    return both(get(c.head), get(c.tail));
   }
 
   private static int both(int a, int b) {

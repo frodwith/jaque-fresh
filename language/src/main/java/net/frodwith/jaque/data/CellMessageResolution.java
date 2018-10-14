@@ -9,7 +9,7 @@ import com.oracle.truffle.api.interop.UnknownIdentifierException;
 import com.oracle.truffle.api.nodes.Node;
 
 @MessageResolution(receiverType = Cell.class)
-public class CellMessageResolution {
+public abstract class CellMessageResolution {
 
   @Resolve(message = "READ")
   public abstract static class CellReadNode extends Node {
