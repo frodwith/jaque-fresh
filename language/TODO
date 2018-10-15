@@ -1,0 +1,7 @@
+Cell meta objects
+Move NockFunction to data
+Exceptions
+  NockException -- thrown only from truffle nodes
+  Exit          -- checked, nock crash (like java Exception)
+  Fail          -- unchecked, representational exceptions 
+                              (Errors like out of memory, stack overflow)
