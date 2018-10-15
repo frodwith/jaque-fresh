@@ -46,7 +46,7 @@ public final class Axis implements Iterable<Axis.Fragment> {
       case 1:
         int cz = Long.numberOfLeadingZeros(child),
             pz = Long.numberOfLeadingZeros(parent),
-            shift = cz - pz;
+            shift = pz - cz;
         return (child >>> shift) == parent;
       default:
         throw new AssertionError();

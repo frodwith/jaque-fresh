@@ -26,8 +26,8 @@ public class MugTest {
   @Test
   public void testCell() {
     Cell a = new Cell(42L, 0L);
-    assertEquals(0, a.mug);
+    assertEquals(0, a.cachedMug());
     assertEquals(0x6335a2a2, Mug.get(a));
-    assertNotEquals(0, a.mug);
+    assertNotEquals(0, a.cachedMug());
   }
 }

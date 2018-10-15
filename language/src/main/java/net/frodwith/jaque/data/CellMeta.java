@@ -8,7 +8,7 @@ import net.frodwith.jaque.runtime.Mug;
 
 public final class CellMeta {
   private int mug;
-  private final Cell cell;
+  private Cell cell;
   private final Dashboard dashboard;
 
   private NockBattery battery;
@@ -43,7 +43,36 @@ public final class CellMeta {
     return mug;
   }
 
+  public void setMug(int mug) {
+    this.mug = mug;
+  }
+
   public int cachedMug() {
     return mug;
+  }
+
+  public void unify(CellMeta other) {
+    other.cell = cell;
+
+    if ( 0 == mug ) {
+      mug = other.mug;
+    }
+    else if ( 0 == other.mug ) {
+      other.mug = mug;
+    }
+
+    if ( null == battery ) {
+      battery = other.battery;
+    }
+    else if ( null == other.battery ) {
+      other.battery = battery;
+    }
+
+    if ( null == object ) {
+      object = other.object;
+    }
+    else {
+      other.object = object;
+    }
   }
 }

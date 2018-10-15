@@ -38,19 +38,49 @@ public final class Cell implements TruffleObject, Serializable {
     }
   }
 
-  @Override
-  public int hashCode() {
-    int mug;
-    if ( null == meta ) {
+  public int mug() {
+    int mug = cachedMug();
+    if ( 0 == mug ) {
       meta = mug = Mug.calculate(this);
     }
+    return mug;
+  }
+
+  @Override
+  public int hashCode() {
+    return mug();
+  }
+
+  public void unifyMeta(Cell other) {
+    Object om = other.meta;
+    if ( null == meta ) {
+      if ( null != om ) {
+        meta = om;
+      }
+    }
+    else if ( null == om ) {
+      if ( null != meta ) {
+        other.meta = meta;
+      }
+    }
     else if ( meta instanceof Integer ) {
-      mug = (int) meta;
+      if ( !(om instanceof Integer) ) {
+        ((CellMeta)om).setMug((int) meta);
+        meta = om;
+      }
+    }
+    else if ( om instanceof Integer ) {
+      if ( !(meta instanceof Integer) ) {
+        ((CellMeta)meta).setMug((int) om);
+        other.meta = meta;
+      }
     }
     else {
-      mug = ((CellMeta) meta).mug();
+      CellMeta mine = (CellMeta) meta;
+      CellMeta theirs = (CellMeta) om;
+      mine.unify(theirs);
+      other.meta = mine;
     }
-    return mug;
   }
 
   public int cachedMug() {
@@ -65,6 +95,26 @@ public final class Cell implements TruffleObject, Serializable {
     }
   }
 
+  public void unifyHeads(Cell other) {
+    if ( head instanceof Cell ) {
+      ((Cell)head).unifyMeta((Cell)other.head);
+    }
+    else if ( head instanceof BigAtom ) {
+      ((BigAtom)other.head).words = ((BigAtom)head).words;
+    }
+    other.head = head;
+  }
+
+  public void unifyTails(Cell other) {
+    if ( tail instanceof Cell ) {
+      ((Cell)tail).unifyMeta((Cell)other.tail);
+    }
+    else if ( tail instanceof BigAtom ) {
+      ((BigAtom)other.tail).words = ((BigAtom)tail).words;
+    }
+    other.tail = tail;
+  }
+
   public static boolean unequalMugs(Cell a, Cell b) {
     int am, bm;
     if ( 0 == (am = a.cachedMug()) ) {
@@ -73,7 +123,7 @@ public final class Cell implements TruffleObject, Serializable {
     if ( 0 == (bm = b.cachedMug()) ) {
       return false;
     }
-    return am == bm;
+    return am != bm;
   }
 
   @Override

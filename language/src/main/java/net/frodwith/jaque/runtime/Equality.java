@@ -97,7 +97,7 @@ public final class Equality {
 
     @Override
     public boolean execute(ArrayDeque<ComparisonStep> stack) {
-      a.head = b.head = pick(a.head, b.head);
+      a.unifyHeads(b);
       stack.push(new ComparedTails(a, b));
       stack.push(new CompareNouns(a.tail, b.tail));
       return true;
@@ -114,25 +114,9 @@ public final class Equality {
 
     @Override
     public boolean execute(ArrayDeque<ComparisonStep> stack) {
-      a.tail = b.tail = pick(a.tail, b.tail);
-      a.meta = b.meta = unifyMeta(a.meta, b.meta);
+      a.unifyTails(b);
+      a.unifyMeta(b);
       return true;
-    }
-  }
-
-  private static Object unifyMeta(Object a, Object b) {
-    // BLAH, fixme
-  }
-
-  private static Object pick(Object a, Object b) {
-    if ( a instanceof Cell ) {
-      return (0 != Mug.get((Cell) a)) ? a : b;
-    }
-    else if ( a instanceof BigAtom ) {
-      return (0 != Mug.get((BigAtom) a)) ? a : b;
-    }
-    else {
-      return b;
     }
   }
 

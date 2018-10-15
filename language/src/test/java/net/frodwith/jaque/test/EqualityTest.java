@@ -40,12 +40,12 @@ public class EqualityTest {
     Cell a = new Cell(42L, new Cell(43L, 45L)),
          b = new Cell(42L, new Cell(43L, 45L));
 
-    a.hashCode();
+    a.mug();
     assertFalse("!=tail", a.tail == b.tail);
-    assertNotEquals("!=mug", a.mug, b.mug);
+    assertNotEquals("!=mug", a.cachedMug(), b.cachedMug());
     assertTrue(Equality.equals(a, b));
     assertTrue("=tail", a.tail == b.tail);
-    assertEquals("=mug", a.mug, b.mug);
+    assertEquals("=mug", a.cachedMug(), b.cachedMug());
   }
 
   @Test
