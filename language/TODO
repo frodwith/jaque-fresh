@@ -1,4 +1,3 @@
-Cell meta objects
 Move NockFunction to data
 Exceptions
   NockException -- thrown only from truffle nodes

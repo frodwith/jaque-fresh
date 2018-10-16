@@ -9,8 +9,7 @@ import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.interop.ArityException;
 import com.oracle.truffle.api.nodes.Node;
 
-import net.frodwith.jaque.nodes.call.NockFunctionDispatchNode;
-import net.frodwith.jaque.nodes.call.NockFunctionDispatchNodeGen;
+import net.frodwith.jaque.nodes.*;
 
 @MessageResolution(receiverType = NockFunction.class)
 public class NockFunctionMessageResolution {

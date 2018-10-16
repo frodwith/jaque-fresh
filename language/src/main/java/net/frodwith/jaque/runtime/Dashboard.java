@@ -31,10 +31,11 @@ public final class Dashboard {
 
   @TruffleBoundary
   public NockBattery getBattery(Cell battery) {
-    NockBattery meta = batteries.get(battery);
-    if ( null == meta ) {
-      meta = new NockBattery();
-      batteries.put(battery, meta);
+    NockBattery b = batteries.get(battery);
+    if ( null == b ) {
+      b = new NockBattery();
+      batteries.put(battery, b);
     }
-    return meta; }
+    return b;
+  }
 }

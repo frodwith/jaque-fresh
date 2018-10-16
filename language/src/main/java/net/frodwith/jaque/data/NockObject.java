@@ -16,45 +16,53 @@ import net.frodwith.jaque.exception.Fail;
 public final class NockObject {
   public final Cell cell;
   public final Assumption valid;
-  private final Map<Object,NockFunction> drivers;
-  private final Object axisToParent;
+  public final Location location;
+  public static final Fine NEVER = new Fine();
 
-  private NockObject(Cell cell,
+  public NockObject(Cell cell,
                      Assumption stable,
-                     Map<Object,NockFunction> drivers,
-                     Object axisToParent) {
+                     Location location) {
     this.cell = cell;
     this.valid = stable;
-    this.drivers = drivers;
-    this.axisToParent = axisToParent;
-  }
-
-  public NockObject(Cell cell, Assumption stable, Location location) {
-    this(cell, stable,
-        location == null ? null : location.drivers,
-        location == null ? null : location.axisToParent);
+    this.location = location;
   }
 
   @TruffleBoundary
   private NockFunction getDriver(Object axis) {
-    return drivers.get(axis);
+    return location.drivers.get(axis);
   }
 
   public NockFunction getArm(Object axis,
                              NockFunctionRegistry functions,
                              FragmentNode fragment) throws Fail {
     NockFunction f;
-    if ( (null == drivers) || (null == (f = getDriver(axis))) ) {
-      f = functions.lookup(Cell.require(fragment.executeFragment(cell)));
+    if ( null == location ||
+         null == location.drivers ||
+         null == (f = getDriver(axis)) ) {
+      f = Cell.require(fragment.executeFragment(cell))
+        .getMeta().getFunction(functions);
     }
     return f;
   }
 
   public boolean outsideParent(Object axis) {
-    return (null == axisToParent) || !Axis.subAxis(axis, axisToParent);
+    return (null == location)
+      || (null == location.axisToParent) 
+      || !Axis.subAxis(axis, location.axisToParent);
   }
 
   public NockObject like(Cell cell) {
-    return new NockObject(cell, valid, drivers, axisToParent);
+    return new NockObject(cell, valid, location);
+  }
+
+  public Fine createFine() {
+    return NEVER;
+  }
+
+  public static final class Fine {
+    public boolean check(Cell core) {
+      // XX todo
+      return false;
+    }
   }
 }

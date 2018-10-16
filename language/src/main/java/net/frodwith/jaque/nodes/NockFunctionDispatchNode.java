@@ -1,4 +1,4 @@
-package net.frodwith.jaque.nodes.call;
+package net.frodwith.jaque.nodes;
 
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.DirectCallNode;
@@ -14,7 +14,6 @@ import com.oracle.truffle.api.dsl.TypeSystemReference;
 
 import net.frodwith.jaque.runtime.NockFunction;
 import net.frodwith.jaque.exception.NockControlFlowException;
-import net.frodwith.jaque.nodes.NockTypes;
 
 // Note that this is not where we resolve cells to NockFunctions, but where
 // we dispatch functions that have already been resolved.

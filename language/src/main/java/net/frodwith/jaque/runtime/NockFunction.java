@@ -21,7 +21,6 @@ import net.frodwith.jaque.exception.FormulaRequiredException;
 import net.frodwith.jaque.exception.Fail;
 
 import net.frodwith.jaque.nodes.*;
-import net.frodwith.jaque.nodes.call.*;
 
 import static net.frodwith.jaque.runtime.HoonMath.peg;
 
@@ -112,13 +111,16 @@ public final class NockFunction implements TruffleObject {
       throws Fail {
     Cell args = Cell.require(arg);
 
-    NockExpressionNode subject    = parseExpr(language, args.head, peg(axis, 6L), false); 
-    NockExpressionNode formula    = parseExpr(language, args.tail, peg(axis, 7L), false); 
-    NockFunctionLookupNode lookup = NockFunctionLookupNodeGen.create(formula, language.getContextReference());
+    NockExpressionNode subject = 
+      parseExpr(language, args.head, peg(axis, 6L), false); 
+    NockExpressionNode formula =
+      parseExpr(language, args.tail, peg(axis, 7L), false); 
+    NockFunctionLookupNode lookup =
+      NockFunctionLookupNodeGen.create(formula, language.getContextReference());
 
     return tail
-      ? new TailInvokeNode(lookup, subject)
-      : new HeadInvokeNode(lookup, subject);
+      ? new TailEvalNode(lookup, subject)
+      : new HeadEvalNode(lookup, subject);
   }
 
   private static NockExpressionNode
@@ -150,6 +152,43 @@ public final class NockFunction implements TruffleObject {
     Cell args = Cell.require(arg);
     return new PushNode(parseExpr(language, args.head, peg(axis, 6L), false),
                         parseExpr(language, args.tail, peg(axis, 7L), tail));
+  }
+
+  private static NockExpressionNode
+    parsePull(NockLanguage language, Object arg, Object axis, boolean tail)
+      throws Fail {
+    Cell args = Cell.require(arg);
+    Object armAxis = Atom.require(args.head);
+    Object coreAxis = peg(axis, 7L);
+
+    NockExpressionNode coreNode =
+      parseExpr(language, args.tail, coreAxis, false);
+
+    if ( Axis.subAxis(armAxis, 2L) ) {
+      NockObjectLookupNode objLookup = NockObjectLookupNodeGen.create(coreNode,
+            language.getContextReference());
+
+      return tail
+        ? new TailInvokeNode(armAxis, objLookup, language.getContextReference())
+        : new HeadInvokeNode(armAxis, objLookup, language.getContextReference());
+    }
+    else {
+      NockExpressionNode subjectNode = new IdentityNode();
+      subjectNode.setAxisInFormula(coreAxis);
+
+      NockExpressionNode formulaNode = parseSlot(armAxis);
+      formulaNode.setAxisInFormula(peg(axis, 6L));
+
+      NockFunctionLookupNode fnLookup =
+        NockFunctionLookupNodeGen.create(formulaNode,
+          language.getContextReference());
+
+      NockExpressionNode evalNode = tail
+                                  ? new HeadEvalNode(fnLookup, subjectNode)
+                                  : new TailEvalNode(fnLookup, subjectNode);
+      evalNode.setAxisInFormula(axis);
+      return new ComposeNode(coreNode, evalNode);
+    }
   }
 
   /*
@@ -280,9 +319,10 @@ public final class NockFunction implements TruffleObject {
           case 8:
             node = parsePush(language, arg, axis, tail);
             break;
-            /*
           case 9:
-            return parsePull(arg);
+            node = parsePull(language, arg, axis, tail);
+            break;
+            /*
           case 10:
             return parseHint(arg);
           case 11:

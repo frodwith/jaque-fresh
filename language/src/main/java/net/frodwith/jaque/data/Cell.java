@@ -126,6 +126,22 @@ public final class Cell implements TruffleObject, Serializable {
     return am != bm;
   }
 
+  public CellMeta getMeta() {
+    CellMeta cm;
+    if ( null == meta ) {
+      cm = new CellMeta(this, 0);
+      meta = cm;
+    }
+    else if ( this.meta instanceof Integer ) {
+      cm = new CellMeta(this, 0);
+      meta = cm;
+    }
+    else {
+      cm = (CellMeta) meta;
+    }
+    return cm;
+  }
+
   @Override
   public boolean equals(Object o) {
     return (o instanceof Cell) && Equality.equals(this, (Cell) o);
