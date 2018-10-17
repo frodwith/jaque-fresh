@@ -20,16 +20,11 @@ public final class NockObject {
   public static final Fine NEVER = new Fine();
 
   public NockObject(Cell cell,
-                     Assumption stable,
-                     Location location) {
+                    Assumption stable,
+                    Location location) {
     this.cell = cell;
     this.valid = stable;
     this.location = location;
-  }
-
-  @TruffleBoundary
-  private NockFunction getDriver(Object axis) {
-    return location.drivers.get(axis);
   }
 
   public NockFunction getArm(Object axis,
@@ -38,7 +33,7 @@ public final class NockObject {
     NockFunction f;
     if ( null == location ||
          null == location.drivers ||
-         null == (f = getDriver(axis)) ) {
+         null == (f = location.drivers.get(new Axis(axis))) )
       f = Cell.require(fragment.executeFragment(cell))
         .getMeta().getFunction(functions);
     }

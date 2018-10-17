@@ -1,20 +1,34 @@
-have headCall and tailCall operate on NockCall objects
-  built from a NockFunction and an Object (subject)
-
-Eval gets one more wrapper that packages up its subject expression and function
-lookup into a NockCall
-
-ObjectLookup -> PullLookup
-  does lookup the object, but also grabs an arm and builds a NockCall,
-  so we don't have to cache in more than one place 
-  (since the object lookup per site always also has an arm index to lookup)
+get current changes compiling
 
 NockFunctionDispatchNode -> NockCallDispatchNode
 
+merge back to master
+
 Move NockFunction to data
 Move Axis to data
+
 Exceptions
   NockException -- thrown only from truffle nodes
   Exit          -- checked, nock crash (like java Exception)
   Fail          -- unchecked, representational exceptions 
                               (Errors like out of memory, stack overflow)
+Edit
+  with Object copying
+  and tests
+Hint
+  Memo
+    with One Big Guava Cache
+    and tests
+  Slog
+    tests can capture logs right?
+  Fast
+    test by jetting dec/add and running large mul
+  Stack Hints
+Wish
+
+Command line nock interpreter
+
+Boot a ride pill
+  mostly this is a lot of jetting
+
+Command line hoon interpreter

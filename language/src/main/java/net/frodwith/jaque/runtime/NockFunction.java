@@ -117,10 +117,11 @@ public final class NockFunction implements TruffleObject {
       parseExpr(language, args.tail, peg(axis, 7L), false); 
     NockFunctionLookupNode lookup =
       NockFunctionLookupNodeGen.create(formula, language.getContextReference());
+    NockEvalNode eval = new NockEvalNode(lookup, subject);
 
     return tail
-      ? new TailEvalNode(lookup, subject)
-      : new HeadEvalNode(lookup, subject);
+      ? new TailCallNode(eval);
+      : new HeadCallNode(eval);
   }
 
   private static NockExpressionNode
@@ -165,14 +166,16 @@ public final class NockFunction implements TruffleObject {
       parseExpr(language, args.tail, coreAxis, false);
 
     if ( Axis.subAxis(armAxis, 2L) ) {
-      NockObjectLookupNode objLookup = NockObjectLookupNodeGen.create(coreNode,
-            language.getContextReference());
+      NockPullLookupNode pullLookup = NockPullLookupNodeGen.create(coreNode,
+            armAxis, language.getContextReference());
 
       return tail
-        ? new TailInvokeNode(armAxis, objLookup, language.getContextReference())
-        : new HeadInvokeNode(armAxis, objLookup, language.getContextReference());
+        ? new TailCallNode(pullLookup)
+        : new HeadCallNode(pullLookup);
     }
     else {
+      // Only kicks out of the battery of a core are treated as method calls,
+      // kicks out of the payload get rewritten to an eval.
       NockExpressionNode subjectNode = new IdentityNode();
       subjectNode.setAxisInFormula(coreAxis);
 
@@ -183,11 +186,13 @@ public final class NockFunction implements TruffleObject {
         NockFunctionLookupNodeGen.create(formulaNode,
           language.getContextReference());
 
-      NockExpressionNode evalNode = tail
-                                  ? new HeadEvalNode(fnLookup, subjectNode)
-                                  : new TailEvalNode(fnLookup, subjectNode);
+      NockEvalNode evalNode = new NockEvalNode(fnLookup, subjectNode);
       evalNode.setAxisInFormula(axis);
-      return new ComposeNode(coreNode, evalNode);
+
+      NockExpressionNode callNode = tail
+                                  ? new HeadCallNode(evalNode)
+                                  : new TailCallNode(evalNode);
+      return new ComposeNode(coreNode, callNode);
     }
   }
 
