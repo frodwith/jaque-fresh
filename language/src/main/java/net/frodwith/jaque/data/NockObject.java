@@ -33,7 +33,7 @@ public final class NockObject {
     NockFunction f;
     if ( null == location ||
          null == location.drivers ||
-         null == (f = location.drivers.get(new Axis(axis))) )
+         null == (f = location.drivers.get(new Axis(axis))) ) {
       f = Cell.require(fragment.executeFragment(cell))
         .getMeta().getFunction(functions);
     }

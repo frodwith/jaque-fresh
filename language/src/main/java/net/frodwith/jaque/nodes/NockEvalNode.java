@@ -5,7 +5,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import net.frodwith.jaque.runtime.NockFunction;
 import net.frodwith.jaque.data.NockCall;
 
-public final class NockEvalNode extends Node {
+public final class NockEvalNode extends NockCallLookupNode {
   @Child private NockFunctionLookupNode lookupNode;
   @Child private NockExpressionNode subjectNode;
 

@@ -8,7 +8,7 @@ public final class Location {
   public final AxisMap<NockFunction> drivers;
   public final Object axisToParent;
 
-  public Location(Map<Object,NockFunction> drivers, Object axisToParent) {
+  public Location(AxisMap<NockFunction> drivers, Object axisToParent) {
     this.drivers = drivers;
     this.axisToParent = axisToParent;
   }

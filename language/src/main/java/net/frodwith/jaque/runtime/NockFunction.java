@@ -120,8 +120,8 @@ public final class NockFunction implements TruffleObject {
     NockEvalNode eval = new NockEvalNode(lookup, subject);
 
     return tail
-      ? new TailCallNode(eval);
-      : new HeadCallNode(eval);
+      ? new NockTailCallNode(eval)
+      : new NockHeadCallNode(eval);
   }
 
   private static NockExpressionNode
@@ -166,52 +166,35 @@ public final class NockFunction implements TruffleObject {
       parseExpr(language, args.tail, coreAxis, false);
 
     if ( Axis.subAxis(armAxis, 2L) ) {
-      NockPullLookupNode pullLookup = NockPullLookupNodeGen.create(coreNode,
-            armAxis, language.getContextReference());
+      NockCallLookupNode pull = PullNodeGen.create(coreNode,
+          armAxis, language.getContextReference());
 
       return tail
-        ? new TailCallNode(pullLookup)
-        : new HeadCallNode(pullLookup);
+        ? new NockTailCallNode(pull)
+        : new NockHeadCallNode(pull);
     }
     else {
-      // Only kicks out of the battery of a core are treated as method calls,
-      // kicks out of the payload get rewritten to an eval.
-      NockExpressionNode subjectNode = new IdentityNode();
-      subjectNode.setAxisInFormula(coreAxis);
+      // Only pulls out of the battery of a core are treated as method calls,
+      // pulls out of the payload get rewritten to an eval.
+      NockExpressionNode subject = new IdentityNode();
+      subject.setAxisInFormula(coreAxis);
 
-      NockExpressionNode formulaNode = parseSlot(armAxis);
-      formulaNode.setAxisInFormula(peg(axis, 6L));
+      NockExpressionNode formula = parseSlot(armAxis);
+      formula.setAxisInFormula(peg(axis, 6L));
 
-      NockFunctionLookupNode fnLookup =
-        NockFunctionLookupNodeGen.create(formulaNode,
+      NockFunctionLookupNode lookup = NockFunctionLookupNodeGen.create(formula,
           language.getContextReference());
 
-      NockEvalNode evalNode = new NockEvalNode(fnLookup, subjectNode);
-      evalNode.setAxisInFormula(axis);
-
-      NockExpressionNode callNode = tail
-                                  ? new HeadCallNode(evalNode)
-                                  : new TailCallNode(evalNode);
-      return new ComposeNode(coreNode, callNode);
+      NockCallLookupNode eval = new NockEvalNode(lookup, subject);
+      NockExpressionNode call = tail
+                              ? new NockHeadCallNode(eval)
+                              : new NockTailCallNode(eval);
+      call.setAxisInFormula(axis);
+      return new ComposeNode(coreNode, call);
     }
   }
 
   /*
-  private static PushNode parsePush(Object arg, boolean tail) throws ShapeException, FormulaRequiredException {
-    Cell args = Cell.require(arg);
-    return PushNode.create(parseExpr(args.head, false), parseExpr(args.tail, tail));
-  }
-
-  private static CallNode parsePull(Object arg, boolean tail) throws ShapeException, FormulaRequiredException {
-    Cell args = Cell.require(arg);
-    Object axis = Atom.require(args.head);
-    ExpressionNode core = parseExpr(args.tail, false);
-
-    return tail
-      ? TailCallNode.create(axis, core)
-      : HeadCallNode.create(axis, core);
-  }
-
   private static ExpressionNode parseHint(Object arg, boolean tail) throws ShapeException, FormulaRequiredException {
     Cell args = Cell.require(arg);
     Object hint = args.head;
