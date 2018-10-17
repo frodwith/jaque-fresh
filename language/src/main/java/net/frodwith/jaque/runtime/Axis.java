@@ -8,7 +8,7 @@ public final class Axis implements Iterable<Axis.Fragment> {
   public final int length;
   public final Object atom;
 
-  public class Cursor implements Iterator<Fragment> {
+  public final class Cursor implements Iterator<Fragment> {
     private int n;
     
     public Cursor() {

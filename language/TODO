@@ -1,4 +1,18 @@
+have headCall and tailCall operate on NockCall objects
+  built from a NockFunction and an Object (subject)
+
+Eval gets one more wrapper that packages up its subject expression and function
+lookup into a NockCall
+
+ObjectLookup -> PullLookup
+  does lookup the object, but also grabs an arm and builds a NockCall,
+  so we don't have to cache in more than one place 
+  (since the object lookup per site always also has an arm index to lookup)
+
+NockFunctionDispatchNode -> NockCallDispatchNode
+
 Move NockFunction to data
+Move Axis to data
 Exceptions
   NockException -- thrown only from truffle nodes
   Exit          -- checked, nock crash (like java Exception)
