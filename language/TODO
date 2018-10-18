@@ -1,5 +1,3 @@
-Move NockFunction to data
-Move Axis to data
 Use AxisMap in SourceMappedNoun
 pass FragmentNode in to PullNode
 

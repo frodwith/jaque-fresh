@@ -1,4 +1,4 @@
-package net.frodwith.jaque.runtime;
+package net.frodwith.jaque.data;
 
 import static net.frodwith.jaque.runtime.NockContext.fromForeignValue;
 
@@ -11,6 +11,7 @@ import com.oracle.truffle.api.nodes.Node;
 
 import net.frodwith.jaque.nodes.*;
 import net.frodwith.jaque.data.NockCall;
+import net.frodwith.jaque.data.NockFunction;
 
 @MessageResolution(receiverType = NockFunction.class)
 public class NockFunctionMessageResolution {

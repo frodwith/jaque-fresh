@@ -10,10 +10,10 @@ import com.oracle.truffle.api.TruffleLanguage.ContextReference;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 
 import net.frodwith.jaque.data.Cell;
+import net.frodwith.jaque.data.NockFunction;
+import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.exception.NockException;
 import net.frodwith.jaque.exception.ExitException;
-import net.frodwith.jaque.runtime.NockFunction;
-import net.frodwith.jaque.runtime.NockContext;
 
 @NodeChild(value="cellNode", type=NockExpressionNode.class)
 @NodeField(name="contextReference", type=ContextReference.class)

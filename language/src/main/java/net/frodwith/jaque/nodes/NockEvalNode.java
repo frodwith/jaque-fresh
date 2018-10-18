@@ -2,7 +2,7 @@ package net.frodwith.jaque.nodes;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 
-import net.frodwith.jaque.runtime.NockFunction;
+import net.frodwith.jaque.data.NockFunction;
 import net.frodwith.jaque.data.NockCall;
 
 public final class NockEvalNode extends NockCallLookupNode {

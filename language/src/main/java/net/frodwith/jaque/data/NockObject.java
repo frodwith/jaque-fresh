@@ -7,8 +7,6 @@ import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 
 import net.frodwith.jaque.nodes.FragmentNode;
 
-import net.frodwith.jaque.runtime.Axis;
-import net.frodwith.jaque.runtime.NockFunction;
 import net.frodwith.jaque.runtime.NockFunctionRegistry;
 
 import net.frodwith.jaque.exception.ExitException;

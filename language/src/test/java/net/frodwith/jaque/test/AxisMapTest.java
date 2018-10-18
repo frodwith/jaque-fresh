@@ -4,7 +4,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-import net.frodwith.jaque.runtime.Axis;
+import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.data.AxisMap;
 
 public class AxisMapTest {

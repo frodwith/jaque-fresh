@@ -4,7 +4,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 
 import net.frodwith.jaque.NockLanguage;
-import net.frodwith.jaque.runtime.Axis;
+import net.frodwith.jaque.data.Axis;
 
 @NodeInfo(shortName = "0")
 public final class SlotNode extends NockExpressionNode {

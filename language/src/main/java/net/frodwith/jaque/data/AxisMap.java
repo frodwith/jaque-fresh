@@ -2,8 +2,6 @@ package net.frodwith.jaque.data;
 
 import java.util.ArrayDeque;
 
-import net.frodwith.jaque.runtime.Axis;
-
 /* Immutable Map indexed by Axis with T values.
  * Immutable to aid partial evaluation, indexed by Axis to facilitate
  * storing/retrieving information about things like arms in batteries.

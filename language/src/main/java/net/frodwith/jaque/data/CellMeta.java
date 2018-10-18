@@ -8,7 +8,7 @@ import net.frodwith.jaque.exception.ExitException;
 import net.frodwith.jaque.runtime.Dashboard;
 import net.frodwith.jaque.runtime.Mug;
 
-import net.frodwith.jaque.runtime.NockFunction;
+import net.frodwith.jaque.data.NockFunction;
 import net.frodwith.jaque.runtime.NockFunctionRegistry;
 
 public final class CellMeta {

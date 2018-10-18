@@ -1,4 +1,4 @@
-package net.frodwith.jaque.runtime;
+package net.frodwith.jaque.data;
 
 import java.util.function.Supplier;
 
@@ -16,7 +16,9 @@ import net.frodwith.jaque.data.BigAtom;
 import net.frodwith.jaque.data.SourceMappedNoun;
 
 import net.frodwith.jaque.nodes.*;
+import net.frodwith.jaque.runtime.Atom;
 import net.frodwith.jaque.exception.ExitException;
+
 
 import static net.frodwith.jaque.runtime.HoonMath.peg;
 

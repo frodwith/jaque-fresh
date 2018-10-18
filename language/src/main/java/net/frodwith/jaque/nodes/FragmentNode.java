@@ -8,7 +8,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 
 import net.frodwith.jaque.NockLanguage;
 import net.frodwith.jaque.data.Cell;
-import net.frodwith.jaque.runtime.Axis;
+import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.exception.NockException;
 import net.frodwith.jaque.exception.ExitException;
 

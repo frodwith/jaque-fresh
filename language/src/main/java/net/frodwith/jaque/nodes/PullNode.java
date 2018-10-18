@@ -10,14 +10,14 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.TruffleLanguage.ContextReference;
 import com.oracle.truffle.api.CompilerDirectives;
 
+import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.data.Cell;
-import net.frodwith.jaque.data.NockObject;
 import net.frodwith.jaque.data.NockCall;
-import net.frodwith.jaque.runtime.Axis;
+import net.frodwith.jaque.data.NockObject;
+import net.frodwith.jaque.data.NockFunction;
 import net.frodwith.jaque.runtime.NockFunctionRegistry;
 import net.frodwith.jaque.exception.NockException;
 import net.frodwith.jaque.exception.ExitException;
-import net.frodwith.jaque.runtime.NockFunction;
 import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.runtime.Equality;
 

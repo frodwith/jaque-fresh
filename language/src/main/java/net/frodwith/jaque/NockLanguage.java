@@ -19,7 +19,7 @@ import net.frodwith.jaque.data.SourceMappedNoun;
 
 import net.frodwith.jaque.exception.ExitException;
 
-import net.frodwith.jaque.runtime.NockFunction;
+import net.frodwith.jaque.data.NockFunction;
 import net.frodwith.jaque.runtime.NockContext;
 
 import net.frodwith.jaque.parser.CustomParser;

@@ -8,7 +8,8 @@ import static org.junit.Assert.assertFalse;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.BigAtom;
 import net.frodwith.jaque.runtime.Mug;
-import static net.frodwith.jaque.runtime.Axis.subAxis;
+
+import static net.frodwith.jaque.data.Axis.subAxis;
 
 public class AxisTest {
   @Test

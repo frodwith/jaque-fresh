@@ -1,6 +1,10 @@
-package net.frodwith.jaque.runtime;
+package net.frodwith.jaque.data;
 
 import java.util.Iterator;
+
+import net.frodwith.jaque.runtime.Atom;
+import net.frodwith.jaque.runtime.HoonMath;
+import net.frodwith.jaque.runtime.Equality;
 
 public final class Axis implements Iterable<Axis.Fragment> {
   public enum Fragment { HEAD, TAIL }

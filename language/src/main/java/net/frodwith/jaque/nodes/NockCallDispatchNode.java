@@ -12,7 +12,7 @@ import com.oracle.truffle.api.dsl.ReportPolymorphism;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.dsl.TypeSystemReference;
 
-import net.frodwith.jaque.runtime.NockFunction;
+import net.frodwith.jaque.data.NockFunction;
 import net.frodwith.jaque.data.NockCall;
 import net.frodwith.jaque.exception.NockControlFlowException;
 
