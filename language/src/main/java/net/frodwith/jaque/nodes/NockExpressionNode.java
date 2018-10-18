@@ -15,11 +15,8 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.BigAtom;
 
-@TypeSystemReference(NockTypes.class)
-@NodeInfo(language = "nock")
 @GenerateWrapper
-@ReportPolymorphism
-public abstract class NockExpressionNode extends Node implements InstrumentableNode {
+public abstract class NockExpressionNode extends NockNode implements InstrumentableNode {
   private Object axisInFormula;
 
   // Called by the creating code, not in a constructor because it messes with

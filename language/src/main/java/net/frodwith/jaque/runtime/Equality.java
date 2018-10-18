@@ -53,9 +53,7 @@ public final class Equality {
           if ( b instanceof Cell ) {
             Cell ca = (Cell) a, 
                  cb = (Cell) b;
-            if ( (0 != ca.mug) &&
-                 (0 != cb.mug) &&
-                 (ca.mug != cb.mug) ) {
+            if ( Cell.unequalMugs(ca, cb) ) {
               return false;
             }
             else {
@@ -99,7 +97,7 @@ public final class Equality {
 
     @Override
     public boolean execute(ArrayDeque<ComparisonStep> stack) {
-      a.head = b.head = pick(a.head, b.head);
+      a.unifyHeads(b);
       stack.push(new ComparedTails(a, b));
       stack.push(new CompareNouns(a.tail, b.tail));
       return true;
@@ -116,21 +114,9 @@ public final class Equality {
 
     @Override
     public boolean execute(ArrayDeque<ComparisonStep> stack) {
-      a.tail = b.tail = pick(a.tail, b.tail);
-      a.mug = b.mug = ( 0 != a.mug ) ? a.mug : b.mug;
+      a.unifyTails(b);
+      a.unifyMeta(b);
       return true;
-    }
-  }
-
-  private static Object pick(Object a, Object b) {
-    if ( a instanceof Cell ) {
-      return (0 != Mug.get((Cell) a)) ? a : b;
-    }
-    else if ( a instanceof BigAtom ) {
-      return (0 != Mug.get((BigAtom) a)) ? a : b;
-    }
-    else {
-      return b;
     }
   }
 

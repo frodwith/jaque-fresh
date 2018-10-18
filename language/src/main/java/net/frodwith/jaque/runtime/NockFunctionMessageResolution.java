@@ -9,16 +9,16 @@ import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.interop.ArityException;
 import com.oracle.truffle.api.nodes.Node;
 
-import net.frodwith.jaque.nodes.call.NockFunctionDispatchNode;
-import net.frodwith.jaque.nodes.call.NockFunctionDispatchNodeGen;
+import net.frodwith.jaque.nodes.*;
+import net.frodwith.jaque.data.NockCall;
 
 @MessageResolution(receiverType = NockFunction.class)
 public class NockFunctionMessageResolution {
 
   @Resolve(message = "EXECUTE")
   public abstract static class NockForeignFunctionExecuteNode extends Node {
-    @Child private NockFunctionDispatchNode dispatch =
-      NockFunctionDispatchNodeGen.create();
+    @Child private NockCallDispatchNode dispatch =
+      NockCallDispatchNodeGen.create();
 
     public Object access(NockFunction function, Object[] arguments) {
       Object subject;
@@ -32,7 +32,7 @@ public class NockFunctionMessageResolution {
         default:
           throw ArityException.raise(1, arguments.length);
       }
-      return dispatch.executeFunction(function, subject);
+      return dispatch.executeCall(new NockCall(function, subject));
     }
   }
 

@@ -8,7 +8,7 @@ public final class Axis implements Iterable<Axis.Fragment> {
   public final int length;
   public final Object atom;
 
-  public class Cursor implements Iterator<Fragment> {
+  public final class Cursor implements Iterator<Fragment> {
     private int n;
     
     public Cursor() {
@@ -24,7 +24,6 @@ public final class Axis implements Iterable<Axis.Fragment> {
     public Fragment next() {
       return Atom.getNthBit(atom, n--) ? Fragment.TAIL : Fragment.HEAD;
     }
-
   }
   
   public Axis(Object atom) {
@@ -35,5 +34,48 @@ public final class Axis implements Iterable<Axis.Fragment> {
   @Override
   public Iterator<Fragment> iterator() {
     return new Cursor();
+  }
+
+  // XX: is there a hoon equivalent of subAxis?
+  public static boolean subAxis(long child, long parent) {
+    switch ( Long.compareUnsigned(child, parent) ) {
+      case 0:
+        return true;
+      case -1:
+        return false;
+      case 1:
+        int cz = Long.numberOfLeadingZeros(child),
+            pz = Long.numberOfLeadingZeros(parent),
+            shift = pz - cz;
+        return (child >>> shift) == parent;
+      default:
+        throw new AssertionError();
+    }
+  }
+
+  public static boolean subAxis(Object child, Object parent) {
+    if ( child instanceof Long ) {
+      if ( parent instanceof Long ) {
+        return subAxis((long) child, (long) parent);
+      }
+      else {
+        return false;
+      }
+    }
+    else {
+      int childLen = HoonMath.met(child),
+          parentLen = HoonMath.met(parent);
+      if ( childLen < parentLen ) {
+        return false;
+      }
+      else {
+        Object chopped = HoonMath.rsh((byte)0, childLen - parentLen, child);
+        return Equality.equals(chopped, parent);
+      }
+    }
+  }
+
+  public boolean inside(Axis parent) {
+    return subAxis(atom, parent.atom);
   }
 }

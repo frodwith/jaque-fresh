@@ -21,7 +21,6 @@ import net.frodwith.jaque.exception.FormulaRequiredException;
 import net.frodwith.jaque.exception.Fail;
 
 import net.frodwith.jaque.nodes.*;
-import net.frodwith.jaque.nodes.call.*;
 
 import static net.frodwith.jaque.runtime.HoonMath.peg;
 
@@ -81,7 +80,7 @@ public final class NockFunction implements TruffleObject {
   }
 
   private static NockExpressionNode 
-    parseFrag(Object axis)
+    parseSlot(Object axis)
       throws AtomRequiredException {
     Atom.require(axis);
     if ( axis instanceof Long ) {
@@ -95,7 +94,7 @@ public final class NockFunction implements TruffleObject {
         }
       }
     }
-    return FragmentNode.fromAxis(new Axis(axis));
+    return new SlotNode(axis);
   }
 
   private static NockExpressionNode 
@@ -112,13 +111,17 @@ public final class NockFunction implements TruffleObject {
       throws Fail {
     Cell args = Cell.require(arg);
 
-    NockExpressionNode subject    = parseExpr(language, args.head, peg(axis, 6L), false); 
-    NockExpressionNode formula    = parseExpr(language, args.tail, peg(axis, 7L), false); 
-    NockFunctionLookupNode lookup = NockFunctionLookupNodeGen.create(formula, language.getContextReference());
+    NockExpressionNode subject = 
+      parseExpr(language, args.head, peg(axis, 6L), false); 
+    NockExpressionNode formula =
+      parseExpr(language, args.tail, peg(axis, 7L), false); 
+    NockFunctionLookupNode lookup =
+      NockFunctionLookupNodeGen.create(formula, language.getContextReference());
+    NockEvalNode eval = new NockEvalNode(lookup, subject);
 
     return tail
-      ? new TailInvokeNode(lookup, subject)
-      : new HeadInvokeNode(lookup, subject);
+      ? new NockTailCallNode(eval)
+      : new NockHeadCallNode(eval);
   }
 
   private static NockExpressionNode
@@ -152,22 +155,46 @@ public final class NockFunction implements TruffleObject {
                         parseExpr(language, args.tail, peg(axis, 7L), tail));
   }
 
+  private static NockExpressionNode
+    parsePull(NockLanguage language, Object arg, Object axis, boolean tail)
+      throws Fail {
+    Cell args = Cell.require(arg);
+    Object armAxis = Atom.require(args.head);
+    Object coreAxis = peg(axis, 7L);
+
+    NockExpressionNode coreNode =
+      parseExpr(language, args.tail, coreAxis, false);
+
+    if ( Axis.subAxis(armAxis, 2L) ) {
+      NockCallLookupNode pull = PullNodeGen.create(coreNode,
+          armAxis, language.getContextReference());
+
+      return tail
+        ? new NockTailCallNode(pull)
+        : new NockHeadCallNode(pull);
+    }
+    else {
+      // Only pulls out of the battery of a core are treated as method calls,
+      // pulls out of the payload get rewritten to an eval.
+      NockExpressionNode subject = new IdentityNode();
+      subject.setAxisInFormula(coreAxis);
+
+      NockExpressionNode formula = parseSlot(armAxis);
+      formula.setAxisInFormula(peg(axis, 6L));
+
+      NockFunctionLookupNode lookup = NockFunctionLookupNodeGen.create(formula,
+          language.getContextReference());
+
+      NockCallLookupNode eval = new NockEvalNode(lookup, subject);
+      NockExpressionNode call = tail
+                              ? new NockHeadCallNode(eval)
+                              : new NockTailCallNode(eval);
+      call.setAxisInFormula(axis);
+      return new ComposeNode(coreNode, call);
+    }
+  }
+
   /*
-  private static PushNode parsePush(Object arg, boolean tail) throws ShapeException, FormulaRequiredException {
-    Cell args = Cell.require(arg);
-    return PushNode.create(parseExpr(args.head, false), parseExpr(args.tail, tail));
-  }
-
-  private static CallNode parsePull(Object arg, boolean tail) throws ShapeException, FormulaRequiredException {
-    Cell args = Cell.require(arg);
-    Object axis = Atom.require(args.head);
-    ExpressionNode core = parseExpr(args.tail, false);
-
-    return tail
-      ? TailCallNode.create(axis, core)
-      : HeadCallNode.create(axis, core);
-  }
-
   private static ExpressionNode parseHint(Object arg, boolean tail) throws ShapeException, FormulaRequiredException {
     Cell args = Cell.require(arg);
     Object hint = args.head;
@@ -254,7 +281,7 @@ public final class NockFunction implements TruffleObject {
         int code = Atom.requireInt(op);
         switch ( code ) {
           case 0:
-            node = parseFrag(arg);
+            node = parseSlot(arg);
             break;
           case 1:
             node = parseQuot(arg);
@@ -280,9 +307,10 @@ public final class NockFunction implements TruffleObject {
           case 8:
             node = parsePush(language, arg, axis, tail);
             break;
-            /*
           case 9:
-            return parsePull(arg);
+            node = parsePull(language, arg, axis, tail);
+            break;
+            /*
           case 10:
             return parseHint(arg);
           case 11:

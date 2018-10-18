@@ -1,25 +1,23 @@
-package net.frodwith.jaque.nodes.call;
+package net.frodwith.jaque.nodes;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 
-import net.frodwith.jaque.nodes.NockExpressionNode;
 import net.frodwith.jaque.runtime.NockFunction;
+import net.frodwith.jaque.data.NockCall;
 
-public final class HeadEvalNode extends NockExpressionNode {
-  @Child private NockFunctionDispatchNode dispatchNode;
+public final class NockEvalNode extends NockCallLookupNode {
   @Child private NockFunctionLookupNode lookupNode;
   @Child private NockExpressionNode subjectNode;
 
-  public HeadEvalNode(NockFunctionLookupNode lookupNode,
+  public NockEvalNode(NockFunctionLookupNode lookupNode,
                       NockExpressionNode subjectNode) {
     this.lookupNode = lookupNode;
     this.subjectNode = subjectNode;
-    this.dispatchNode = NockFunctionDispatchNodeGen.create();
   }
 
-  public final Object executeGeneric(VirtualFrame frame) {
+  public NockCall executeLookup(VirtualFrame frame) {
     Object subject = subjectNode.executeGeneric(frame);
     NockFunction f = lookupNode.executeLookup(frame);
-    return dispatchNode.executeFunction(f, subject);
+    return new NockCall(f, subject);
   }
 }
