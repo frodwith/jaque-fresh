@@ -8,6 +8,8 @@ import java.util.HashMap;
 import com.oracle.truffle.api.source.SourceSection;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 
+import net.frodwith.jaque.data.Axis;
+import net.frodwith.jaque.data.AxisMap;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.SourceMappedNoun;
 import net.frodwith.jaque.data.SourceMappedNoun.IndexLength;
@@ -16,6 +18,16 @@ import net.frodwith.jaque.runtime.HoonMath;
 import net.frodwith.jaque.exception.ExitException;
 
 public final class CustomParser {
+
+  private static final class ParsingResult {
+    public final AxisMap<IndexLength> map;
+    public final Object noun;
+
+    public ParsingResult(AxisMap<IndexLength> map, Object noun) {
+      this.map = map;
+      this.noun = noun;
+    }
+  }
 
   private static abstract class Parsing {
     public final int startIndex;
@@ -34,7 +46,7 @@ public final class CustomParser {
       return new IndexLength(startIndex, endIndex - startIndex);
     }
 
-    public abstract Object write(Object axis, Map<Object,IndexLength> axisMap) 
+    public abstract ParsingResult finish(Object axis, AxisMap<IndexLength> axisMap) 
       throws ExitException;
   }
 
@@ -62,29 +74,38 @@ public final class CustomParser {
     }
 
     @Override
-    public Object write(Object axis, Map<Object,IndexLength> axisMap)
+    public ParsingResult finish(Object axis, AxisMap<IndexLength> axisMap)
       throws ExitException {
-      axisMap.put(axis, indexLength());
+      axisMap = axisMap.insert(new Axis(axis), indexLength());
+
       int len = children.size() - 1, i = len;
       Object[] reversed = new Object[len];
 
       while ( i > 1 ) {
-        reversed[--i] = children.remove(0).write(HoonMath.peg(axis, 2L), axisMap);
+        ParsingResult cr = children.remove(0)
+          .finish(HoonMath.peg(axis, 2L), axisMap);
+
+        reversed[--i] = cr.noun;
+        axisMap       = cr.map;
         axis          = HoonMath.peg(axis, 3L);
         int start     = children.get(0).startIndex;
 
-        axisMap.put(axis, new IndexLength(start, endIndex - start));
+        axisMap = axisMap.insert(new Axis(axis),
+          new IndexLength(start, endIndex - start));
       }
 
-      Cell end = new Cell(
-          children.get(0).write(HoonMath.peg(axis, 2L), axisMap),
-          children.get(1).write(HoonMath.peg(axis, 3L), axisMap));
+      ParsingResult head = children.get(0).finish(
+          HoonMath.peg(axis, 2L), axisMap);
+      ParsingResult tail = children.get(1).finish(
+          HoonMath.peg(axis, 3L), head.map);
+
+      Cell end = new Cell(head.noun, tail.noun);
 
       while ( i < len ) {
         end = new Cell(reversed[i++], end);
       }
       
-      return end;
+      return new ParsingResult(tail.map, end);
     }
   }
 
@@ -100,9 +121,9 @@ public final class CustomParser {
     }
 
     @Override
-    public Object write(Object axis, Map<Object,IndexLength> axisMap) {
-      axisMap.put(axis, indexLength());
-      return SimpleAtomParser.parse(buf);
+    public ParsingResult finish(Object axis, AxisMap<IndexLength> axisMap) {
+      return new ParsingResult(axisMap.insert(new Axis(axis), indexLength()),
+          SimpleAtomParser.parse(buf));
     }
   }
 
@@ -184,8 +205,8 @@ public final class CustomParser {
           stack.peek().startIndex);
     }
 
-    Map<Object,IndexLength> axisMap = new HashMap<>();
-    Object noun = top.children.remove(0).write(1L, axisMap);
-    return new SourceMappedNoun(sourceSection, axisMap, noun);
+    ParsingResult r = top.children.remove(0).finish(1L, AxisMap.EMPTY);
+
+    return new SourceMappedNoun(sourceSection, r.map, r.noun);
   }
 }

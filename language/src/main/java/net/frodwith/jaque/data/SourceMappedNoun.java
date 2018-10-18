@@ -22,10 +22,10 @@ public final class SourceMappedNoun {
 
   public final SourceSection sourceSection;
   public final Object noun;
-  private final Map<Object,IndexLength> locations;
+  private final AxisMap<IndexLength> locations;
 
   public SourceMappedNoun(SourceSection sourceSection,
-                          Map<Object,IndexLength> locations,
+                          AxisMap<IndexLength> locations,
                           Object noun) {
     this.sourceSection = sourceSection;
     this.locations = locations;
@@ -33,7 +33,7 @@ public final class SourceMappedNoun {
   }
 
   public SourceSection lookupAxis(Object axis) {
-    IndexLength il = locations.get(axis);
+    IndexLength il = locations.get(new Axis(axis));
     if ( null == il ) {
       return null;
     }
@@ -42,7 +42,7 @@ public final class SourceMappedNoun {
 
   public static SourceMappedNoun fromCell(Cell cell) throws ExitException {
     StringWriter out = new StringWriter();
-    Map<Object,IndexLength> axisMap;
+    AxisMap<IndexLength> axisMap;
     try {
       axisMap = MappedNounPrinter.print(out, cell);
     }

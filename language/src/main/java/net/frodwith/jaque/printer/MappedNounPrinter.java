@@ -8,6 +8,8 @@ import java.io.IOException;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 
 import net.frodwith.jaque.data.Cell;
+import net.frodwith.jaque.data.Axis;
+import net.frodwith.jaque.data.AxisMap;
 import net.frodwith.jaque.runtime.HoonMath;
 import net.frodwith.jaque.exception.ExitException;
 import net.frodwith.jaque.data.SourceMappedNoun.IndexLength;
@@ -15,13 +17,13 @@ import net.frodwith.jaque.data.SourceMappedNoun.IndexLength;
 // take a single noun, get a string and a location map
 public final class MappedNounPrinter {
   public final Writer out;
-  public final Map<Object,IndexLength> axisMap = new HashMap<>();
+  public AxisMap<IndexLength> axisMap = AxisMap.EMPTY;
 
   private MappedNounPrinter(Writer out) {
     this.out = out;
   }
 
-  public static Map<Object,IndexLength> print(Writer out, Object noun)
+  public static AxisMap<IndexLength> print(Writer out, Object noun)
     throws IOException, ExitException {
     MappedNounPrinter printer = new MappedNounPrinter(out);
     printer.print(noun, 1L, 0, false);
@@ -60,8 +62,8 @@ public final class MappedNounPrinter {
       pos += SimpleAtomPrinter.print(out, noun);
     }
 
-    axisMap.put(axis, new IndexLength(begin,
-          (includeParentBracket ? pos+1 : pos) - begin));
+    axisMap = axisMap.insert(new Axis(axis), 
+        new IndexLength(begin, (includeParentBracket ? pos+1 : pos) - begin));
     return pos;
   }
 }
