@@ -125,6 +125,17 @@ public final class NockFunction implements TruffleObject {
     return parseExpr(language, arg, axis.peg(3), false);
   }
 
+  private static NockExpressionNode
+    parseSame(NockLanguage language, Object arg, Axis axis)
+      throws ExitException {
+    Cell args = Cell.require(arg);
+    NockExpressionNode left = 
+      parseExpr(language, args.head, axis.peg(6), false);
+    NockExpressionNode right = 
+      parseExpr(language, args.tail, axis.peg(7), false);
+    return SameNodeGen.create(left, right);
+  }
+
   private static NockExpressionNode 
     parseIf(NockLanguage language, Object arg, Axis axis, boolean tail)
       throws ExitException {
@@ -288,7 +299,7 @@ public final class NockFunction implements TruffleObject {
           node = BumpNodeGen.create(parseUnary(language, arg, axis));
           break;
         case 5:
-          node = SameNodeGen.create(parseUnary(language, arg, axis));
+          node = parseSame(language, arg, axis);
           break;
         case 6:
           node = parseIf(language, arg, axis, tail);

@@ -93,7 +93,7 @@ public class BasicNockTest {
 
   @Test
   public void testSame() {
-    Value same = context.eval("nock", "[5 0 1]");
+    Value same = context.eval("nock", "[5 [0 2] 0 3]");
     assertEquals(0L, same.execute(new Cell(42L, 42L)).as(Number.class));
     assertEquals(1L, same.execute(new Cell(42L, 43L)).as(Number.class));
     
