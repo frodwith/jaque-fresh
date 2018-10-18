@@ -17,13 +17,11 @@ public final class NockContext {
   private final Env env;
   private final NockLanguage language;
   private final Map<Cell,NockFunction> functions;
-  private final CoreFinder finder;
 
   public NockContext(NockLanguage language, Env env) {
     this.language = language;
     this.env = env;
     this.functions = new HashMap<>();
-    this.finder = new CoreFinder();
   }
 
   public static Object fromForeignValue(Object a) {
@@ -55,10 +53,5 @@ public final class NockContext {
   @TruffleBoundary
   private static long fromForeignNumber(Object a) {
     return ((Number) a).longValue();
-  }
-
-  @TruffleBoundary
-  public LocationResult locate(Cell core) {
-    return finder.locate(core);
   }
 }

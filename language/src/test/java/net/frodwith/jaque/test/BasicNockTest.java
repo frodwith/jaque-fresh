@@ -145,12 +145,6 @@ public class BasicNockTest {
     assertEquals(42L, r.getMember("tail").as(Number.class));
   }
 
-  @Test
-  public void testPull() {
-    Value pull = context.eval("nock", "[9 2 1 [0 6] 42 0]");
-    assertEquals(42L, pull.execute().as(Number.class));
-  }
-
   @After
   public void dispose() {
     context.close();
