@@ -10,6 +10,7 @@ import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.interop.ForeignAccess;
 
 import net.frodwith.jaque.NockLanguage;
+import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.Trel;
 import net.frodwith.jaque.data.BigAtom;
@@ -18,9 +19,6 @@ import net.frodwith.jaque.data.SourceMappedNoun;
 import net.frodwith.jaque.nodes.*;
 import net.frodwith.jaque.runtime.Atom;
 import net.frodwith.jaque.exception.ExitException;
-
-
-import static net.frodwith.jaque.runtime.HoonMath.peg;
 
 // A NockFunction represents the mathematical idea of a function picked out by
 // a nock formula i.e. it represents the partial application nock(_,formula).
@@ -44,7 +42,8 @@ public final class NockFunction implements TruffleObject {
         throw new RuntimeException("NockFunction.fromCell:supplier", e);
       }
     };
-    final NockExpressionNode expr = parseExpr(language, formula, 1L, true);
+    final NockExpressionNode expr =
+      parseExpr(language, formula, Axis.IDENTITY, true);
     final NockRootNode       root = new NockRootNode(language,
                                                      NockLanguage.DESCRIPTOR,
                                                      sourceSupplier, expr);
@@ -57,7 +56,8 @@ public final class NockFunction implements TruffleObject {
     Supplier<SourceMappedNoun> sourceSupplier = () -> {
       return mapped;
     };
-    final NockExpressionNode expr = parseExpr(language, mapped.noun, 1L, true);
+    final NockExpressionNode expr =
+      parseExpr(language, mapped.noun, Axis.IDENTITY, true);
     final NockRootNode       root = new NockRootNode(language,
                                                      NockLanguage.DESCRIPTOR,
                                                      sourceSupplier, expr);
@@ -70,32 +70,26 @@ public final class NockFunction implements TruffleObject {
   }
 
   private static NockExpressionNode
-    parseCons(NockLanguage language, Object head, Object tail, Object axis)
+    parseCons(NockLanguage language, Object head, Object tail, Axis axis)
       throws ExitException {
     NockExpressionNode headNode =
-      parseExpr(language, head, peg(axis, 2L), false);
+      parseExpr(language, head, axis.peg(2), false);
     NockExpressionNode tailNode =
-      parseExpr(language, tail, peg(axis, 3L), false);
+      parseExpr(language, tail, axis.peg(3), false);
 
     return ConsNodeGen.create(headNode, tailNode);
   }
 
-  private static NockExpressionNode 
-    parseSlot(Object axis)
-      throws ExitException {
-    Atom.require(axis);
-    if ( axis instanceof Long ) {
-      long l = (long) axis;
-      if ( l < 2L ) {
-        switch ( (int) l) {
-          case 0:
-            return new BailNode();
-          case 1:
-            return new IdentityNode();
-        }
-      }
+  private static NockExpressionNode parseSlot(Axis axis) {
+    if ( axis.isCrash() ) {
+      return new BailNode();
     }
-    return new SlotNode(axis);
+    else if ( axis == Axis.IDENTITY ) {
+      return new IdentityNode();
+    }
+    else {
+      return new SlotNode(axis);
+    }
   }
 
   private static NockExpressionNode 
@@ -108,14 +102,14 @@ public final class NockFunction implements TruffleObject {
   }
 
   private static NockExpressionNode
-    parseEval(NockLanguage language, Object arg, Object axis, boolean tail)
+    parseEval(NockLanguage language, Object arg, Axis axis, boolean tail)
       throws ExitException {
     Cell args = Cell.require(arg);
 
     NockExpressionNode subject = 
-      parseExpr(language, args.head, peg(axis, 6L), false); 
+      parseExpr(language, args.head, axis.peg(6), false); 
     NockExpressionNode formula =
-      parseExpr(language, args.tail, peg(axis, 7L), false); 
+      parseExpr(language, args.tail, axis.peg(7), false); 
     NockFunctionLookupNode lookup =
       NockFunctionLookupNodeGen.create(formula, language.getContextReference());
     NockEvalNode eval = new NockEvalNode(lookup, subject);
@@ -126,47 +120,47 @@ public final class NockFunction implements TruffleObject {
   }
 
   private static NockExpressionNode
-    parseUnary(NockLanguage language, Object arg, Object axis)
+    parseUnary(NockLanguage language, Object arg, Axis axis)
       throws ExitException {
-    return parseExpr(language, arg, peg(axis, 3L), false);
+    return parseExpr(language, arg, axis.peg(3), false);
   }
 
   private static NockExpressionNode 
-    parseIf(NockLanguage language, Object arg, Object axis, boolean tail)
+    parseIf(NockLanguage language, Object arg, Axis axis, boolean tail)
       throws ExitException {
     Trel args = Trel.require(arg);
-    return new IfNode(parseExpr(language, args.p, peg(axis, 6L), false),
-                      parseExpr(language, args.q, peg(axis, 14L), tail),
-                      parseExpr(language, args.r, peg(axis, 15L), tail));
+    return new IfNode(parseExpr(language, args.p, axis.peg(6), false),
+                      parseExpr(language, args.q, axis.peg(14), tail),
+                      parseExpr(language, args.r, axis.peg(15), tail));
   }
 
   private static NockExpressionNode 
-    parseComp(NockLanguage language, Object arg, Object axis, boolean tail)
+    parseComp(NockLanguage language, Object arg, Axis axis, boolean tail)
       throws ExitException {
     Cell args = Cell.require(arg);
-    return new ComposeNode(parseExpr(language, args.head, peg(axis, 6L), false),
-                           parseExpr(language, args.tail, peg(axis, 7L), tail));
+    return new ComposeNode(parseExpr(language, args.head, axis.peg(6), false),
+                           parseExpr(language, args.tail, axis.peg(7), tail));
   }
 
   private static NockExpressionNode 
-    parsePush(NockLanguage language, Object arg, Object axis, boolean tail)
+    parsePush(NockLanguage language, Object arg, Axis axis, boolean tail)
       throws ExitException {
     Cell args = Cell.require(arg);
-    return new PushNode(parseExpr(language, args.head, peg(axis, 6L), false),
-                        parseExpr(language, args.tail, peg(axis, 7L), tail));
+    return new PushNode(parseExpr(language, args.head, axis.peg(6), false),
+                        parseExpr(language, args.tail, axis.peg(7), tail));
   }
 
   private static NockExpressionNode
-    parsePull(NockLanguage language, Object arg, Object axis, boolean tail)
+    parsePull(NockLanguage language, Object arg, Axis axis, boolean tail)
       throws ExitException {
     Cell args = Cell.require(arg);
-    Object armAxis = Atom.require(args.head);
-    Object coreAxis = peg(axis, 7L);
+    Axis armAxis = Axis.require(args.head);
+    Axis coreAxis = axis.peg(7);
 
     NockExpressionNode coreNode =
       parseExpr(language, args.tail, coreAxis, false);
 
-    if ( Axis.subAxis(armAxis, 2L) ) {
+    if ( armAxis.inHead() ) {
       NockCallLookupNode pull = PullNodeGen.create(coreNode,
           armAxis, language.getContextReference());
 
@@ -181,7 +175,7 @@ public final class NockFunction implements TruffleObject {
       subject.setAxisInFormula(coreAxis);
 
       NockExpressionNode formula = parseSlot(armAxis);
-      formula.setAxisInFormula(peg(axis, 6L));
+      formula.setAxisInFormula(axis.peg(6));
 
       NockFunctionLookupNode lookup = NockFunctionLookupNodeGen.create(formula,
           language.getContextReference());
@@ -264,7 +258,7 @@ public final class NockFunction implements TruffleObject {
 */
 
   private static NockExpressionNode 
-    parseExpr(NockLanguage language, Object formula, Object axis, boolean tail)
+    parseExpr(NockLanguage language, Object formula, Axis axis, boolean tail)
       throws ExitException {
     Cell c = Cell.require(formula);
     Object op   = c.head,
@@ -279,7 +273,7 @@ public final class NockFunction implements TruffleObject {
       int code = Atom.requireInt(op);
       switch ( code ) {
         case 0:
-          node = parseSlot(arg);
+          node = parseSlot(Axis.require(arg));
           break;
         case 1:
           node = parseQuot(arg);

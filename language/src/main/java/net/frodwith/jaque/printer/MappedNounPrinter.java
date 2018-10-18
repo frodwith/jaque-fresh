@@ -10,7 +10,6 @@ import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.data.AxisMap;
-import net.frodwith.jaque.runtime.HoonMath;
 import net.frodwith.jaque.exception.ExitException;
 import net.frodwith.jaque.data.SourceMappedNoun.IndexLength;
 
@@ -26,14 +25,14 @@ public final class MappedNounPrinter {
   public static AxisMap<IndexLength> print(Writer out, Object noun)
     throws IOException, ExitException {
     MappedNounPrinter printer = new MappedNounPrinter(out);
-    printer.print(noun, 1L, 0, false);
+    printer.print(noun, Axis.IDENTITY, 0, false);
     return printer.axisMap;
   }
 
   // much simpler to print this recursively, and since it's only used for
   // debug info it's safe for now not to worry about stack overflows
   @TruffleBoundary
-  private int print(Object noun, Object axis, int pos, boolean tail)
+  private int print(Object noun, Axis axis, int pos, boolean tail)
     throws IOException, ExitException {
     int begin = pos;
 
@@ -46,9 +45,9 @@ public final class MappedNounPrinter {
         out.write('[');
         ++pos;
       }
-      pos = print(c.head, HoonMath.peg(axis, 2L), pos, false);
+      pos = print(c.head, axis.peg(2), pos, false);
       out.write(' '); ++pos;
-      pos = print(c.tail, HoonMath.peg(axis, 3L), pos, true);
+      pos = print(c.tail, axis.peg(3), pos, true);
 
       if ( tail ) {
         includeParentBracket = true;
@@ -62,7 +61,7 @@ public final class MappedNounPrinter {
       pos += SimpleAtomPrinter.print(out, noun);
     }
 
-    axisMap = axisMap.insert(new Axis(axis), 
+    axisMap = axisMap.insert(axis, 
         new IndexLength(begin, (includeParentBracket ? pos+1 : pos) - begin));
     return pos;
   }

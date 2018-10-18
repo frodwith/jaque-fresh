@@ -238,8 +238,7 @@ public final class HoonMath {
       : subtractWords(Atom.words(a), Atom.words(b));
   }
 
-  // fails when the atoms get too big
-  public static Object peg(Object axis, Object to) throws ExitException {
+  public static Object peg(Object axis, Object to) {
     if ( (to instanceof Long) && (1L == (long) to) ) {
       return axis;
     }
@@ -247,9 +246,17 @@ public final class HoonMath {
       int c = met(to),
           d = c - 1;
 
-      Object e = lsh((byte) 0, d, 1L),
-             f = sub(to, e),
+      Object e = lsh((byte) 0, d, 1L), f,
              g = lsh((byte) 0, d, axis);
+
+      try {
+        f = sub(to, e);
+      }
+      catch ( ExitException ex ) {
+        CompilerDirectives.transferToInterpreter();
+        throw new AssertionError();
+      }
+
       
       return add(f, g);
     }

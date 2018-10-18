@@ -14,7 +14,6 @@ import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.SourceMappedNoun;
 import net.frodwith.jaque.data.SourceMappedNoun.IndexLength;
 
-import net.frodwith.jaque.runtime.HoonMath;
 import net.frodwith.jaque.exception.ExitException;
 
 public final class CustomParser {
@@ -46,7 +45,7 @@ public final class CustomParser {
       return new IndexLength(startIndex, endIndex - startIndex);
     }
 
-    public abstract ParsingResult finish(Object axis, AxisMap<IndexLength> axisMap) 
+    public abstract ParsingResult finish(Axis axis, AxisMap<IndexLength> axisMap) 
       throws ExitException;
   }
 
@@ -74,30 +73,27 @@ public final class CustomParser {
     }
 
     @Override
-    public ParsingResult finish(Object axis, AxisMap<IndexLength> axisMap)
+    public ParsingResult finish(Axis axis, AxisMap<IndexLength> axisMap)
       throws ExitException {
-      axisMap = axisMap.insert(new Axis(axis), indexLength());
+      axisMap = axisMap.insert(axis, indexLength());
 
       int len = children.size() - 1, i = len;
       Object[] reversed = new Object[len];
 
       while ( i > 1 ) {
-        ParsingResult cr = children.remove(0)
-          .finish(HoonMath.peg(axis, 2L), axisMap);
+        ParsingResult cr = children.remove(0).finish(axis.peg(2), axisMap);
 
         reversed[--i] = cr.noun;
         axisMap       = cr.map;
-        axis          = HoonMath.peg(axis, 3L);
+        axis          = axis.peg(3);
         int start     = children.get(0).startIndex;
 
-        axisMap = axisMap.insert(new Axis(axis),
+        axisMap = axisMap.insert(axis,
           new IndexLength(start, endIndex - start));
       }
 
-      ParsingResult head = children.get(0).finish(
-          HoonMath.peg(axis, 2L), axisMap);
-      ParsingResult tail = children.get(1).finish(
-          HoonMath.peg(axis, 3L), head.map);
+      ParsingResult head = children.get(0).finish(axis.peg(2), axisMap);
+      ParsingResult tail = children.get(1).finish(axis.peg(3), head.map);
 
       Cell end = new Cell(head.noun, tail.noun);
 
@@ -121,8 +117,8 @@ public final class CustomParser {
     }
 
     @Override
-    public ParsingResult finish(Object axis, AxisMap<IndexLength> axisMap) {
-      return new ParsingResult(axisMap.insert(new Axis(axis), indexLength()),
+    public ParsingResult finish(Axis axis, AxisMap<IndexLength> axisMap) {
+      return new ParsingResult(axisMap.insert(axis, indexLength()),
           SimpleAtomParser.parse(buf));
     }
   }
@@ -205,7 +201,7 @@ public final class CustomParser {
           stack.peek().startIndex);
     }
 
-    ParsingResult r = top.children.remove(0).finish(1L, AxisMap.EMPTY);
+    ParsingResult r = top.children.remove(0).finish(Axis.IDENTITY, AxisMap.EMPTY);
 
     return new SourceMappedNoun(sourceSection, r.map, r.noun);
   }

@@ -23,14 +23,14 @@ import net.frodwith.jaque.runtime.Equality;
 
 @NodeChild(value="coreNode", type=NockExpressionNode.class)
 @NodeFields({
-  @NodeField(name="armAxis", type=Object.class),
+  @NodeField(name="armAxis", type=Axis.class),
   @NodeField(name="contextReference", type=ContextReference.class),
 })
 public abstract class PullNode extends NockCallLookupNode {
   public static final int INLINE_CACHE_SIZE = 2;
   @Child private FragmentNode fragmentNode;
   
-  public abstract Object getArmAxis();
+  public abstract Axis getArmAxis();
   protected abstract ContextReference<NockContext> getContextReference();
 
   @Specialization(limit = "1",
@@ -68,18 +68,18 @@ public abstract class PullNode extends NockCallLookupNode {
   private FragmentNode getFragmentNode() {
     if ( null == fragmentNode ) {
       CompilerDirectives.transferToInterpreter();
-      fragmentNode = FragmentNode.fromAxis(new Axis(getArmAxis()));
+      fragmentNode = FragmentNode.fromAxis(getArmAxis());
       insert(fragmentNode);
     }
     return fragmentNode;
   }
 
   protected NockFunction getArm(NockObject object) {
-    Object axis = getArmAxis();
+    Axis a = getArmAxis();
     NockFunctionRegistry registry = getContextReference().get().functionRegistry;
     FragmentNode frag = getFragmentNode();
     try {
-      return object.getArm(axis, registry, frag);
+      return object.getArm(a, registry, frag);
     }
     catch ( ExitException e ) {
       throw new NockException("fail to fetch arm from battery", e, this);

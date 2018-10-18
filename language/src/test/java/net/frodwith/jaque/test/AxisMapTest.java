@@ -11,10 +11,10 @@ public class AxisMapTest {
 
   @Test
   public void testBasic() {
-    Axis beg = new Axis(2L),
-         odd = new Axis(3L),
-         mid = new Axis(6L),
-         end = new Axis(7L);
+    Axis beg = Axis.HEAD,
+         odd = Axis.TAIL,
+         mid = Axis.SAMPLE,
+         end = Axis.CONTEXT;
 
     AxisMap<String> trel = AxisMap.EMPTY;
     trel = trel.insert(beg, "beginning")

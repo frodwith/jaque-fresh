@@ -25,13 +25,13 @@ public final class NockObject {
     this.location = location;
   }
 
-  public NockFunction getArm(Object axis,
+  public NockFunction getArm(Axis axis,
                              NockFunctionRegistry functions,
                              FragmentNode fragment) throws ExitException {
     NockFunction f;
     if ( null == location ||
          null == location.drivers ||
-         null == (f = location.drivers.get(new Axis(axis))) ) {
+         null == (f = location.drivers.get(axis)) ) {
       f = Cell.require(fragment.executeFragment(cell))
         .getMeta().getFunction(functions);
     }

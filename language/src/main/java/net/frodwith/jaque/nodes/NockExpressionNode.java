@@ -12,16 +12,17 @@ import com.oracle.truffle.api.dsl.TypeSystemReference;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
+import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.BigAtom;
 
 @GenerateWrapper
 public abstract class NockExpressionNode extends NockNode implements InstrumentableNode {
-  private Object axisInFormula;
+  private Axis axisInFormula;
 
   // Called by the creating code, not in a constructor because it messes with
   // GenerateWrapper etc.
-  public final void setAxisInFormula(Object axis) {
+  public final void setAxisInFormula(Axis axis) {
     this.axisInFormula = axis;
   }
 

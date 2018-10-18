@@ -2,12 +2,21 @@ package net.frodwith.jaque.data;
 
 import java.util.Iterator;
 
+import net.frodwith.jaque.exception.ExitException;
+
 import net.frodwith.jaque.runtime.Atom;
 import net.frodwith.jaque.runtime.HoonMath;
 import net.frodwith.jaque.runtime.Equality;
 
 public final class Axis implements Iterable<Axis.Fragment> {
   public enum Fragment { HEAD, TAIL }
+
+  public final static Axis CRASH    = new Axis(0L);
+  public final static Axis IDENTITY = new Axis(1L);
+  public final static Axis HEAD     = new Axis(2L);
+  public final static Axis TAIL     = new Axis(3L);
+  public final static Axis SAMPLE   = new Axis(6L);
+  public final static Axis CONTEXT  = new Axis(7L);
 
   public final int length;
   public final Object atom;
@@ -33,6 +42,51 @@ public final class Axis implements Iterable<Axis.Fragment> {
   public Axis(Object atom) {
     this.atom   = atom;
     this.length = HoonMath.met(atom) - 1;
+  }
+
+  public static Axis require(Object noun) throws ExitException {
+    Object atom = Atom.require(noun);
+    if ( atom instanceof Long ) {
+      switch ( ((Long) atom).intValue() ) {
+        case 0:
+          return Axis.CRASH;
+        case 1:
+          return Axis.IDENTITY;
+        case 2:
+          return Axis.HEAD;
+        case 3:
+          return Axis.TAIL;
+        case 6:
+          return Axis.SAMPLE;
+        case 7:
+          return Axis.CONTEXT;
+      }
+    }
+    return new Axis(atom);
+  }
+
+  public Axis peg(int under) {
+    return peg((long)under);
+  }
+
+  public Axis peg(long under) {
+    return new Axis(HoonMath.peg(this.atom, under));
+  }
+
+  public Axis peg(Axis under) {
+    return new Axis(HoonMath.peg(this.atom, under.atom));
+  }
+
+  public boolean isCrash() {
+    return this == CRASH;
+  }
+
+  public boolean inHead() {
+    return subAxis(atom, 2L);
+  }
+
+  public boolean inTail() {
+    return subAxis(atom, 3L);
   }
 
   @Override
