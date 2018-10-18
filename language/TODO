@@ -1,7 +1,3 @@
-get current changes compiling
-
-NockFunctionDispatchNode -> NockCallDispatchNode
-
 merge back to master
 
 Move NockFunction to data

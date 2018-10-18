@@ -28,9 +28,9 @@ public final class AxisMap<T> {
     for ( Axis.Fragment f : index ) {
       maps.push(cur);
       frags.push(f);
-      cur = Axis.Fragment.HEAD == f ? cur.left : cur.right;
+      cur = (Axis.Fragment.HEAD == f) ? cur.left : cur.right;
       if ( null == cur ) {
-        cur = new AxisMap<T>(null, null, null);
+        cur = EMPTY;
       }
     }
     cur = new AxisMap<T>(item, cur.left, cur.right);
