@@ -6,13 +6,13 @@ import com.oracle.truffle.api.dsl.NodeChild;
 
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.BigAtom;
-import net.frodwith.jaque.exception.Bail;
+import net.frodwith.jaque.exception.NockException;
 import net.frodwith.jaque.runtime.HoonMath;
 
 public abstract class BumpNode extends UnaryNode {
   @Specialization
   protected Object doCell(Cell cell) {
-    throw new Bail("bump cell", this);
+    throw new NockException("cell required", this);
   }
 
   @Specialization(rewriteOn = ArithmeticException.class)

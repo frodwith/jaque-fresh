@@ -7,7 +7,8 @@ import com.oracle.truffle.api.CompilerDirectives;
 import gnu.math.MPN;
 
 import net.frodwith.jaque.data.BigAtom;
-import net.frodwith.jaque.exception.Fail;
+import net.frodwith.jaque.exception.ExitException;
+import net.frodwith.jaque.exception.FailError;
 
 public final class HoonMath {
   public static final BigAtom MINIMUM_BIGATOM = new BigAtom(new int[] {0, 0, 1});
@@ -72,7 +73,7 @@ public final class HoonMath {
   }
 
   // lsh fails because we don't really have infinitely sized atoms
-  public static Object lsh(byte bloq, int count, Object atom) throws Fail {
+  public static Object lsh(byte bloq, int count, Object atom) {
     int len = met(bloq, atom),
         big;
 
@@ -83,7 +84,8 @@ public final class HoonMath {
       big = Math.addExact(count, len);
     }
     catch (ArithmeticException e) {
-      throw new Fail("slaq count doesn't fit in int");
+      CompilerDirectives.transferToInterpreter();
+      throw new FailError("slaq count doesn't fit in int");
     }
     
     int[] sal = Atom.slaq(bloq, big);
@@ -173,9 +175,9 @@ public final class HoonMath {
     return add(Atom.words(a), Atom.words(b));
   }
 
-  public static long dec(long atom) throws Fail {
+  public static long dec(long atom) throws ExitException {
     if ( atom == 0 ) {
-      throw new Fail("decrement underflow");
+      throw new ExitException("decrement underflow");
     }
     else {
       return atom - 1;
@@ -196,7 +198,7 @@ public final class HoonMath {
     return Atom.malt(result);
   }
 
-  public static Object dec(Object atom) throws Fail {
+  public static Object dec(Object atom) throws ExitException {
     if ( atom instanceof Long ) {
       return dec((long) atom);
     }
@@ -206,38 +208,38 @@ public final class HoonMath {
   }
 
 
-  public static Object subtractWords(int[] a, int[] b) throws Fail {
+  public static Object subtractWords(int[] a, int[] b) throws ExitException {
     MPNSquare s = new MPNSquare(a, b);
     int[] dst = new int[s.len];
     int bor = MPN.sub_n(dst, s.x, s.y, s.len);
     if ( bor != 0 ) {
       CompilerDirectives.transferToInterpreter();
-      throw new Fail("subtract underflow");
+      throw new ExitException("subtract underflow");
     }
     return Atom.malt(dst);
   }
 
-  public static long sub(long a, long b) throws Fail {
+  public static long sub(long a, long b) throws ExitException {
     if ( -1 == Long.compareUnsigned(a, b) ) {
-      throw new Fail("subtract underflow");
+      throw new ExitException("subtract underflow");
     }
     else {
       return a - b;
     }
   }
 
-  public static Object sub(BigAtom a, BigAtom b) throws Fail {
+  public static Object sub(BigAtom a, BigAtom b) throws ExitException {
     return subtractWords(a.words, b.words);
   }
   
-  public static Object sub(Object a, Object b) throws Fail {
+  public static Object sub(Object a, Object b) throws ExitException {
     return ( a instanceof Long && b instanceof Long )
       ? sub((long) a, (long) b)
       : subtractWords(Atom.words(a), Atom.words(b));
   }
 
   // fails when the atoms get too big
-  public static Object peg(Object axis, Object to) throws Fail {
+  public static Object peg(Object axis, Object to) throws ExitException {
     if ( (to instanceof Long) && (1L == (long) to) ) {
       return axis;
     }

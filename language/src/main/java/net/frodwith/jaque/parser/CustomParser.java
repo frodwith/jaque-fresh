@@ -13,7 +13,7 @@ import net.frodwith.jaque.data.SourceMappedNoun;
 import net.frodwith.jaque.data.SourceMappedNoun.IndexLength;
 
 import net.frodwith.jaque.runtime.HoonMath;
-import net.frodwith.jaque.exception.Fail;
+import net.frodwith.jaque.exception.ExitException;
 
 public final class CustomParser {
 
@@ -34,7 +34,8 @@ public final class CustomParser {
       return new IndexLength(startIndex, endIndex - startIndex);
     }
 
-    public abstract Object write(Object axis, Map<Object,IndexLength> axisMap) throws Fail;
+    public abstract Object write(Object axis, Map<Object,IndexLength> axisMap) 
+      throws ExitException;
   }
 
   private static final class ParsingList extends Parsing {
@@ -61,7 +62,8 @@ public final class CustomParser {
     }
 
     @Override
-    public Object write(Object axis, Map<Object,IndexLength> axisMap) throws Fail {
+    public Object write(Object axis, Map<Object,IndexLength> axisMap)
+      throws ExitException {
       axisMap.put(axis, indexLength());
       int len = children.size() - 1, i = len;
       Object[] reversed = new Object[len];
@@ -105,7 +107,8 @@ public final class CustomParser {
   }
 
   @TruffleBoundary
-  public static SourceMappedNoun parse(SourceSection sourceSection) throws Fail {
+  public static SourceMappedNoun parse(SourceSection sourceSection)
+    throws ExitException {
     final CharSequence chars = sourceSection.getCharacters();
     final int len = chars.length();
     boolean fresh = true;

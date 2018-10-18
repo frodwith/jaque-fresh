@@ -15,8 +15,8 @@ import net.frodwith.jaque.data.NockObject;
 import net.frodwith.jaque.data.NockCall;
 import net.frodwith.jaque.runtime.Axis;
 import net.frodwith.jaque.runtime.NockFunctionRegistry;
-import net.frodwith.jaque.exception.Bail;
-import net.frodwith.jaque.exception.Fail;
+import net.frodwith.jaque.exception.NockException;
+import net.frodwith.jaque.exception.ExitException;
 import net.frodwith.jaque.runtime.NockFunction;
 import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.runtime.Equality;
@@ -62,7 +62,7 @@ public abstract class PullNode extends NockCallLookupNode {
 
   @Fallback
   protected NockCall doAtom(Object atom) {
-    throw new Bail("atom not core", this);
+    throw new NockException("atom not core", this);
   }
 
   private FragmentNode getFragmentNode() {
@@ -81,8 +81,8 @@ public abstract class PullNode extends NockCallLookupNode {
     try {
       return object.getArm(axis, registry, frag);
     }
-    catch ( Fail e ) {
-      throw new Bail("fail to fetch arm from battery", this);
+    catch ( ExitException e ) {
+      throw new NockException("fail to fetch arm from battery", e, this);
     }
   }
 

@@ -10,8 +10,8 @@ import com.oracle.truffle.api.TruffleLanguage.ContextReference;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 
 import net.frodwith.jaque.data.Cell;
-import net.frodwith.jaque.exception.Bail;
-import net.frodwith.jaque.exception.Fail;
+import net.frodwith.jaque.exception.NockException;
+import net.frodwith.jaque.exception.ExitException;
 import net.frodwith.jaque.runtime.NockFunction;
 import net.frodwith.jaque.runtime.NockContext;
 
@@ -41,13 +41,13 @@ public abstract class NockFunctionLookupNode extends NockNode {
       return formula.getMeta()
         .getFunction(getContextReference().get().functionRegistry);
     }
-    catch (Fail e) {
-      throw new Bail("bad formula", this);
+    catch (ExitException e) {
+      throw new NockException("bad formula", e, this);
     }
   }
   
   @Fallback
   protected NockFunction doAtom(Object atom) {
-    throw new Bail("atom not formula", this);
+    throw new NockException("atom not formula", this);
   }
 }

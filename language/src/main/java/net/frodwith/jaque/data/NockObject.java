@@ -11,7 +11,7 @@ import net.frodwith.jaque.runtime.Axis;
 import net.frodwith.jaque.runtime.NockFunction;
 import net.frodwith.jaque.runtime.NockFunctionRegistry;
 
-import net.frodwith.jaque.exception.Fail;
+import net.frodwith.jaque.exception.ExitException;
 
 public final class NockObject {
   public final Cell cell;
@@ -29,7 +29,7 @@ public final class NockObject {
 
   public NockFunction getArm(Object axis,
                              NockFunctionRegistry functions,
-                             FragmentNode fragment) throws Fail {
+                             FragmentNode fragment) throws ExitException {
     NockFunction f;
     if ( null == location ||
          null == location.drivers ||

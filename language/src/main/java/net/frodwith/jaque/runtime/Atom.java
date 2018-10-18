@@ -6,10 +6,8 @@ import com.oracle.truffle.api.CompilerDirectives;
 
 import gnu.math.MPN;
 
-import net.frodwith.jaque.exception.AtomRequiredException;
-import net.frodwith.jaque.exception.IntRequiredException;
-
 import net.frodwith.jaque.data.BigAtom;
+import net.frodwith.jaque.exception.ExitException;
 
 public final class Atom {
 
@@ -39,17 +37,19 @@ public final class Atom {
     }
   }
 
-  public static Object require(Object o) throws AtomRequiredException {
+  public static Object require(Object o) throws ExitException {
     if ( o instanceof Long || o instanceof BigAtom ) {
       return o;
     }
     else {
       CompilerDirectives.transferToInterpreter();
-      throw new AtomRequiredException(o);
+      throw new ExitException("atom required");
     }
   }
 
-  public static int requireInt(Object o) throws IntRequiredException {
+  // IMPORTANT: you may in fact want to FAIL unless you get an int,
+  //            this is EXIT unless given an int.
+  public static int requireInt(Object o) throws ExitException {
     if ( o instanceof Long ) {
       long atom = (long) o;
       if ( 1 != Long.compareUnsigned(atom, 0xFFFFFFFF) ) {
@@ -57,7 +57,7 @@ public final class Atom {
       }
     }
     CompilerDirectives.transferToInterpreter();
-    throw new IntRequiredException(o);
+    throw new ExitException("expected int");
   }
 
   public static int[] words(long l) {

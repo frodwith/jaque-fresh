@@ -15,12 +15,8 @@ import net.frodwith.jaque.data.Trel;
 import net.frodwith.jaque.data.BigAtom;
 import net.frodwith.jaque.data.SourceMappedNoun;
 
-import net.frodwith.jaque.exception.AtomRequiredException;
-import net.frodwith.jaque.exception.RequireException;
-import net.frodwith.jaque.exception.FormulaRequiredException;
-import net.frodwith.jaque.exception.Fail;
-
 import net.frodwith.jaque.nodes.*;
+import net.frodwith.jaque.exception.ExitException;
 
 import static net.frodwith.jaque.runtime.HoonMath.peg;
 
@@ -36,12 +32,13 @@ public final class NockFunction implements TruffleObject {
     this.callTarget = callTarget;
   }
 
-  public static RootCallTarget cellTarget(NockLanguage language, Cell formula) throws Fail {
+  public static RootCallTarget cellTarget(NockLanguage language, Cell formula)
+    throws ExitException {
     Supplier<SourceMappedNoun> sourceSupplier = () -> {
       try {
         return SourceMappedNoun.fromCell(formula);
       }
-      catch ( Fail e ) {
+      catch ( ExitException e ) {
         throw new RuntimeException("NockFunction.fromCell:supplier", e);
       }
     };
@@ -52,7 +49,9 @@ public final class NockFunction implements TruffleObject {
     return Truffle.getRuntime().createCallTarget(root);
   }
 
-  public static RootCallTarget mappedTarget(NockLanguage language, SourceMappedNoun mapped) throws Fail {
+  public static RootCallTarget
+    mappedTarget(NockLanguage language, SourceMappedNoun mapped)
+      throws ExitException {
     Supplier<SourceMappedNoun> sourceSupplier = () -> {
       return mapped;
     };
@@ -70,7 +69,7 @@ public final class NockFunction implements TruffleObject {
 
   private static NockExpressionNode
     parseCons(NockLanguage language, Object head, Object tail, Object axis)
-      throws Fail {
+      throws ExitException {
     NockExpressionNode headNode =
       parseExpr(language, head, peg(axis, 2L), false);
     NockExpressionNode tailNode =
@@ -81,7 +80,7 @@ public final class NockFunction implements TruffleObject {
 
   private static NockExpressionNode 
     parseSlot(Object axis)
-      throws AtomRequiredException {
+      throws ExitException {
     Atom.require(axis);
     if ( axis instanceof Long ) {
       long l = (long) axis;
@@ -108,7 +107,7 @@ public final class NockFunction implements TruffleObject {
 
   private static NockExpressionNode
     parseEval(NockLanguage language, Object arg, Object axis, boolean tail)
-      throws Fail {
+      throws ExitException {
     Cell args = Cell.require(arg);
 
     NockExpressionNode subject = 
@@ -126,13 +125,13 @@ public final class NockFunction implements TruffleObject {
 
   private static NockExpressionNode
     parseUnary(NockLanguage language, Object arg, Object axis)
-      throws Fail {
+      throws ExitException {
     return parseExpr(language, arg, peg(axis, 3L), false);
   }
 
   private static NockExpressionNode 
     parseIf(NockLanguage language, Object arg, Object axis, boolean tail)
-      throws Fail {
+      throws ExitException {
     Trel args = Trel.require(arg);
     return new IfNode(parseExpr(language, args.p, peg(axis, 6L), false),
                       parseExpr(language, args.q, peg(axis, 14L), tail),
@@ -141,7 +140,7 @@ public final class NockFunction implements TruffleObject {
 
   private static NockExpressionNode 
     parseComp(NockLanguage language, Object arg, Object axis, boolean tail)
-      throws Fail {
+      throws ExitException {
     Cell args = Cell.require(arg);
     return new ComposeNode(parseExpr(language, args.head, peg(axis, 6L), false),
                            parseExpr(language, args.tail, peg(axis, 7L), tail));
@@ -149,7 +148,7 @@ public final class NockFunction implements TruffleObject {
 
   private static NockExpressionNode 
     parsePush(NockLanguage language, Object arg, Object axis, boolean tail)
-      throws Fail {
+      throws ExitException {
     Cell args = Cell.require(arg);
     return new PushNode(parseExpr(language, args.head, peg(axis, 6L), false),
                         parseExpr(language, args.tail, peg(axis, 7L), tail));
@@ -157,7 +156,7 @@ public final class NockFunction implements TruffleObject {
 
   private static NockExpressionNode
     parsePull(NockLanguage language, Object arg, Object axis, boolean tail)
-      throws Fail {
+      throws ExitException {
     Cell args = Cell.require(arg);
     Object armAxis = Atom.require(args.head);
     Object coreAxis = peg(axis, 7L);
@@ -263,70 +262,63 @@ public final class NockFunction implements TruffleObject {
 */
 
   private static NockExpressionNode 
-    parseExpr(NockLanguage language, 
-              Object formula, 
-              Object axis,
-              boolean tail) throws Fail {
-    try {
-      Cell c = Cell.require(formula);
-      Object op   = c.head,
-             arg  = c.tail;
+    parseExpr(NockLanguage language, Object formula, Object axis, boolean tail)
+      throws ExitException {
+    Cell c = Cell.require(formula);
+    Object op   = c.head,
+           arg  = c.tail;
 
-      NockExpressionNode node;
+    NockExpressionNode node;
 
-      if ( op instanceof Cell ) {
-        node = parseCons(language, op, arg, axis);
-      }
-      else {
-        int code = Atom.requireInt(op);
-        switch ( code ) {
-          case 0:
-            node = parseSlot(arg);
-            break;
-          case 1:
-            node = parseQuot(arg);
-            break;
-          case 2:
-            node = parseEval(language, arg, axis, tail);
-            break;
-          case 3:
-            node = DeepNodeGen.create(parseUnary(language, arg, axis));
-            break;
-          case 4:
-            node = BumpNodeGen.create(parseUnary(language, arg, axis));
-            break;
-          case 5:
-            node = SameNodeGen.create(parseUnary(language, arg, axis));
-            break;
-          case 6:
-            node = parseIf(language, arg, axis, tail);
-            break;
-          case 7:
-            node = parseComp(language, arg, axis, tail);
-            break;
-          case 8:
-            node = parsePush(language, arg, axis, tail);
-            break;
-          case 9:
-            node = parsePull(language, arg, axis, tail);
-            break;
-            /*
-          case 10:
-            return parseHint(arg);
-          case 11:
-            return parseWish(arg);
-          case 12:
-            return parseEdit(arg);
-            */
-          default:
-            throw new FormulaRequiredException(op);
-        }
-      }
-      node.setAxisInFormula(axis);
-      return node;
+    if ( op instanceof Cell ) {
+      node = parseCons(language, op, arg, axis);
     }
-    catch ( RequireException e ) {
-      throw new FormulaRequiredException(formula, e);
+    else {
+      int code = Atom.requireInt(op);
+      switch ( code ) {
+        case 0:
+          node = parseSlot(arg);
+          break;
+        case 1:
+          node = parseQuot(arg);
+          break;
+        case 2:
+          node = parseEval(language, arg, axis, tail);
+          break;
+        case 3:
+          node = DeepNodeGen.create(parseUnary(language, arg, axis));
+          break;
+        case 4:
+          node = BumpNodeGen.create(parseUnary(language, arg, axis));
+          break;
+        case 5:
+          node = SameNodeGen.create(parseUnary(language, arg, axis));
+          break;
+        case 6:
+          node = parseIf(language, arg, axis, tail);
+          break;
+        case 7:
+          node = parseComp(language, arg, axis, tail);
+          break;
+        case 8:
+          node = parsePush(language, arg, axis, tail);
+          break;
+        case 9:
+          node = parsePull(language, arg, axis, tail);
+          break;
+          /*
+             case 10:
+             return parseHint(arg);
+             case 11:
+             return parseWish(arg);
+             case 12:
+             return parseEdit(arg);
+           */
+        default:
+          throw new ExitException("bad opcode");
+      }
     }
+    node.setAxisInFormula(axis);
+    return node;
   }
 }

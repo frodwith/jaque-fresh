@@ -15,7 +15,6 @@ import org.graalvm.polyglot.PolyglotException;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.BigAtom;
 import net.frodwith.jaque.parser.SimpleAtomParser;
-import net.frodwith.jaque.exception.Bail;
 
 public class BasicNockTest {
   private Context context;

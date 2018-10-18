@@ -6,7 +6,6 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.oracle.truffle.api.profiles.ConditionProfile;
 
 import net.frodwith.jaque.NockLanguage;
-import net.frodwith.jaque.exception.Bail;
 import net.frodwith.jaque.data.Cell;
 
 public final class PushNode extends NockExpressionNode {

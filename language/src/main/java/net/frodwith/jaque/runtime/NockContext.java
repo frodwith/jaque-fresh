@@ -11,8 +11,6 @@ import net.frodwith.jaque.NockLanguage;
 import net.frodwith.jaque.data.BigAtom;
 import net.frodwith.jaque.data.Cell;
 
-import net.frodwith.jaque.exception.Fail;
-
 public final class NockContext {
   private final Env env;
   private final NockLanguage language;

@@ -3,7 +3,7 @@ package net.frodwith.jaque.data;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 
-import net.frodwith.jaque.exception.Fail;
+import net.frodwith.jaque.exception.ExitException;
 
 import net.frodwith.jaque.runtime.Dashboard;
 import net.frodwith.jaque.runtime.Mug;
@@ -41,7 +41,8 @@ public final class CellMeta {
     return battery;
   }
 
-  public NockFunction getFunction(NockFunctionRegistry registry) throws Fail {
+  public NockFunction getFunction(NockFunctionRegistry registry)
+    throws ExitException {
     if ( null == function ) {
       function = registry.lookup(cell);
     }

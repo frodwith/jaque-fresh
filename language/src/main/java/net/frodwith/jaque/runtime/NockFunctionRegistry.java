@@ -6,7 +6,7 @@ import java.util.HashMap;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.NockLanguage;
 
-import net.frodwith.jaque.exception.Fail;
+import net.frodwith.jaque.exception.ExitException;
 
 public final class NockFunctionRegistry {
   private final NockLanguage language;
@@ -16,7 +16,7 @@ public final class NockFunctionRegistry {
     this.language = language;
   }
 
-  public NockFunction lookup(Cell formula) throws Fail {
+  public NockFunction lookup(Cell formula) throws ExitException {
     NockFunction f = map.get(formula);
     if ( null == f ) {
       f = new NockFunction(NockFunction.cellTarget(language, formula));

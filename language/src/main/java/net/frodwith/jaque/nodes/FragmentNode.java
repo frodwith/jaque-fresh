@@ -9,8 +9,8 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import net.frodwith.jaque.NockLanguage;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.runtime.Axis;
-import net.frodwith.jaque.exception.CellRequiredException;
-import net.frodwith.jaque.exception.Bail;
+import net.frodwith.jaque.exception.NockException;
+import net.frodwith.jaque.exception.ExitException;
 
 public final class FragmentNode extends Node {
   @Children private final FragmentPartNode[] parts;
@@ -42,8 +42,8 @@ public final class FragmentNode extends Node {
         o = node.executePart(Cell.require(o));
       }
     }
-    catch ( CellRequiredException e ) {
-      throw new Bail("atom fragment", this);
+    catch ( ExitException e ) {
+      throw new NockException("atom fragment", e, this);
     }
 
     return o;

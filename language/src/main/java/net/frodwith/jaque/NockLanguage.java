@@ -17,10 +17,10 @@ import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.BigAtom;
 import net.frodwith.jaque.data.SourceMappedNoun;
 
+import net.frodwith.jaque.exception.ExitException;
+
 import net.frodwith.jaque.runtime.NockFunction;
 import net.frodwith.jaque.runtime.NockContext;
-
-import net.frodwith.jaque.exception.Fail;
 
 import net.frodwith.jaque.parser.CustomParser;
 
@@ -68,7 +68,7 @@ public final class NockLanguage extends TruffleLanguage<NockContext> {
   }
 
   @Override
-  protected CallTarget parse(ParsingRequest request) throws Fail {
+  protected CallTarget parse(ParsingRequest request) throws ExitException {
     Source source = request.getSource();
     if ( !request.getArgumentNames().isEmpty() ) {
       throw new UnsupportedOperationException("nock has no named values");

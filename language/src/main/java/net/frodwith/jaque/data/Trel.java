@@ -1,6 +1,6 @@
 package net.frodwith.jaque.data;
 
-import net.frodwith.jaque.exception.CellRequiredException;
+import net.frodwith.jaque.exception.ExitException;
 
 public final class Trel {
   public final Object p, q, r;
@@ -11,7 +11,7 @@ public final class Trel {
     this.r = r;
   }
 
-  public static Trel require(Object o) throws CellRequiredException {
+  public static Trel require(Object o) throws ExitException {
     Cell trel = Cell.require(o),
          tail = Cell.require(trel.tail);
     return new Trel(trel.head, tail.head, tail.tail);

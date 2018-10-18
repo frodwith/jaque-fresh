@@ -5,7 +5,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.oracle.truffle.api.profiles.ConditionProfile;
 
-import net.frodwith.jaque.exception.Bail;
+import net.frodwith.jaque.exception.NockException;
 
 public final class IfNode extends NockExpressionNode {
   @Child private NockExpressionNode testNode;
@@ -27,7 +27,7 @@ public final class IfNode extends NockExpressionNode {
       long atom = testNode.executeLong(frame);
       if ( atom < 0L || atom > 1L ) {
         CompilerDirectives.transferToInterpreter();
-        throw new Bail("nonloobean condition in 6", this);
+        throw new NockException("nonloobean condition in 6", this);
       }
       else {
         if ( testCondition.profile(0L == atom) ) {
@@ -39,7 +39,7 @@ public final class IfNode extends NockExpressionNode {
       }
     }
     catch ( UnexpectedResultException e ) {
-      throw new Bail("nonloobean condition in 6", this);
+      throw new NockException("nonloobean condition in 6", this);
     }
   }
 }

@@ -8,7 +8,8 @@ import com.oracle.truffle.api.interop.ForeignAccess;
 
 import net.frodwith.jaque.runtime.Mug;
 import net.frodwith.jaque.runtime.Equality;
-import net.frodwith.jaque.exception.CellRequiredException;
+
+import net.frodwith.jaque.exception.ExitException;
 
 /* Because we must use Object fields for the head and the tail to accomodate the atom
  * types that we are using, it is unfortunately possible to construct a cell of any
@@ -28,13 +29,13 @@ public final class Cell implements TruffleObject, Serializable {
     this.meta = null;
   }
 
-  public static Cell require(Object o) throws CellRequiredException {
+  public static Cell require(Object o) throws ExitException {
     if ( o instanceof Cell ) {
       return (Cell) o;
     }
     else {
       CompilerDirectives.transferToInterpreter();
-      throw new CellRequiredException(o);
+      throw new ExitException("cell required");
     }
   }
 
