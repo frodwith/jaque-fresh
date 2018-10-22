@@ -1,6 +1,5 @@
-Edit
-  with Object copying
-  and tests
+Test CellMeta caching (w/edit)
+
 Hint
   Fast
     test by jetting dec/add and running large mul

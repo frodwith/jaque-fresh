@@ -4,10 +4,10 @@ import java.util.Map;
 
 public final class Location {
   public final AxisMap<NockFunction> drivers;
-  public final Object axisToParent;
+  public final Axis toParent;
 
-  public Location(AxisMap<NockFunction> drivers, Object axisToParent) {
+  public Location(AxisMap<NockFunction> drivers, Axis toParent) {
     this.drivers = drivers;
-    this.axisToParent = axisToParent;
+    this.toParent = toParent;
   }
 }

@@ -34,6 +34,12 @@ public final class CellMeta {
     return object;
   }
 
+  public void writeObject(Cell to, Axis written) {
+    if ( object.outsideParent(written) ) {
+      to.getMeta().object = object;
+    }
+  }
+
   public NockBattery getBattery(Dashboard dashboard) {
     if ( null == battery ) {
       battery = dashboard.getBattery(cell);

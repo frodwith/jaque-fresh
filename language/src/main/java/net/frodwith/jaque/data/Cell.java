@@ -143,6 +143,13 @@ public final class Cell implements TruffleObject, Serializable {
     return cm;
   }
 
+  public void copyObject(Cell from, Axis written) {
+    if ( null != from.meta && from.meta instanceof CellMeta ) {
+      CellMeta fromMeta = (CellMeta) from.meta;
+      fromMeta.writeObject(this, written);
+    }
+  }
+
   @Override
   public boolean equals(Object o) {
     return (o instanceof Cell) && Equality.equals(this, (Cell) o);

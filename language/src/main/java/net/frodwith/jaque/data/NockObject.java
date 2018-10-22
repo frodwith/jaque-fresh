@@ -38,10 +38,10 @@ public final class NockObject {
     return f;
   }
 
-  public boolean outsideParent(Object axis) {
-    return (null == location)
-      || (null == location.axisToParent) 
-      || !Axis.subAxis(axis, location.axisToParent);
+  public boolean outsideParent(Axis ax) {
+    return (null != location)
+      && (null != location.toParent)
+      && !ax.inside(location.toParent);
   }
 
   public NockObject like(Cell cell) {

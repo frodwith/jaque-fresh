@@ -254,11 +254,12 @@ public final class NockFunction implements TruffleObject {
       throws ExitException {
     Cell args = Cell.require(arg);
     Cell spec = Cell.require(args.head);
+    Axis editAxis = Axis.require(spec.head);
     NockExpressionNode 
       small = parseExpr(language, spec.tail, axis.peg(13), false),
       large = parseExpr(language, args.tail, axis.peg(7), false);
     
-    if ( Axis.IDENTITY == axis ) {
+    if ( Axis.IDENTITY == editAxis ) {
       // NockEditNode specializes to producing a cell, but edit 1 is valid
       // and could produce an atom.
       return new TossNode(large, small);
@@ -267,7 +268,7 @@ public final class NockFunction implements TruffleObject {
       EditPartNode chain = new EditTermNode(small);
 
       ArrayDeque<Axis.Fragment> frags = new ArrayDeque<>();
-      for ( Axis.Fragment f : Axis.require(spec.head) ) {
+      for ( Axis.Fragment f : editAxis ) {
         frags.push(f);
       }
 
@@ -277,7 +278,7 @@ public final class NockFunction implements TruffleObject {
               : new EditTailNode(chain);
       }
 
-      return new NockEditNode(large, chain);
+      return new NockEditNode(large, chain, editAxis);
     }
   }
 
