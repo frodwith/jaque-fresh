@@ -1,6 +1,7 @@
 package net.frodwith.jaque.data;
 
 import java.util.function.Supplier;
+import java.util.ArrayDeque;
 
 import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.RootCallTarget;
@@ -246,27 +247,39 @@ public final class NockFunction implements TruffleObject {
       : HeadWishNode.create(ref, gof);
   }
 
-  private static ExpressionNode parseEdit(Object arg) throws ShapeException, FormulaRequiredException {
+*/
+
+  private static NockExpressionNode
+    parseEdit(NockLanguage language, Object arg, Axis axis, boolean tail) 
+      throws ExitException {
     Cell args = Cell.require(arg);
     Cell spec = Cell.require(args.head);
-    ExpressionNode small = parseExpr(spec.tail, false);
-    ExpressionNode large = parseExpr(args.tail, false);
-    ExpressionNode chain = EditTermNode.create(small);
-
-    ArrayDeque<Fragment> frags = new ArrayDeque<Fragment>();
-    for ( Fragment f : Axis.require(spec.head) ) {
-      frags.push(f);
+    NockExpressionNode 
+      small = parseExpr(language, spec.tail, axis.peg(13), false),
+      large = parseExpr(language, args.tail, axis.peg(7), false);
+    
+    if ( Axis.IDENTITY == axis ) {
+      // NockEditNode specializes to producing a cell, but edit 1 is valid
+      // and could produce an atom.
+      return new TossNode(large, small);
     }
+    else {
+      EditPartNode chain = new EditTermNode(small);
 
-    while ( !frags.isEmpty() ) {
-      chain = ( frags.pop() == Fragment.HEAD )
-            ? EditHeadNode.create(chain)
-            : EditTailNode.create(chain);
+      ArrayDeque<Axis.Fragment> frags = new ArrayDeque<>();
+      for ( Axis.Fragment f : Axis.require(spec.head) ) {
+        frags.push(f);
+      }
+
+      while ( !frags.isEmpty() ) {
+        chain = ( frags.pop() == Axis.Fragment.HEAD )
+              ? new EditHeadNode(chain)
+              : new EditTailNode(chain);
+      }
+
+      return new NockEditNode(large, chain);
     }
-
-    return EditNode.create(large, chain);
   }
-*/
 
   private static NockExpressionNode 
     parseExpr(NockLanguage language, Object formula, Axis axis, boolean tail)
@@ -313,13 +326,14 @@ public final class NockFunction implements TruffleObject {
         case 9:
           node = parsePull(language, arg, axis, tail);
           break;
+        case 10:
+          node = parseEdit(language, arg, axis, tail);
+          break;
           /*
-             case 10:
-             return parseHint(arg);
              case 11:
-             return parseWish(arg);
+               return parseHint(arg);
              case 12:
-             return parseEdit(arg);
+               return parseWish(arg);
            */
         default:
           throw new ExitException("bad opcode");

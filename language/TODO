@@ -10,11 +10,14 @@ Hint
   Slog
     tests can capture logs right?
   Stack Hints
-Wish
 
-Command line nock interpreter
+Step through some nock in a debugger
+
+Command line nock interpreter (with native-image)
+
+Wish
 
 Boot a ride pill
   mostly this is a lot of jetting
 
-Command line hoon interpreter
+Command line hoon interpreter (with native-image)

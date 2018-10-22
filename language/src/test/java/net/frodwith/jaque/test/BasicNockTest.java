@@ -150,6 +150,26 @@ public class BasicNockTest {
     assertEquals(42L, pull.execute().as(Number.class));
   }
 
+  @Test
+  public void testEdit() {
+    Value edit = context.eval("nock", "[7 [10 [6 0 7] 0 1] 0 6]");
+    Cell subject = new Cell(0L, new Cell(0L, 42L));
+    assertEquals(42L, edit.execute(subject).as(Number.class));
+    
+    Value nuke = context.eval("nock", "[10 [1 1 42] 0 2]");
+    assertEquals(42L, nuke.execute(new Cell(0L, 0L)).as(Number.class));
+
+    PolyglotException bails = null;
+    try {
+      nuke.execute(0L);
+    }
+    catch (PolyglotException e) {
+      bails = e;
+    }
+    assertNotNull(bails);
+    assertTrue(bails.isGuestException());
+  }
+
   @After
   public void dispose() {
     context.close();
