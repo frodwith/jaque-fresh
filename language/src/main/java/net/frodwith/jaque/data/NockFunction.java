@@ -221,7 +221,7 @@ public final class NockFunction implements TruffleObject {
         parseExpr(language, hints.tail, axis.peg(6), false);
       int tag;
       try {
-        // all currently recognized hint tags fit in an into an int mote, which
+        // all currently recognized hint tags fit into an int mote, which
         // is handy for switch statements.
         tag = Atom.requireInt(hints.head);
       }
@@ -233,7 +233,8 @@ public final class NockFunction implements TruffleObject {
           return new TossNode(clue, parseExpr(language, next, nextAxis, tail));
 
         case Motes.FAST:
-          return new FastNode(clue, parseExpr(language, next, nextAxis, false));
+          return new FastNode(language.getContextReference(),
+              clue, parseExpr(language, next, nextAxis, false));
         /*
         case Motes.MEAN:
         case Motes.HUNK:

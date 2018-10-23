@@ -1,4 +1,5 @@
 Fast
+  tests for fast clue parsing
   test by jetting dec/add and running large mul
 
 Test CellMeta caching (w/edit)

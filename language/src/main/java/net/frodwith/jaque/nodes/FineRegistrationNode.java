@@ -3,35 +3,41 @@ package net.frodwith.jaque.nodes;
 import com.oracle.truffle.api.TruffleLanguage.ContextReference;
 
 import net.frodwith.jaque.data.Cell;
-import net.frodwith.jaque.data.NockObject;
 import net.frodwith.jaque.data.FastClue;
+import net.frodwith.jaque.data.NockObject;
 import net.frodwith.jaque.runtime.Equality;
 import net.frodwith.jaque.runtime.NockContext;
+import net.frodwith.jaque.exception.ExitException;
 
 // A core we have already registred (noun-equal).
-public final class StaticRegistrationNode extends RegistrationNode {
-  private final Cell core;
+public final class FineRegistrationNode extends RegistrationNode {
   private final FastClue clue;
+  private final NockObject.Fine fine;
 
-  public StaticRegistrationNode(Cell core, FastClue clue,
-    ContextReference<NockContext> contextReference) {
+  public FineRegistrationNode(FastClue clue, NockObject.Fine fine,
+      ContextReference<NockContext> contextReference) {
     super(contextReference);
-    this.core = core;
     this.clue = clue;
+    this.fine = fine;
   }
 
   protected Object executeRegister(Object core, Object clue) {
+    Cell cc;
+    try {
+      cc = Cell.require(core);
+    }
+    catch ( ExitException e ) {
+      return core;
+    }
+
     RegistrationNode replacement;
     if ( Equality.equals(this.clue.noun, clue) ) {
-      if ( Equality.equals(this.core, core) ) {
-        return this.core;
+      if ( fine.check(cc) ) {
+        return core;
       }
       else {
-        NockObject object = this.core.getMeta().getObject(
-            contextReference.get().dashboard);
-        replacement = new FineRegistrationNode(
-            this.clue, object.createFine(),
-            contextReference);
+        replacement =
+          new StaticClueRegistrationNode(this.clue, contextReference);
       }
     }
     else {
