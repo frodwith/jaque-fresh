@@ -1,14 +1,18 @@
+Fast
+  test by jetting dec/add and running large mul
+
 Test CellMeta caching (w/edit)
 
-Hint
-  Fast
-    test by jetting dec/add and running large mul
-  Memo
-    with One Big Guava Cache
-    and tests
-  Slog
-    tests can capture logs right?
-  Stack Hints
+separate out a TailEdit so we don't have the if ( inTail ) thing
+
+things that take Dashboard or Registry should probably take a ContextReference
+
+Memo
+  with One Big Guava Cache
+  and tests
+Slog
+  tests can capture logs right?
+Stack Hints
 
 Step through some nock in a debugger
 

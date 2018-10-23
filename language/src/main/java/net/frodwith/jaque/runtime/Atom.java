@@ -10,6 +10,8 @@ import net.frodwith.jaque.data.BigAtom;
 import net.frodwith.jaque.exception.ExitException;
 
 public final class Atom {
+  public static final boolean BIG_ENDIAN = true;
+  public static final boolean LITTLE_ENDIAN = false;
 
 	public static int compare(BigAtom a, BigAtom b) {
     return MPN.cmp(a.words, a.words.length, b.words, b.words.length);
@@ -183,5 +185,52 @@ public final class Atom {
     else {
       return (1 & (atom.words[pix] >>> (n & 31))) != 0;
     }
+  }
+
+  public static Object fromByteArray(byte[] pill) {
+    return fromByteArray(pill, LITTLE_ENDIAN);
+  }
+  
+  /* IN-PLACE */
+  private static byte[] reverse(byte[] a) {
+    int i, j;
+    byte b;
+    for (i = 0, j = a.length - 1; j > i; ++i, --j) {
+      b = a[i];
+      a[i] = a[j];
+      a[j] = b;
+    }
+    return a;
+  }
+
+  public static Object fromByteArray(byte[] pill, boolean endian) {
+    int len  = pill.length;
+    int trim = len % 4;
+
+    if (endian == BIG_ENDIAN) {
+      pill = Arrays.copyOf(pill, len);
+      reverse(pill);
+    }
+
+    if (trim > 0) {
+      int    nlen = len + (4-trim);
+      byte[] npil = new byte[nlen];
+      System.arraycopy(pill, 0, npil, 0, len);
+      pill = npil;
+      len = nlen;
+    }
+
+    int   size  = len / 4;
+    int[] words = new int[size];
+    int i, b, w;
+    for (i = 0, b = 0; i < size; ++i) {
+      w =  (pill[b++] << 0)  & 0x000000FF;
+      w ^= (pill[b++] << 8)  & 0x0000FF00;
+      w ^= (pill[b++] << 16) & 0x00FF0000;
+      w ^= (pill[b++] << 24) & 0xFF000000;
+      words[i] = w;
+    }
+
+    return malt(words);
   }
 }

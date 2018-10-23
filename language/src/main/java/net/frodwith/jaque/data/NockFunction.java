@@ -11,6 +11,7 @@ import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.interop.ForeignAccess;
 
 import net.frodwith.jaque.NockLanguage;
+import net.frodwith.jaque.data.Motes;
 import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.Trel;
@@ -201,41 +202,57 @@ public final class NockFunction implements TruffleObject {
     }
   }
 
-  /*
-  private static ExpressionNode parseHint(Object arg, boolean tail) throws ShapeException, FormulaRequiredException {
+  private static NockExpressionNode
+    parseHint(NockLanguage language, Object arg, Axis axis, boolean tail) 
+      throws ExitException {
     Cell args = Cell.require(arg);
     Object hint = args.head;
     Object next = args.tail;
+    Axis nextAxis = axis.peg(7);
 
-    if ( hint instanceof Cell ) {
+    if ( !(hint instanceof Cell) ) {
+      // no recognized static hints
+      return parseExpr(language, next, nextAxis, tail);
+    }
+    else {
       Cell hints = Cell.require(hint);
-      ExpressionNode clue = parseExpr(hints.tail, false);
-      switch ( hints.head ) {
+      
+      NockExpressionNode clue =
+        parseExpr(language, hints.tail, axis.peg(6), false);
+      int tag;
+      try {
+        // all currently recognized hint tags fit in an into an int mote, which
+        // is handy for switch statements.
+        tag = Atom.requireInt(hints.head);
+      }
+      catch ( ExitException e ) {
+        return new TossNode(clue, parseExpr(language, next, nextAxis, tail));
+      }
+      switch ( tag ) {
+        default:
+          return new TossNode(clue, parseExpr(language, next, nextAxis, tail));
 
+        case Motes.FAST:
+          return new FastNode(clue, parseExpr(language, next, nextAxis, false));
+        /*
         case Motes.MEAN:
         case Motes.HUNK:
         case Motes.LOSE:
         case Motes.SPOT:
           return StackNode.create(hints.head, clue, parseExpr(next, false));
 
-        case Motes.FAST:
-          return FastNode.create(clue, parseExpr(next, false));
 
         case Motes.SLOG:
           return SlogNode.create(clue, parseExpr(next, tail));
 
         case Motes.MEMO:
           return MemoNode.create(clue, parseExpr(next, false));
-
-        default:
-          return TossNode.create(clue, parseExpr(next, tail));
+          */
       }
     }
-    else {
-      // no recognized static hints
-      return parseExpr(next, tail);
-    }
   }
+
+  /*
 
   private static WishNode parseWish(Object arg, boolean tail) throws ShapeException, FormulaRequiredException {
     Cell args = Cell.require(arg);
@@ -330,9 +347,10 @@ public final class NockFunction implements TruffleObject {
         case 10:
           node = parseEdit(language, arg, axis, tail);
           break;
+        case 11:
+          node = parseHint(language, arg, axis, tail);
+          break;
           /*
-             case 11:
-               return parseHint(arg);
              case 12:
                return parseWish(arg);
            */

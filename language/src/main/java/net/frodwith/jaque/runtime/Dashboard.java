@@ -7,6 +7,7 @@ import com.oracle.truffle.api.utilities.CyclicAssumption;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 
 import net.frodwith.jaque.data.Cell;
+import net.frodwith.jaque.data.FastClue;
 import net.frodwith.jaque.data.Location;
 import net.frodwith.jaque.data.NockObject;
 import net.frodwith.jaque.data.NockBattery;
@@ -37,5 +38,9 @@ public final class Dashboard {
       batteries.put(battery, b);
     }
     return b;
+  }
+
+  public void register(Cell core, FastClue clue) {
+    // XX todo
   }
 }
