@@ -5,9 +5,11 @@ import java.util.ArrayDeque;
 import java.util.Map;
 import java.util.HashMap;
 
+import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.source.SourceSection;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 
+import net.frodwith.jaque.NockLanguage;
 import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.data.AxisMap;
 import net.frodwith.jaque.data.Cell;
@@ -204,5 +206,10 @@ public final class CustomParser {
     ParsingResult r = top.children.remove(0).finish(Axis.IDENTITY, AxisMap.EMPTY);
 
     return new SourceMappedNoun(sourceSection, r.map, r.noun);
+  }
+
+  public static Object simple(String str) throws ExitException {
+    Source src = Source.newBuilder(NockLanguage.ID, str, "").build();
+    return parse(src.createSection(0, str.length())).noun;
   }
 }

@@ -1,5 +1,4 @@
 Fast
-  tests for fast clue parsing
   test by jetting dec/add and running large mul
 
 Test CellMeta caching (w/edit)
@@ -7,6 +6,8 @@ Test CellMeta caching (w/edit)
 separate out a TailEdit so we don't have the if ( inTail ) thing
 
 things that take Dashboard or Registry should probably take a ContextReference
+
+put transferToInterpreters in the various places where RegistrationNodes replace();
 
 Memo
   with One Big Guava Cache
