@@ -15,25 +15,28 @@ public final class NockObject {
   public final Cell cell;
   public final Assumption valid;
   public final Location location;
+  public final AxisMap<NockFunction> drivers;
   public static final Fine NEVER = new Fine();
 
   public NockObject(Cell cell,
                     Assumption stable,
+                    AxisMap<NockFunction> drivers,
                     Location location) {
     this.cell = cell;
     this.valid = stable;
+    this.drivers = drivers;
     this.location = location;
   }
 
-  public NockFunction getArm(Axis axis,
-                             NockFunctionRegistry functions,
-                             FragmentNode fragment) throws ExitException {
+  public NockFunction
+    getArm(Axis axis, FragmentNode fragment,
+           ContextReference<NockContext> contextReference)
+      throws ExitException {
     NockFunction f;
-    if ( null == location ||
-         null == location.drivers ||
-         null == (f = location.drivers.get(axis)) ) {
-      f = Cell.require(fragment.executeFragment(cell))
-        .getMeta().getFunction(functions);
+    if ( null == drivers ||
+         null == (f = drivers.get(axis)) ) {
+      f = Cell.require(fragment.executeFragment(cell)).getMeta()
+        .getFunction(contextReference.get().functionRegistry);
     }
     return f;
   }

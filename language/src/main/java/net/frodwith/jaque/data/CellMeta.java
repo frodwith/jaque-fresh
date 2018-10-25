@@ -28,10 +28,27 @@ public final class CellMeta {
   }
 
   public NockObject getObject(Dashboard dashboard) {
-    if ( null == object || !object.valid.isValid() ) {
+    if ( !hasObject() ) {
       object = dashboard.getObject(cell);
     }
     return object;
+  }
+
+  public boolean hasObject() {
+    if ( null == object ) {
+      return false;
+    }
+    else if ( object.valid.isValid() ) {
+      return true;
+    }
+    else {
+      this.object = null;
+      return false;
+    }
+  }
+
+  public NockObject cachedObject() {
+    return hasObject() ? object : null;
   }
 
   public void writeObject(Cell to, Axis written) {

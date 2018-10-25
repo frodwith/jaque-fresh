@@ -94,6 +94,17 @@ public final class Axis implements Iterable<Axis.Fragment> {
     return new Cursor();
   }
 
+  @ExplodeLoop
+  public Object fragment(Object noun) throws ExitException {
+    for ( int i = length - 1; i >= 0; --i ) {
+      Cell c = Cell.require(noun);
+      noun = ( Atom.getNthBit(atom, i) )
+           ? c.tail
+           : c.head;
+    }
+    return noun;
+  }
+
   // XX: is there a hoon equivalent of subAxis?
   public static boolean subAxis(long child, long parent) {
     switch ( Long.compareUnsigned(child, parent) ) {

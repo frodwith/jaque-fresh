@@ -13,31 +13,34 @@ import net.frodwith.jaque.data.NockObject;
 import net.frodwith.jaque.data.NockBattery;
 
 public final class Dashboard {
-  private CyclicAssumption stable = new CyclicAssumption("dashboard");
-  private Map<Cell,NockBattery> batteries;
+  private final CyclicAssumption stable = new CyclicAssumption("dashboard");
+  private final Map<Cell,NockBattery> batteries;
+  private final Map<Location,AxisMap<NockFunction>> drivers;
 
-  public Dashboard() {
+  public Dashboard(Map<Location,AxisMap<NockFunction>> drivers) {
     this.batteries = new HashMap<>();
-  }
-
-  public Location locate(Cell core) {
-    // XX TODO
-    return null;
+    this.drivers = drivers;
   }
 
   public NockObject getObject(Cell core) {
-    Location location = locate(core);
-    return new NockObject(core, stable.getAssumption(), location);
+    Assumption ass = stable.getAssumption();
+    try {
+      NockBattery battery = getBattery(Cell.require(core.head));
+      if ( null != battery ) {
+        Location loc = battery.locate(core);
+        if ( null != loc ) {
+          return new NockObject(core, loc, ass, drivers.get(loc));
+        }
+      }
+    }
+    catch ( ExitException e ) {
+    }
+    return new NockObject(core, null, ass, null);
   }
 
   @TruffleBoundary
   public NockBattery getBattery(Cell battery) {
-    NockBattery b = batteries.get(battery);
-    if ( null == b ) {
-      b = new NockBattery();
-      batteries.put(battery, b);
-    }
-    return b;
+    return batteries.get(battery);
   }
 
   public void register(Cell core, FastClue clue) {
