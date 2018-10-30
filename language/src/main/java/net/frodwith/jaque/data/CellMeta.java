@@ -16,8 +16,8 @@ public final class CellMeta {
   private Cell cell;
 
   private NockFunction function;
-  private NockBattery battery;
   private NockObject object;
+  private Battery battery;
 
   public CellMeta(Cell cell, int mug) {
     this.cell      = cell;
@@ -27,9 +27,9 @@ public final class CellMeta {
     this.function  = null;
   }
 
-  public NockObject getObject(Dashboard dashboard) {
+  public NockObject getObject(ContextReference<NockContext> ref) {
     if ( !hasObject() ) {
-      object = dashboard.getObject(cell);
+      object = ref.get().dashboard.getObject(cell);
     }
     return object;
   }
@@ -52,22 +52,37 @@ public final class CellMeta {
   }
 
   public void writeObject(Cell to, Axis written) {
-    if ( object.outsideParent(written) ) {
-      to.getMeta().object = object;
+    if ( hasObject() && object.copyableEdit(written) ) {
+      to.getMeta().object = object.like(to);
     }
   }
 
-  public NockBattery getBattery(Dashboard dashboard) {
+  public Battery getBattery(ContextReference<NockContext> ref) {
+    return getBattery(() -> ref.get().dashboard);
+  }
+
+  public Battery getBattery(Dashboard dashboard) {
+    return getBattery(() -> dashboard);
+  }
+
+  public Battery getBattery(Provider<Dashboard> provider) {
     if ( null == battery ) {
-      battery = dashboard.getBattery(cell);
+      battery = provider.get().dashboard.getBattery(cell);
     }
     return battery;
   }
 
-  public NockFunction getFunction(NockFunctionRegistry registry)
+  public NockBattery getBattery(ContextReference<NockContext> ref) {
+    if ( null == battery ) {
+      battery = ref.get().dashboard.getBattery(cell);
+    }
+    return battery;
+  }
+
+  public NockFunction getFunction(ContextReference<NockContext> ref) {
     throws ExitException {
     if ( null == function ) {
-      function = registry.lookup(cell);
+      function = ref.get().functionRegistry.lookup(cell);
     }
     return function;
   }

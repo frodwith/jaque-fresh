@@ -106,6 +106,10 @@ public final class FastClue {
     return map;
   }
 
+  public boolean isRoot() {
+    return toParent == Axis.CRASH;
+  }
+
   public static FastClue parse(Object clue) throws ExitException {
     Trel trel = Trel.require(clue);
     try {

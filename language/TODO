@@ -9,6 +9,28 @@ things that take Dashboard or Registry should probably take a ContextReference
 
 put transferToInterpreters in the various places where RegistrationNodes replace();
 
+REFLECTION
+  We can't load user-supplied classes from the generated native images.
+  Jet configuration can be un-static, for sure, but it has to select from
+  pre-existing implementation node classes. IE, AddNode has to baked into the
+  native image, but someone can tell that image "this is how you match an add,
+  use your baked in AddNode."
+
+Jet hot Dashboard
+  on boot, need to iterate through whole dashboard and discover from hot
+  on initial registry find, check hot dashboard first
+
+Registry information is eternal. One canonical. Null for unregistered batteries.
+
+Transient, cacheable information about batteries -- this will be NockBattery
+  keep in weak map and on cellmeta
+  clear when invalidating dashboard assumption
+
+  registry (also contains sha, since permanent)
+  sha
+  last located core with fine check
+  reference to dashboard assumption
+
 Memo
   with One Big Guava Cache
   and tests

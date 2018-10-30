@@ -12,7 +12,6 @@ public final class NockEditNode extends NockExpressionNode {
   private @Child NockExpressionNode largeNode;
   private @Child EditPartNode editNode;
   private final Axis editAxis;
-  private final boolean inTail;
 
   public NockEditNode(NockExpressionNode largeNode,
                       EditPartNode editNode,
@@ -20,7 +19,6 @@ public final class NockEditNode extends NockExpressionNode {
     this.largeNode = largeNode;
     this.editNode = editNode;
     this.editAxis = editAxis;
-    this.inTail = editAxis.inside(Axis.TAIL);
   }
 
   @Override
@@ -30,7 +28,7 @@ public final class NockEditNode extends NockExpressionNode {
       large = largeNode.executeCell(frame);
     }
     catch ( UnexpectedResultException e ) {
-      throw new NockException("edit cell", e, this);
+      throw new NockException("edit atom", e, this);
     }
     Object product = editNode.executeEdit(frame, large);
     Cell pc;
@@ -38,11 +36,10 @@ public final class NockEditNode extends NockExpressionNode {
       pc = Cell.require(product);
     }
     catch (ExitException e) {
+      CompilerDirectives.transferToInterpeter();
       throw new AssertionError();
     }
-    if ( inTail ) {
-      pc.copyObject(large, editAxis);
-    }
+    pc.copyObject(large, editAxis);
     return pc;
   }
 
