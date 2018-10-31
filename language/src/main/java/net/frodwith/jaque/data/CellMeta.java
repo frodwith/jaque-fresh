@@ -1,7 +1,10 @@
 package net.frodwith.jaque.data;
 
+import java.util.function.Supplier;
+
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
+import com.oracle.truffle.api.TruffleLanguage.ContextReference;
 
 import net.frodwith.jaque.exception.ExitException;
 
@@ -10,6 +13,7 @@ import net.frodwith.jaque.runtime.Mug;
 
 import net.frodwith.jaque.data.NockFunction;
 import net.frodwith.jaque.runtime.NockFunctionRegistry;
+import net.frodwith.jaque.runtime.NockContext;
 
 public final class CellMeta {
   private int mug;
@@ -27,9 +31,9 @@ public final class CellMeta {
     this.function  = null;
   }
 
-  public NockObject getObject(ContextReference<NockContext> ref) {
+  public NockObject getObject(Supplier<Dashboard> supply) {
     if ( !hasObject() ) {
-      object = ref.get().dashboard.getObject(cell);
+      object = supply.get().getObject(cell);
     }
     return object;
   }
@@ -51,38 +55,23 @@ public final class CellMeta {
     return hasObject() ? object : null;
   }
 
-  public void writeObject(Cell to, Axis written) {
-    if ( hasObject() && object.copyableEdit(written) ) {
-      to.getMeta().object = object.like(to);
+  public void writeObject(Cell edited, Axis written) {
+    if ( hasObject() && object.copyableEdit(edited, written) ) {
+      edited.getMeta().object = object.like(edited);
     }
   }
 
-  public Battery getBattery(ContextReference<NockContext> ref) {
-    return getBattery(() -> ref.get().dashboard);
-  }
-
-  public Battery getBattery(Dashboard dashboard) {
-    return getBattery(() -> dashboard);
-  }
-
-  public Battery getBattery(Provider<Dashboard> provider) {
+  public Battery getBattery(Supplier<Dashboard> supply) {
     if ( null == battery ) {
-      battery = provider.get().dashboard.getBattery(cell);
+      battery = supply.get().getBattery(cell);
     }
     return battery;
   }
 
-  public NockBattery getBattery(ContextReference<NockContext> ref) {
-    if ( null == battery ) {
-      battery = ref.get().dashboard.getBattery(cell);
-    }
-    return battery;
-  }
-
-  public NockFunction getFunction(ContextReference<NockContext> ref) {
+  public NockFunction getFunction(Supplier<NockFunctionRegistry> supply) 
     throws ExitException {
     if ( null == function ) {
-      function = ref.get().functionRegistry.lookup(cell);
+      function = supply.get().lookup(cell);
     }
     return function;
   }

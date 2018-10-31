@@ -10,6 +10,10 @@ import net.frodwith.jaque.runtime.Cords;
 import net.frodwith.jaque.runtime.Equality;
 import net.frodwith.jaque.exception.ExitException;
 
+import net.frodwith.jaque.location.Hook;
+import net.frodwith.jaque.location.FragHook;
+import net.frodwith.jaque.location.PullHook;
+
 public final class FastClue {
   public final String name;
   public final Axis toParent;
@@ -121,27 +125,6 @@ public final class FastClue {
     catch ( IllegalArgumentException e ) {
       CompilerDirectives.transferToInterpreter();
       throw new ExitException("bad clue");
-    }
-  }
-
-  public static abstract class Hook {
-  }
-
-  public static final class FragHook extends Hook {
-    public final Axis axis;
-
-    public FragHook(Axis axis) {
-      this.axis = axis;
-    }
-  }
-
-  public static final class PullHook extends Hook {
-    public final Axis toSubject;
-    public final Axis arm;
-
-    public PullHook(Axis toSubject, Axis arm) {
-      this.toSubject = toSubject;
-      this.arm = arm;
     }
   }
 }

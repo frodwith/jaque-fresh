@@ -20,6 +20,7 @@ import net.frodwith.jaque.exception.NockException;
 import net.frodwith.jaque.exception.ExitException;
 import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.runtime.Equality;
+import net.frodwith.jaque.location.FineCheck;
 
 @NodeChild(value="coreNode", type=NockExpressionNode.class)
 @NodeFields({
@@ -43,13 +44,13 @@ public abstract class PullNode extends NockCallLookupNode {
   }
 
   @Specialization(limit = "INLINE_CACHE_SIZE",
-                  guards = "check(fine, core)",
+                  guards = "fine.check(core)",
                   assumptions = "object.valid",
                   replaces = "doStatic")
   protected NockCall doFine(Cell core,
     @Cached("getObject(core)") NockObject object,
     @Cached("getArm(object)") NockFunction arm,
-    @Cached("object.createFine()") NockObject.Fine fine) {
+    @Cached("object.getFine()") FineCheck fine) {
     return new NockCall(arm, core);
   }
 
@@ -88,10 +89,6 @@ public abstract class PullNode extends NockCallLookupNode {
 
   protected NockObject getObject(Cell core) {
     return core.getMeta().getObject(getContextReference().get().dashboard);
-  }
-
-  protected static boolean check(NockObject.Fine fine, Cell core) {
-    return fine.check(core);
   }
 
   protected static boolean sameCells(Cell a, Cell b) {

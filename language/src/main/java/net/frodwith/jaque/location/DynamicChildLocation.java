@@ -2,6 +2,11 @@ package net.frodwith.jaque.location;
 
 import java.util.Map;
 
+import net.frodwith.jaque.data.Axis;
+import net.frodwith.jaque.data.Cell;
+
+import net.frodwith.jaque.exception.ExitException;
+
 public final class DynamicChildLocation extends Location {
   public final Location parent;
   public final Axis toParent;

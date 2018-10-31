@@ -8,13 +8,14 @@ import net.frodwith.jaque.data.NockObject;
 import net.frodwith.jaque.runtime.Equality;
 import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.exception.ExitException;
+import net.frodwith.jaque.location.FineCheck;
 
 // A core we have already registred (noun-equal).
 public final class FineRegistrationNode extends RegistrationNode {
   private final FastClue clue;
-  private final NockObject.Fine fine;
+  private final FineCheck fine;
 
-  public FineRegistrationNode(FastClue clue, NockObject.Fine fine,
+  public FineRegistrationNode(FastClue clue, FineCheck fine,
       ContextReference<NockContext> contextReference) {
     super(contextReference);
     this.clue = clue;

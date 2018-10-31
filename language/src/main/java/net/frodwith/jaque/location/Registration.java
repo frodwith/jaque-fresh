@@ -3,12 +3,17 @@ package net.frodwith.jaque.location;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.function.Supplier;
 
 import com.oracle.truffle.api.Assumption;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 
 import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.data.Cell;
+import net.frodwith.jaque.data.NockObject;
 import net.frodwith.jaque.runtime.Atom;
+import net.frodwith.jaque.runtime.Dashboard;
+import net.frodwith.jaque.exception.ExitException;
 
 // One canonical persistent object per REGISTERED battery.  These objects are
 // strongly held in a map, and are part of the informal execution history of an
@@ -46,13 +51,11 @@ public final class Registration {
   }
 
   @TruffleBoundary
-  public NockBattery registerChild(Axis toParent,
-                                   Location child,
-                                   Location parent) {
+  public void registerChild(Axis toParent, Location child, Location parent) {
     int i, len = parents.size();
-L0: for ( int i = 0; i < len; ++i ) {
+L0: for ( i = 0; i < len; ++i ) {
       Parents p = parents.get(i);
-      switch ( Atom.compare(p.atom, toParent.atom) ) {
+      switch ( Atom.compare(p.axis.atom, toParent.atom) ) {
         case 0:
           p.map.put(parent, child);
           return;
@@ -65,16 +68,16 @@ L0: for ( int i = 0; i < len; ++i ) {
   }
 
   @TruffleBoundary
-  public Location locate(Cell core, ContextReference<NockContext> ref) {
+  public Location locate(Cell core, Supplier<Dashboard> dash) {
     try {
       Location root = roots.get(core.tail);
       if ( root != null ) {
         return root;
       }
       else {
-        for ( Parents p : parentList ) {
+        for ( Parents p : parents ) {
           Object at = p.axis.fragment(core);
-          NockObject parent = Cell.require(at).getMeta().getObject(ref);
+          NockObject parent = Cell.require(at).getMeta().getObject(dash);
           Location child = p.map.get(parent.location);
           if ( null != child ) {
             return child;

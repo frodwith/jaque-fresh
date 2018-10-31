@@ -1,5 +1,9 @@
 package net.frodwith.jaque.location;
 
+import com.oracle.truffle.api.nodes.ExplodeLoop;
+
+import net.frodwith.jaque.data.Cell;
+
 public final class FineCheck {
   private final FineStep[] steps;
   private final Cell root;

@@ -20,7 +20,7 @@ public final class NockContext {
   public NockContext(NockLanguage language, Env env) {
     this.language = language;
     this.env = env;
-    this.dashboard = new Dashboard();
+    this.dashboard = new Dashboard(new HashMap<>(), new HashMap<>());
     this.functionRegistry = new NockFunctionRegistry(language);
   }
 
