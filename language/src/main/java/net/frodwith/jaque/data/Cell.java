@@ -8,6 +8,7 @@ import com.oracle.truffle.api.interop.ForeignAccess;
 
 import net.frodwith.jaque.runtime.Mug;
 import net.frodwith.jaque.runtime.Equality;
+import net.frodwith.jaque.dashboard.Location;
 
 import net.frodwith.jaque.exception.ExitException;
 
@@ -141,6 +142,10 @@ public final class Cell implements TruffleObject, Serializable {
       cm = (CellMeta) meta;
     }
     return cm;
+  }
+
+  public boolean knownAt(Location location) {
+    return (meta instanceof CellMeta) && ((CellMeta)meta).knownAt(location);
   }
 
   public void copyObject(Cell from, Axis written) {

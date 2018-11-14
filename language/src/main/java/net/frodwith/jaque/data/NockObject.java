@@ -23,9 +23,15 @@ public final class NockObject {
     this(klass, noun, null);
   }
 
-  public FineCheck getFine(Supplier<Dashboard> supply) throws ExitException {
+  public FineCheck getFine(Supplier<Dashboard> supply) {
     if ( null == fine ) {
-      fine = klass.getFine(noun, supply);
+      try {
+        fine = klass.getFine(noun, supply);
+      }
+      catch ( ExitException e ) {
+        // the noun got us here in the first place, can't happen
+        throw new AssertionError();
+      }
     }
     return fine;
   }

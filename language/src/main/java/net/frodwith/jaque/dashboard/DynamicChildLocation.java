@@ -3,8 +3,11 @@ package net.frodwith.jaque.dashboard;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import com.oracle.truffle.api.CompilerDirectives;
+
 import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.data.Cell;
+import net.frodwith.jaque.data.LocatedClass;
 
 import net.frodwith.jaque.exception.ExitException;
 
@@ -22,19 +25,25 @@ public final class DynamicChildLocation extends Location {
   }
 
   @Override
-  protected LocatedFine buildFine(Cell core, Supplier<Dashboard> supply) {
-    LocatedFine located;
-    FineCheck parentFine = Cell.require(toParent.fragment(core))
-      .getMeta().getObject(supply).getFine();
+  public FineCheck buildFine(Cell core, Supplier<Dashboard> supply) {
     try {
-      located = (LocatedFine) parentFine;
+      Cell battery = Cell.require(core.head);
+      FineCheck parentFine = Cell.require(toParent.fragment(core))
+        .getMeta().getObject(supply).getFine(supply);
+      LocatedFine fine = (LocatedFine) parentFine;
+      LocatedClass klass = (LocatedClass) core.getMeta().getObject(supply).klass;
+      return fine.addStep(new FineStep(battery, toParent, klass));
     }
-    catch ( ClassCastException e ) {
+    catch ( ExitException | ClassCastException e ) {
       // If you only pass me cores you know are located here, this will
       // never happen.
-      CompilerDirectives.transferToInterpeter();
+      CompilerDirectives.transferToInterpreter();
       throw new AssertionError();
     }
-    return located.addStep(step);
+  }
+
+  @Override
+  public boolean copyableEdit(Axis axis) {
+    return axis.inTail() && !axis.inside(toParent);
   }
 }

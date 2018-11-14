@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 
 import net.frodwith.jaque.data.Cell;
+import net.frodwith.jaque.exception.ExitException;
 
 public final class DynamicFine extends LocatedFine {
   private final FineStep[] steps;
@@ -47,7 +48,7 @@ public final class DynamicFine extends LocatedFine {
       }
 
       for ( i = 0; i < steps.length; ++i ) {
-        cores[i].setLocation(steps[i].location);
+        steps[i].save(cores[i]);
       }
 
       return true;

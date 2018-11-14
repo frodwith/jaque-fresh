@@ -72,7 +72,7 @@ public abstract class PullNode extends NockCallLookupNode {
     throw new NockException("atom not core", this);
   }
 
-  private Supplier<Dashboard> getSupplier() {
+  protected Supplier<Dashboard> getSupplier() {
     return () -> getContextReference().get().dashboard;
   }
 

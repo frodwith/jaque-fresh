@@ -11,6 +11,7 @@ import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.runtime.NockFunctionRegistry;
 
 import net.frodwith.jaque.dashboard.Dashboard;
+import net.frodwith.jaque.dashboard.Location;
 import net.frodwith.jaque.exception.ExitException;
 
 public final class CellMeta {
@@ -61,6 +62,12 @@ public final class CellMeta {
     if ( hasObject() && object.klass.copyableEdit(written) ) {
       edited.getMeta().object = object.like(edited);
     }
+  }
+
+  public boolean knownAt(Location location) {
+    return hasObject() 
+      && (object.klass instanceof LocatedClass)
+      && (location == ((LocatedClass) object.klass).location);
   }
 
   public Battery getBattery(Supplier<Dashboard> supply) {

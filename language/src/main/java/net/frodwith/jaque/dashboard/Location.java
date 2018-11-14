@@ -16,7 +16,7 @@ public abstract class Location {
     this.hooks = hooks;
   }
 
-  public abstract LocatedFine
+  public abstract FineCheck
     buildFine(Cell core, Supplier<Dashboard> supply)
       throws ExitException;
 
