@@ -27,7 +27,12 @@ public final class StaticClueRegistrationNode extends RegistrationNode {
     }
 
     if ( Equality.equals(this.clue.noun, clue) ) {
-      register(cc, this.clue);
+      try {
+        register(cc, this.clue);
+      }
+      catch ( ExitException e ) {
+        // XX: log the failure
+      }
       return core;
     }
     else {

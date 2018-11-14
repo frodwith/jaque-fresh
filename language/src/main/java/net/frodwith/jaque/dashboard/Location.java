@@ -1,7 +1,9 @@
-package net.frodwith.jaque.location;
+package net.frodwith.jaque.dashboard;
 
 import java.util.Map;
+import java.util.function.Supplier;
 
+import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.exception.ExitException;
 
@@ -14,11 +16,9 @@ public abstract class Location {
     this.hooks = hooks;
   }
 
-  protected abstract FineCheck buildFine(FineBuilder fine, Cell core) 
-    throws ExitException;
+  public abstract LocatedFine
+    buildFine(Cell core, Supplier<Dashboard> supply)
+      throws ExitException;
 
-  public final FineCheck buildFine(Cell core) throws ExitException {
-    // XX: getFine() from parent and add our battery
-    return buildFine(new FineBuilder(), core);
-  }
+  public abstract boolean copyableEdit(Axis axis);
 }

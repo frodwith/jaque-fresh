@@ -10,9 +10,9 @@ import net.frodwith.jaque.runtime.Cords;
 import net.frodwith.jaque.runtime.Equality;
 import net.frodwith.jaque.exception.ExitException;
 
-import net.frodwith.jaque.location.Hook;
-import net.frodwith.jaque.location.FragHook;
-import net.frodwith.jaque.location.PullHook;
+import net.frodwith.jaque.dashboard.Hook;
+import net.frodwith.jaque.dashboard.FragHook;
+import net.frodwith.jaque.dashboard.PullHook;
 
 public final class FastClue {
   public final String name;

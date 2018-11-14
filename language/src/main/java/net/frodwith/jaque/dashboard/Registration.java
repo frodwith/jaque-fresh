@@ -1,4 +1,4 @@
-package net.frodwith.jaque.location;
+package net.frodwith.jaque.dashboard;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -10,9 +10,9 @@ import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 
 import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.data.Cell;
-import net.frodwith.jaque.data.NockObject;
+import net.frodwith.jaque.data.NockClass;
+import net.frodwith.jaque.data.LocatedClass;
 import net.frodwith.jaque.runtime.Atom;
-import net.frodwith.jaque.runtime.Dashboard;
 import net.frodwith.jaque.exception.ExitException;
 
 // One canonical persistent object per REGISTERED battery.  These objects are
@@ -77,10 +77,12 @@ L0: for ( i = 0; i < len; ++i ) {
       else {
         for ( Parents p : parents ) {
           Object at = p.axis.fragment(core);
-          NockObject parent = Cell.require(at).getMeta().getObject(dash);
-          Location child = p.map.get(parent.location);
-          if ( null != child ) {
-            return child;
+          NockClass parent = Cell.require(at).getMeta().getObject(dash).klass;
+          if ( parent instanceof LocatedClass ) {
+            Location found = p.map.get(((LocatedClass) parent).location);
+            if ( null != found ) {
+              return found;
+            }
           }
         }
         return null;
@@ -89,5 +91,19 @@ L0: for ( i = 0; i < len; ++i ) {
     catch ( ExitException e ) {
       return null;
     }
+  }
+
+  public boolean copyableEdit(Axis axis) {
+    if ( axis.inHead() ) {
+      return false;
+    }
+
+    for ( Parents p : parents ) {
+      if ( axis.inside(p.axis) ) {
+        return false;
+      }
+    }
+
+    return true;
   }
 }

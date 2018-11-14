@@ -5,10 +5,12 @@ import com.oracle.truffle.api.TruffleLanguage.ContextReference;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.FastClue;
 import net.frodwith.jaque.data.NockObject;
+
 import net.frodwith.jaque.runtime.Equality;
 import net.frodwith.jaque.runtime.NockContext;
+
+import net.frodwith.jaque.dashboard.FineCheck;
 import net.frodwith.jaque.exception.ExitException;
-import net.frodwith.jaque.location.FineCheck;
 
 // A core we have already registred (noun-equal).
 public final class FineRegistrationNode extends RegistrationNode {
@@ -33,7 +35,7 @@ public final class FineRegistrationNode extends RegistrationNode {
 
     RegistrationNode replacement;
     if ( Equality.equals(this.clue.noun, clue) ) {
-      if ( fine.check(cc) ) {
+      if ( fine.check(cc, getSupplier()) ) {
         return core;
       }
       else {

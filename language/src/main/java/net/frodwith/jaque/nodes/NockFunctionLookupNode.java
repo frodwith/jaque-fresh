@@ -39,7 +39,7 @@ public abstract class NockFunctionLookupNode extends NockNode {
   protected NockFunction lookup(Cell formula) {
     try {
       return formula.getMeta()
-        .getFunction(getContextReference().get().functionRegistry);
+        .getFunction(() -> getContextReference().get().functionRegistry);
     }
     catch (ExitException e) {
       throw new NockException("bad formula", e, this);

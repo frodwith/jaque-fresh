@@ -1,4 +1,4 @@
-package net.frodwith.jaque.location;
+package net.frodwith.jaque.dashboard;
 
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.Axis;

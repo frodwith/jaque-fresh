@@ -1,5 +1,7 @@
 package net.frodwith.jaque.nodes;
 
+import java.util.function.Supplier;
+
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Fallback;
@@ -15,12 +17,16 @@ import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.NockCall;
 import net.frodwith.jaque.data.NockObject;
 import net.frodwith.jaque.data.NockFunction;
+
 import net.frodwith.jaque.runtime.NockFunctionRegistry;
-import net.frodwith.jaque.exception.NockException;
-import net.frodwith.jaque.exception.ExitException;
 import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.runtime.Equality;
-import net.frodwith.jaque.location.FineCheck;
+
+import net.frodwith.jaque.dashboard.Dashboard;
+import net.frodwith.jaque.dashboard.FineCheck;
+
+import net.frodwith.jaque.exception.NockException;
+import net.frodwith.jaque.exception.ExitException;
 
 @NodeChild(value="coreNode", type=NockExpressionNode.class)
 @NodeFields({
@@ -35,22 +41,22 @@ public abstract class PullNode extends NockCallLookupNode {
   protected abstract ContextReference<NockContext> getContextReference();
 
   @Specialization(limit = "1",
-                  guards = "sameCells(object.cell, core)",
-                  assumptions = "object.valid")
+                  guards = "sameCells(object.noun, core)",
+                  assumptions = "object.klass.valid")
   protected NockCall doStatic(Cell core,
     @Cached("getObject(core)") NockObject object,
-    @Cached("new(getArm(object), object.cell)") NockCall call) {
+    @Cached("new(getArm(object), object.noun)") NockCall call) {
     return call;
   }
 
   @Specialization(limit = "INLINE_CACHE_SIZE",
-                  guards = "fine.check(core)",
-                  assumptions = "object.valid",
+                  guards = "fine.check(core, getSupplier())",
+                  assumptions = "object.klass.valid",
                   replaces = "doStatic")
   protected NockCall doFine(Cell core,
     @Cached("getObject(core)") NockObject object,
     @Cached("getArm(object)") NockFunction arm,
-    @Cached("object.getFine()") FineCheck fine) {
+    @Cached("object.getFine(getSupplier())") FineCheck fine) {
     return new NockCall(arm, core);
   }
 
@@ -66,6 +72,10 @@ public abstract class PullNode extends NockCallLookupNode {
     throw new NockException("atom not core", this);
   }
 
+  private Supplier<Dashboard> getSupplier() {
+    return () -> getContextReference().get().dashboard;
+  }
+
   private FragmentNode getFragmentNode() {
     if ( null == fragmentNode ) {
       CompilerDirectives.transferToInterpreter();
@@ -77,10 +87,11 @@ public abstract class PullNode extends NockCallLookupNode {
 
   protected NockFunction getArm(NockObject object) {
     Axis a = getArmAxis();
-    NockFunctionRegistry registry = getContextReference().get().functionRegistry;
     FragmentNode frag = getFragmentNode();
+    ContextReference<NockContext> ref = getContextReference();
+    Supplier<NockFunctionRegistry> supply = () -> ref.get().functionRegistry;
     try {
-      return object.getArm(a, registry, frag);
+      return object.klass.getArm(a, frag, supply);
     }
     catch ( ExitException e ) {
       throw new NockException("fail to fetch arm from battery", e, this);
@@ -88,7 +99,12 @@ public abstract class PullNode extends NockCallLookupNode {
   }
 
   protected NockObject getObject(Cell core) {
-    return core.getMeta().getObject(getContextReference().get().dashboard);
+    try {
+      return core.getMeta().getObject(getSupplier());
+    }
+    catch ( ExitException e ) {
+      throw new NockException("core not object", e, this);
+    }
   }
 
   protected static boolean sameCells(Cell a, Cell b) {

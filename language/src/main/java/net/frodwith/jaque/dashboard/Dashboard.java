@@ -1,4 +1,4 @@
-package net.frodwith.jaque.runtime;
+package net.frodwith.jaque.dashboard;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -18,15 +18,13 @@ import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.FastClue;
 import net.frodwith.jaque.data.NockObject;
+import net.frodwith.jaque.data.NockClass;
+import net.frodwith.jaque.data.RegisteredClass;
+import net.frodwith.jaque.data.UnregisteredClass;
+import net.frodwith.jaque.data.LocatedClass;
 import net.frodwith.jaque.data.NockFunction;
 import net.frodwith.jaque.data.Battery;
 import net.frodwith.jaque.data.AxisMap;
-import net.frodwith.jaque.location.Location;
-import net.frodwith.jaque.location.RootLocation;
-import net.frodwith.jaque.location.StaticLocation;
-import net.frodwith.jaque.location.StaticChildLocation;
-import net.frodwith.jaque.location.DynamicChildLocation;
-import net.frodwith.jaque.location.Registration;
 import net.frodwith.jaque.exception.ExitException;
 
 public final class Dashboard {
@@ -42,22 +40,34 @@ public final class Dashboard {
     this.batteries = CacheBuilder.newBuilder().softValues().build();
   }
 
-  public NockObject getObject(Cell core) {
-    Assumption ass = stable.getAssumption();
-    Battery b = null;
-    try {
-      b = getBattery(Cell.require(core.head));
-      if ( null != b.registration ) {
-        Dashboard supply = this;
-        Location loc = b.registration.locate(core, () -> supply);
-        if ( null != loc ) {
-          return new NockObject(core, b, loc, drivers.get(loc), ass);
+  // these class objects could in principle be cached in some way, but they are
+  // not expensive and the sharing they enable is primarily useful for edit
+  public NockClass getClass(Cell core) throws ExitException {
+    final Assumption   a = stable.getAssumption();
+    final Battery      b = getBattery(Cell.require(core.head));
+    final Registration r = b.registration;
+
+    if ( null == r ) {
+      return new UnregisteredClass(b, a);
+    }
+    else {
+      final Dashboard  d = this;
+      final Location loc = r.locate(core, () -> d);
+      if ( null == loc ) {
+        return new RegisteredClass(b, a, r);
+      }
+      else {
+        AxisMap<NockFunction> drive = drivers.get(loc);
+        if ( drive == null ) {
+          drive = AxisMap.EMPTY;
         }
+        return new LocatedClass(b, a, loc, drive);
       }
     }
-    catch ( ExitException e ) {
-    }
-    return new NockObject(core, b, null, null, ass);
+  }
+
+  public NockObject getObject(Cell core) throws ExitException {
+    return new NockObject(getClass(core), core);
   }
 
   @TruffleBoundary
@@ -76,8 +86,7 @@ public final class Dashboard {
     for ( int i = 0; i < 256; ++i ) {
       sha[i] = (byte) i;
     }
-    return new Battery(sha, battery, registry.get(battery),
-        stable.getAssumption());
+    return new Battery(sha, battery, registry.get(battery));
   }
 
   private Registration getRegistration(Cell core) throws ExitException {
@@ -86,7 +95,7 @@ public final class Dashboard {
     Battery battery = Cell.require(core.head)
       .getMeta().getBattery(() -> supply);
     return null == battery.registration
-      ? new Registration(battery.hash)
+      ? (battery.registration = new Registration(battery.hash))
       : battery.registration;
   }
 
@@ -99,11 +108,13 @@ public final class Dashboard {
     else {
       Cell parentCore = Cell.require(clue.toParent.fragment(core));
       Dashboard supply = this;
-      Location parent = parentCore.getMeta().getObject(() -> supply).location;
-      if ( null == parent ) {
+      NockClass parentClass = parentCore.getMeta()
+        .getObject(() -> supply).klass;
+      if ( !(parentClass instanceof LocatedClass) ) {
         // XX log the fact we tried to register a core with an unlocated parent
         return;
       }
+      Location parent = ((LocatedClass) parentClass).location;
       Location child = 
         ( clue.toParent == Axis.TAIL && parent instanceof StaticLocation )
         ? new StaticChildLocation(clue.name, clue.hooks, 

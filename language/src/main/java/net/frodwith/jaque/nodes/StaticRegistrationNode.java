@@ -1,5 +1,7 @@
 package net.frodwith.jaque.nodes;
 
+import java.util.function.Supplier;
+
 import com.oracle.truffle.api.TruffleLanguage.ContextReference;
 
 import net.frodwith.jaque.data.Cell;
@@ -7,6 +9,8 @@ import net.frodwith.jaque.data.NockObject;
 import net.frodwith.jaque.data.FastClue;
 import net.frodwith.jaque.runtime.Equality;
 import net.frodwith.jaque.runtime.NockContext;
+import net.frodwith.jaque.dashboard.Dashboard;
+import net.frodwith.jaque.exception.ExitException;
 
 // A core we have already registred (noun-equal).
 public final class StaticRegistrationNode extends RegistrationNode {
@@ -27,10 +31,18 @@ public final class StaticRegistrationNode extends RegistrationNode {
         return this.core;
       }
       else {
-        NockObject object = this.core.getMeta().getObject(contextReference);
-        replacement = new FineRegistrationNode(
-            this.clue, object.createFine(),
-            contextReference);
+        Supplier<Dashboard> supply = getSupplier();
+        NockObject object;
+        try {
+          object = this.core.getMeta().getObject(supply);
+          replacement = new FineRegistrationNode(
+              this.clue, object.getFine(supply),
+              contextReference);
+        }
+        catch ( ExitException e ) {
+          // XX log non-core registration
+          return core;
+        }
       }
     }
     else {

@@ -15,19 +15,16 @@ public final class InitialRegistrationNode extends RegistrationNode {
   }
 
   protected Object executeRegister(Object core, Object clue) {
-    FastClue fc;
-    Cell cc;
     try {
-      cc = Cell.require(core);
-      fc = FastClue.parse(clue);
+      Cell cc     = Cell.require(core);
+      FastClue fc = FastClue.parse(clue);
+      register(cc, fc);
+      StaticRegistrationNode stat 
+        = new StaticRegistrationNode(cc, fc, contextReference);
+      replace(stat);
     }
     catch ( ExitException e ) {
-      return core;
     }
-    register(cc, fc);
-    StaticRegistrationNode stat 
-      = new StaticRegistrationNode(cc, fc, contextReference);
-    replace(stat);
     return core;
   }
 }

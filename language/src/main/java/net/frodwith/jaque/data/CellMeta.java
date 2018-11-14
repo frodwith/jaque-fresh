@@ -6,14 +6,12 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.TruffleLanguage.ContextReference;
 
-import net.frodwith.jaque.exception.ExitException;
-
-import net.frodwith.jaque.runtime.Dashboard;
 import net.frodwith.jaque.runtime.Mug;
-
-import net.frodwith.jaque.data.NockFunction;
-import net.frodwith.jaque.runtime.NockFunctionRegistry;
 import net.frodwith.jaque.runtime.NockContext;
+import net.frodwith.jaque.runtime.NockFunctionRegistry;
+
+import net.frodwith.jaque.dashboard.Dashboard;
+import net.frodwith.jaque.exception.ExitException;
 
 public final class CellMeta {
   private int mug;
@@ -31,18 +29,22 @@ public final class CellMeta {
     this.function  = null;
   }
 
-  public NockObject getObject(Supplier<Dashboard> supply) {
+  public NockObject getObject(Supplier<Dashboard> supply) throws ExitException {
     if ( !hasObject() ) {
       object = supply.get().getObject(cell);
     }
     return object;
   }
 
+  public void setObject(NockObject object) {
+    this.object = object;
+  }
+
   public boolean hasObject() {
     if ( null == object ) {
       return false;
     }
-    else if ( object.valid.isValid() ) {
+    else if ( object.klass.valid.isValid() ) {
       return true;
     }
     else {
@@ -56,7 +58,7 @@ public final class CellMeta {
   }
 
   public void writeObject(Cell edited, Axis written) {
-    if ( hasObject() && object.copyableEdit(edited, written) ) {
+    if ( hasObject() && object.klass.copyableEdit(written) ) {
       edited.getMeta().object = object.like(edited);
     }
   }

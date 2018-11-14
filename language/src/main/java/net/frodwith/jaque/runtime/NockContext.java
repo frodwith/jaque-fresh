@@ -10,6 +10,7 @@ import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import net.frodwith.jaque.NockLanguage;
 import net.frodwith.jaque.data.BigAtom;
 import net.frodwith.jaque.data.Cell;
+import net.frodwith.jaque.dashboard.Dashboard;
 
 public final class NockContext {
   private final Env env;
