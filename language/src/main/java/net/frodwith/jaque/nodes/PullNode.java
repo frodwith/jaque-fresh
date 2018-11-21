@@ -18,9 +18,10 @@ import net.frodwith.jaque.data.NockCall;
 import net.frodwith.jaque.data.NockObject;
 import net.frodwith.jaque.data.NockFunction;
 
-import net.frodwith.jaque.runtime.NockFunctionRegistry;
-import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.runtime.Equality;
+import net.frodwith.jaque.runtime.HoonMath;
+import net.frodwith.jaque.runtime.NockContext;
+import net.frodwith.jaque.runtime.NockFunctionRegistry;
 
 import net.frodwith.jaque.dashboard.Dashboard;
 import net.frodwith.jaque.dashboard.FineCheck;
@@ -79,7 +80,8 @@ public abstract class PullNode extends NockCallLookupNode {
   private FragmentNode getFragmentNode() {
     if ( null == fragmentNode ) {
       CompilerDirectives.transferToInterpreter();
-      fragmentNode = FragmentNode.fromAxis(getArmAxis());
+      Axis inBattery = new Axis(HoonMath.mas(getArmAxis().atom));
+      fragmentNode = FragmentNode.fromAxis(inBattery);
       insert(fragmentNode);
     }
     return fragmentNode;

@@ -1,15 +1,3 @@
-NockClass containing shared info (battery for resolving arms, location, drivers,
-    etc) -- to be kept on NockObject. Better sharing. Objects keep at least a
-NockClass and a (lazy) FineCheck. FineCheck tells you whether another candidate
-core/object can grab a copy of your NockClass.
-
-  Each battery has an "unlocated" class...
-
-add Location objects to fine steps, check those before battery-and-fragment
-
-we don't need a fine for edits, because location gives you enough information to
-answer editableAxis
-
 kind of map that is one-thing-then-a-hashmap, for use in Registration
 
 REFLECTION
@@ -23,20 +11,10 @@ Jet hot Dashboard
   on boot, need to iterate through whole dashboard and discover from hot
   on initial registry find, check hot dashboard first
 
-Registry information is eternal. One canonical. Null for unregistered batteries.
-
-Transient, cacheable information about batteries -- this will be NockBattery
-  keep in weak map and on cellmeta
-  clear when invalidating dashboard assumption
-
-  registry (also contains sha, since permanent)
-  sha
-  last located core with fine check
-  reference to dashboard assumption
-
 put transferToInterpreters in the various places where RegistrationNodes replace();
 
 put NockFunctions in a cache instead of a map, don't depend on value equality
+  maybe.
 
 Fast
   test by jetting dec/add and running large mul

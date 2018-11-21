@@ -3,6 +3,8 @@ package net.frodwith.jaque.test;
 import org.junit.Test;
 
 import net.frodwith.jaque.data.FastClue;
+import net.frodwith.jaque.dashboard.FragHook;
+import net.frodwith.jaque.dashboard.PullHook;
 import net.frodwith.jaque.exception.ExitException;
 
 import static org.junit.Assert.assertEquals;
@@ -28,13 +30,13 @@ public class FastClueTest {
     assertEquals("core", clue.name);
     assertEquals(3L, (long) clue.toParent.atom);
     assertEquals(3, clue.hooks.size());
-    assertEquals(6L, ((FastClue.FragHook) clue.hooks.get("var")).axis.atom);
+    assertEquals(6L, ((FragHook) clue.hooks.get("var")).axis.atom);
 
-    FastClue.PullHook hook = (FastClue.PullHook) clue.hooks.get("foo");
+    PullHook hook = (PullHook) clue.hooks.get("foo");
     assertEquals(4L, hook.arm.atom);
     assertEquals(1L, hook.toSubject.atom);
 
-    hook = (FastClue.PullHook) clue.hooks.get("bar");
+    hook = (PullHook) clue.hooks.get("bar");
     assertEquals(5L, hook.arm.atom);
     assertEquals(1L, hook.toSubject.atom);
   }

@@ -19,11 +19,15 @@ public final class FineStep {
     this.klass = klass;
   }
 
-  public boolean check(Cell core) {
-    return core.knownAt(klass.location) || Equality.equals(core.head, battery);
+  public boolean whole(Cell core) {
+    return core.knownAt(klass.location);
   }
 
-  public Cell toParent(Cell core) throws ExitException {
+  public boolean part(Cell core) {
+    return Equality.equals(core.head, battery);
+  }
+
+  public Cell next(Cell core) throws ExitException {
     return Cell.require(toParent.fragment(core));
   }
 

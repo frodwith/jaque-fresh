@@ -261,4 +261,73 @@ public final class HoonMath {
       return add(f, g);
     }
   }
+
+  public static Object bex(long a) {
+    if (a < 64) {
+      return 1L << a;
+    }
+    else {
+      int whole = (int) (a >> 5),
+          parts = (int) a & 31;
+
+      int[] words = new int[whole+1];
+      words[whole] = 1 << parts;
+      return words;
+    }
+  }
+
+  public static long con(long a, long b) {
+    return a | b;
+  }
+
+  public static Object con(Object a, Object b) {
+    byte w   = 5;
+    int  lna = met(w, a);
+    int  lnb = met(w, b);
+
+    if ( (0 == lna) && (0 == lnb) ) {
+      return 0L;
+    }
+    else {
+      int i, len = Math.max(lna, lnb);
+      int[] sal  = new int[len];
+      int[] bow  = Atom.words(b);
+
+      Atom.chop(w, 0, lna, 0, sal, a);
+
+      for ( i = 0; i < lnb; i++ ) {
+        sal[i] |= bow[i];
+      }
+
+      return Atom.malt(sal);
+    }
+  }
+
+  public static long mas(long atom) {
+    int  b = 64 - Long.numberOfLeadingZeros(atom);
+    long c = 1 << (b - 1),
+         d = 1 << (b - 2),
+         e = atom - c;
+    return e | d;
+  }
+
+  public static Object mas(BigAtom atom) {
+    int    b = met(atom);
+    Object c = bex(b - 1),
+           d = bex(b - 2),
+           e;
+    try {
+      e = sub(atom, c);
+    }
+    catch ( ExitException ex ) {
+      throw new AssertionError();
+    }
+    return con(e, d);
+  }
+
+  public static Object mas(Object atom) {
+    return ( atom instanceof Long )
+      ? mas((long) atom)
+      : mas((BigAtom) atom);
+  }
 }

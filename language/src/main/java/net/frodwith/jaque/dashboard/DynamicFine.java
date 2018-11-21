@@ -35,11 +35,15 @@ public final class DynamicFine extends LocatedFine {
 
       for ( i = 0; i < steps.length; ++i ) {
         cores[i] = core;
-        if ( !steps[i].check(core) ) {
+        FineStep step = steps[i];
+        if ( step.whole(core) ) {
+          return true;
+        }
+        else if ( !step.part(core) ) {
           return false;
         }
         else {
-          core = steps[i].toParent(core);
+          core = step.next(core);
         }
       }
 
