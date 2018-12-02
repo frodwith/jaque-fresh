@@ -24,12 +24,10 @@ import net.frodwith.jaque.exception.ExitException;
 // A separate class, Battery, is held in a weak cache, and even unregistered
 // batteries get one.
 public final class Registration {
-  private final byte[] hash;
   private final Map<Object,Location> roots;
   private final ArrayList<Parents> parents;
 
-  public Registration(byte[] hash) {
-    this.hash = hash;
+  public Registration() {
     this.roots = new HashMap<>();
     this.parents = new ArrayList<>();
   }
@@ -94,10 +92,6 @@ L0: for ( i = 0; i < len; ++i ) {
   }
 
   public boolean copyableEdit(Axis axis) {
-    if ( axis.inHead() ) {
-      return false;
-    }
-
     for ( Parents p : parents ) {
       if ( axis.inside(p.axis) ) {
         return false;

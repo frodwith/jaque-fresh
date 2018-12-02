@@ -91,7 +91,7 @@ public abstract class PullNode extends NockCallLookupNode {
     Axis a = getArmAxis();
     FragmentNode frag = getFragmentNode();
     ContextReference<NockContext> ref = getContextReference();
-    Supplier<NockFunctionRegistry> supply = () -> ref.get().functionRegistry;
+    Supplier<NockFunctionRegistry> supply = () -> ref.get().functions;
     try {
       return object.klass.getArm(a, frag, supply);
     }

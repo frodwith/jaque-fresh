@@ -238,32 +238,38 @@ public final class Atom {
 		return toByteArray(a, LITTLE_ENDIAN);
 	}
 
-	public static byte[] toByteArray(Object atom, boolean endian) {
-		if ( (atom instanceof Long) && (0L == (long)atom) ) {
-			return new byte[1];
-		}
-		int[]  wor = words(atom);
-		int    bel = HoonMath.met((byte)3, atom);
-		byte[] buf = new byte[bel];
-		int    w, i, b;
-		for (i = 0, b = 0;;) {
-			w = wor[i++];
+  public static byte[] wordsToBytes(int[] wor, int bel, boolean endian) {
+    int    w, i, b;
+    byte[] buf = new byte[bel];
+    for (i = 0, b = 0;;) {
+      w = wor[i++];
 
-			buf[b++] = (byte) ((w & 0x000000FF) >>> 0);
-			if (b >= bel) break;
+      buf[b++] = (byte) ((w & 0x000000FF) >>> 0);
+      if (b >= bel) break;
 
-			buf[b++] = (byte) ((w & 0x0000FF00) >>> 8);
-			if (b >= bel) break;
+      buf[b++] = (byte) ((w & 0x0000FF00) >>> 8);
+      if (b >= bel) break;
 
-			buf[b++] = (byte) ((w & 0x00FF0000) >>> 16);
-			if (b >= bel) break;
+      buf[b++] = (byte) ((w & 0x00FF0000) >>> 16);
+      if (b >= bel) break;
 
-			buf[b++] = (byte) ((w & 0xFF000000) >>> 24);
-			if (b >= bel) break;
-		}
-		if (endian == BIG_ENDIAN) {
-			reverse(buf);
-		}
-		return buf;
-	} 
+      buf[b++] = (byte) ((w & 0xFF000000) >>> 24);
+      if (b >= bel) break;
+    }
+    if (endian == BIG_ENDIAN) {
+      reverse(buf);
+    }
+    return buf;
+  }
+
+  public static byte[] wordsToBytes(int[] wor, int bel) {
+    return wordsToBytes(wor, bel, LITTLE_ENDIAN);
+  }
+
+  public static byte[] toByteArray(Object atom, boolean endian) {
+    if ( (atom instanceof Long) && (0L == (long)atom) ) {
+      return new byte[1];
+    }
+    return wordsToBytes(words(atom), HoonMath.met((byte)3, atom), endian);
+  }
 }

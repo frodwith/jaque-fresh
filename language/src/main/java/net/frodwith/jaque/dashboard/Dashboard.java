@@ -29,40 +29,57 @@ import net.frodwith.jaque.exception.ExitException;
 
 public final class Dashboard {
   private final CyclicAssumption stable = new CyclicAssumption("dashboard");
-  private final Map<Cell,Registration> registry;
+  private final Map<Cell,ColdRegistration> cold;
+  private final Map<BatteryHash,Registration> hot;
   private final Map<Location,AxisMap<NockFunction>> drivers;
   private final Cache<Cell,Battery> batteries;
 
-  public Dashboard(Map<Cell,Registration> registry,
+  public Dashboard(Map<Cell,ColdRegistration> cold,
+                   Map<BatteryHash,Registration> hot,
                    Map<Location,AxisMap<NockFunction>> drivers) {
-    this.drivers = drivers;
-    this.registry = registry;
+    this.hot       = hot;
+    this.cold      = cold;
+    this.drivers   = drivers;
     this.batteries = CacheBuilder.newBuilder().softValues().build();
   }
 
   // these class objects could in principle be cached in some way, but they are
   // not expensive and the sharing they enable is primarily useful for edit
   public NockClass getClass(Cell core) throws ExitException {
-    final Assumption   a = stable.getAssumption();
-    final Battery      b = getBattery(Cell.require(core.head));
-    final Registration r = b.registration;
+    final Battery   b = getBattery(Cell.require(core.head));
+    final Dashboard d = this;
+    Location      loc = null;
 
-    if ( null == r ) {
+    if ( null != b.cold ) {
+      loc = b.cold.locate(core, () -> d);
+    }
+
+    if ( null == loc ) {
+      if ( null != b.hot ) {
+        if ( null != (loc = b.hot.locate(core, () -> d)) ) {
+          if ( null == b.cold ) {
+            cold.put(b.noun, (b.cold = new ColdRegistration(b.hash)));
+          }
+          loc.register(b.cold.registration);
+          stable.invalidate();
+        }
+      }
+    }
+
+    final Assumption a = stable.getAssumption();
+
+    if ( null != loc ) {
+      AxisMap<NockFunction> drive = drivers.get(loc);
+      if ( drive == null ) {
+        drive = AxisMap.EMPTY;
+      }
+      return new LocatedClass(b, a, loc, drive);
+    }
+    else if ( (null == b.cold) && (null == b.hot) ) {
       return new UnregisteredClass(b, a);
     }
     else {
-      final Dashboard  d = this;
-      final Location loc = r.locate(core, () -> d);
-      if ( null == loc ) {
-        return new RegisteredClass(b, a, r);
-      }
-      else {
-        AxisMap<NockFunction> drive = drivers.get(loc);
-        if ( drive == null ) {
-          drive = AxisMap.EMPTY;
-        }
-        return new LocatedClass(b, a, loc, drive);
-      }
+      return new RegisteredClass(b, a);
     }
   }
 
@@ -80,13 +97,11 @@ public final class Dashboard {
     }
   }
 
-  private Battery makeBattery(Cell battery) {
-    byte[] sha = new byte[256];
-    // TODO: compute real sha hash
-    for ( int i = 0; i < 256; ++i ) {
-      sha[i] = (byte) i;
-    }
-    return new Battery(sha, battery, registry.get(battery));
+  private Battery makeBattery(Cell noun) {
+    ColdRegistration cold = cold.get(noun);
+    BatteryHash hash = (null == cold) ? BatteryHash.hash(noun) : cold.hash;
+    Registration hot = hot.get(hash);
+    return new Battery(noun, cold, hot);
   }
 
   private Registration getRegistration(Cell core) throws ExitException {

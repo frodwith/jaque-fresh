@@ -46,4 +46,9 @@ public final class DynamicChildLocation extends Location {
   public boolean copyableEdit(Axis axis) {
     return axis.inTail() && !axis.inside(toParent);
   }
+
+  @Override
+  public void register(Registration registration) {
+    registration.registerChild(toParent, this, parent);
+  }
 }

@@ -20,5 +20,7 @@ public abstract class Location {
     buildFine(Cell core, Supplier<Dashboard> supply)
       throws ExitException;
 
+  public abstract void register(Registration registration);
+
   public abstract boolean copyableEdit(Axis axis);
 }

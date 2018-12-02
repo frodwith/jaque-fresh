@@ -11,4 +11,9 @@ public final class StaticChildLocation extends StaticLocation {
     super(name, hooks);
     this.parent = parent;
   }
+
+  @Override
+  public void register(Registration registration) {
+    registration.registerChild(Axis.TAIL, this, parent);
+  }
 }

@@ -13,7 +13,7 @@ import net.frodwith.jaque.exception.ExitException;
 
 public final class LocatedClass extends NockClass {
   public final Location location;
-  public final AxisMap<NockFunction> drivers;
+  private final AxisMap<NockFunction> drivers;
 
   public LocatedClass(Battery battery, Assumption stable,
                       Location location, AxisMap<NockFunction> drivers) {

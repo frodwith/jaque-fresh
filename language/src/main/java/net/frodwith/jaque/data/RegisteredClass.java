@@ -10,12 +10,12 @@ import net.frodwith.jaque.dashboard.Registration;
 import net.frodwith.jaque.dashboard.RegisteredFine;
 
 public final class RegisteredClass extends UnlocatedClass {
-  public final Registration registration;
+  public final Registration cold, hot;
   
-  public RegisteredClass(Battery battery, Assumption stable,
-                         Registration registration) {
+  public RegisteredClass(Battery battery, Assumption stable) {
     super(battery, stable);
-    this.registration = registration;
+    this.cold = battery.cold;
+    this.hot  = battery.hot;
   }
 
   @Override
@@ -25,6 +25,8 @@ public final class RegisteredClass extends UnlocatedClass {
 
   @Override
   public final boolean copyableEdit(Axis written) {
-    return registration.copyableEdit(written);
+    return written.inTail() &&
+      cold.copyableEdit(written) &&
+      hot.copyableEdit(written);
   }
 }

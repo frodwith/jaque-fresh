@@ -15,14 +15,20 @@ import net.frodwith.jaque.dashboard.Dashboard;
 public final class NockContext {
   private final Env env;
   private final NockLanguage language;
-  public final NockFunctionRegistry functionRegistry;
   public final Dashboard dashboard;
+  public final NockFunctionRegistry functions;
 
-  public NockContext(NockLanguage language, Env env) {
-    this.language = language;
-    this.env = env;
-    this.dashboard = new Dashboard(new HashMap<>(), new HashMap<>());
-    this.functionRegistry = new NockFunctionRegistry(language);
+  public NockContext(NockLanguage language, Env env,
+                     Map<Cell, ColdRegistration> cold,
+                     JetTree tree) {
+    this.env       = env;
+    this.language  = language;
+    this.functions = new NockFunctionRegistry(language);
+
+    Map<BatteryHash,Registration> hot = new HashMap<>();
+    Map<Location,AxisMap<NockFunction>> drivers = new HashMap<>();
+    tree.addToMaps(hot, drivers);
+    this.dashboard = new Dashboard(cold, hot, drivers);
   }
 
   public static Object fromForeignValue(Object a) {

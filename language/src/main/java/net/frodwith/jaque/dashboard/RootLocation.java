@@ -11,4 +11,9 @@ public final class RootLocation extends StaticLocation {
     super(name, hooks);
     this.payload = payload;
   }
+
+  @Override
+  public void register(Registration registration) {
+    registration.registerRoot(payload, this);
+  }
 }
