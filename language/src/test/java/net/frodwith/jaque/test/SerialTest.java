@@ -24,7 +24,7 @@ public class SerialTest {
   }
 
   private static Object randomAtom(Random r) {
-    byte[] bytes = new byte[r.nextInt(8)];
+    byte[] bytes = new byte[r.nextInt(16)];
     r.nextBytes(bytes);
     return Atom.fromByteArray(bytes);
   }
@@ -57,7 +57,7 @@ public class SerialTest {
   @Test
   public void testRandom() throws ExitException {
     Random r = new Random();
-    for ( int i = 0; i < 100; ++i ) {
+    for ( int i = 0; i < 1024; ++i ) {
       Object noun = randomNoun(r, 0);
       aeq("random jam #" + i, noun, HoonSerial.cue(HoonSerial.jam(noun)));
     }
