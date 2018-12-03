@@ -2,6 +2,7 @@ package net.frodwith.jaque.jet;
 
 import java.util.Map;
 
+import net.frodwith.jaque.NockLanguage;
 import net.frodwith.jaque.data.AxisMap;
 import net.frodwith.jaque.data.NockFunction;
 import net.frodwith.jaque.dashboard.Location;
@@ -15,10 +16,11 @@ public final class JetTree {
     this.roots = roots;
   }
 
-  public void addToMaps(Map<BatteryHash,Registration> hot,
+  public void addToMaps(NockLanguage language,
+                        Map<BatteryHash,Registration> hot,
                         Map<Location, AxisMap<NockFunction>> driver) {
     for ( RootCore r : roots ) {
-      r.addToMaps(hot, driver);
+      r.addToMaps(language, hot, driver);
     }
   }
 }

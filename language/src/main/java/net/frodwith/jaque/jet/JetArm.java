@@ -2,6 +2,8 @@ package net.frodwith.jaque.jet;
 
 import java.util.Map;
 
+import com.oracle.truffle.api.Truffle;
+import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.dsl.NodeFactory;
 
 import net.frodwith.jaque.NockLanguage;
@@ -9,6 +11,7 @@ import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.data.NockFunction;
 import net.frodwith.jaque.dashboard.Hook;
 import net.frodwith.jaque.nodes.SubjectNode;
+import net.frodwith.jaque.nodes.JetRootNode;
 
 public abstract class JetArm {
   private NodeFactory<? extends SubjectNode> factory;

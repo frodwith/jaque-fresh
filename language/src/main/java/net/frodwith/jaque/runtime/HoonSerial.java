@@ -1,6 +1,13 @@
 package net.frodwith.jaque.runtime;
 
+import java.util.ArrayDeque;
+import java.util.Map;
+import java.util.HashMap;
+
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+
+import net.frodwith.jaque.data.Cell;
+import net.frodwith.jaque.exception.FailError;
 
 public final class HoonSerial {
   private final static class JamBuffer {
@@ -8,9 +15,10 @@ public final class HoonSerial {
     public int[] words;
 
     public JamBuffer() {
-      this.a    = 89L;  // fib(11)
-      this.b    = 144L; // fib(12)
-      this.bits = 0L;
+      this.a     = 89;  // fib(11)
+      this.b     = 144; // fib(12)
+      this.bits  = 0;
+      this.words = new int[5];
     }
 
     public int byteLength() {
@@ -29,9 +37,9 @@ public final class HoonSerial {
       return Atom.wordsToBytes(words, byteLength());
     }
 
-    public void grow(int bits) {
-      int want = this.bits + bits;
-      if ( want < bits ) {
+    public void grow(int mor) {
+      int want = bits + mor;
+      if ( want < mor ) {
         // overflow
         throw new FailError("jam bit count overflow");
       }
@@ -56,9 +64,23 @@ public final class HoonSerial {
       }
     }
 
-    public void chop(int bits, Object atom) {
-      grow(bits);
-      Atom.chop(0, 0, bits, words, atom);
+    public void chop(int met, Object atom) {
+      grow(met);
+      Atom.chop((byte) 0, 0, met, bits, words, atom);
+      bits += met;
+    }
+
+    public void atom(Object a) {
+			if ( (a instanceof Long) && (0L == (long) a) ) {
+				chop(1, 1L);
+			}
+			else {
+        int b = HoonMath.met(a),
+            c = 32 - Integer.numberOfLeadingZeros(b);
+        chop(c+1, 1L << c);
+        chop(c-1, (long) (b & ((1 << (c-1)) - 1)));
+        chop(b, a);
+			}
     }
   }
 
@@ -71,7 +93,7 @@ public final class HoonSerial {
       Object top = stack.pop();
       Long offset = offsets.get(top);
       if ( null == offset ) {
-        offsets.put(top, (long) out.size());
+        offsets.put(top, (long) buf.bits);
         if ( top instanceof Cell ) {
           Cell c = (Cell) top;
           buf.chop(2, 1L);
@@ -88,7 +110,7 @@ public final class HoonSerial {
         buf.atom(offset);
       }
       else {
-        if ( Atom.met(top) <= Atom.met(offset) ) {
+        if ( HoonMath.met(top) <= HoonMath.met(offset) ) {
           buf.chop(1, 0L);
           buf.atom(top);
         }

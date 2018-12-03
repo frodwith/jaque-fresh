@@ -2,6 +2,8 @@ package net.frodwith.jaque.dashboard;
 
 import java.util.Map;
 
+import net.frodwith.jaque.data.Axis;
+
 public final class StaticChildLocation extends StaticLocation {
   public final StaticLocation parent;
 

@@ -1,7 +1,9 @@
 package net.frodwith.jaque.jet;
 
 import java.util.Map;
+import java.util.HashMap;
 
+import net.frodwith.jaque.NockLanguage;
 import net.frodwith.jaque.data.AxisMap;
 import net.frodwith.jaque.data.NockFunction;
 import net.frodwith.jaque.dashboard.Hook;
@@ -32,11 +34,12 @@ public abstract class JetCore {
   }
 
   public final void addToMaps(Location parent,
+                              NockLanguage language,
                               Map<BatteryHash,Registration> hot,
                               Map<Location,AxisMap<NockFunction>> driver) {
     Map<String,Hook> hookMap = new HashMap<>();
     for ( JetHook h : hooks ) {
-      h.put(h.getName(), h.getHook());
+      hookMap.put(h.name, h.hook);
     }
 
     Registration r = new Registration();
@@ -48,12 +51,12 @@ public abstract class JetCore {
 
     AxisMap functions = AxisMap.EMPTY;
     for ( JetArm a : arms ) {
-      functions = functions.insert(a.getAxis(hookMap), a.getFunction());
+      functions = functions.insert(a.getAxis(hookMap), a.getFunction(language));
     }
     driver.put(loc, functions);
 
     for ( ChildCore child : children ) {
-      child.addToMaps(loc, hot, driver);
+      child.addToMaps(loc, language, hot, driver);
     }
   }
 }

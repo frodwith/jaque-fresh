@@ -51,16 +51,13 @@ public final class Dashboard {
     Location      loc = null;
 
     if ( null != b.cold ) {
-      loc = b.cold.registration.locate(core, () -> d);
+      loc = b.cold.locate(core, () -> d);
     }
 
     if ( null == loc ) {
       if ( null != b.hot ) {
         if ( null != (loc = b.hot.locate(core, () -> d)) ) {
-          if ( null == b.cold ) {
-            cold.put(b.noun, (b.cold = new ColdRegistration(b.hash)));
-          }
-          loc.register(b.cold.registration);
+          loc.register(freeze(b));
           stable.invalidate();
         }
       }
@@ -98,20 +95,33 @@ public final class Dashboard {
   }
 
   private Battery makeBattery(Cell noun) {
+    BatteryHash hash;
+    Registration r;
     ColdRegistration cr = cold.get(noun);
-    BatteryHash hash = (null == cr) ? BatteryHash.hash(noun) : cr.hash;
-    return new Battery(noun, hash, cr, hot.get(hash));
+    if ( null == cr ) {
+      hash = BatteryHash.hash(noun);
+      r    = null;
+    }
+    else {
+      hash = cr.hash;
+      r    = cr.registration;
+    }
+    return new Battery(noun, hash, r, hot.get(hash));
+  }
+
+  private Registration freeze(Battery battery) {
+    if ( null == battery.cold ) {
+      ColdRegistration cr = new ColdRegistration(battery.hash);
+      battery.cold = cr.registration;
+      cold.put(battery.noun, cr);
+    }
+    return battery.cold;
   }
 
   private Registration getRegistration(Cell core) throws ExitException {
     // call through meta so caching sticks to the cell
     Dashboard supply = this;
-    Battery battery = Cell.require(core.head)
-      .getMeta().getBattery(() -> supply);
-    if ( null == battery.cold ) {
-      battery.cold = new ColdRegistration(battery.hash);
-    }
-    return battery.cold.registration;
+    return freeze(Cell.require(core.head).getMeta().getBattery(() -> supply));
   }
 
   // unconditional (will not short-circuit)

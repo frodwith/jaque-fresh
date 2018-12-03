@@ -43,7 +43,7 @@ public final class NockContext {
 
     Map<BatteryHash,Registration> hot = new HashMap<>();
     Map<Location,AxisMap<NockFunction>> drivers = new HashMap<>();
-    tree.addToMaps(hot, drivers);
+    tree.addToMaps(language, hot, drivers);
     this.dashboard = new Dashboard(cold, hot, drivers);
   }
 

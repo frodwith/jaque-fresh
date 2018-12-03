@@ -7,6 +7,7 @@ import com.oracle.truffle.api.dsl.NodeFactory;
 import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.nodes.SubjectNode;
 import net.frodwith.jaque.dashboard.Hook;
+import net.frodwith.jaque.dashboard.PullHook;
 
 // you can jet arms by name as long as there's a hook description
 // and the hook is to pull an arm on the current core
