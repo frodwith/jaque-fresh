@@ -34,7 +34,7 @@ public final class HoonMath {
       }
     }
     else {
-      int[] w = (int[]) atom;
+      int[] w = ((BigAtom) atom).words;
       gal = w.length - 1;
       daz = w[gal];
     }
@@ -329,5 +329,36 @@ public final class HoonMath {
     return ( atom instanceof Long )
       ? mas((long) atom)
       : mas((BigAtom) atom);
+  }
+
+  public static Object
+    cut(byte a, Object b, Object c, Object d)
+      throws ExitException {
+    int ci, bi;
+    try {
+      bi = Atom.requireInt(b);
+      ci = Atom.requireInt(c);
+    }
+    catch ( ExitException e ) {
+      throw new FailError("cut too large");
+    }
+    int len = met(a, d);
+
+    if ( (0 == ci) || (bi >= len) ) {
+      return 0L;
+    }
+
+    if ( (bi + ci) > len ) {
+      ci = len - bi;
+    }
+
+    if ( (bi == 0) && (ci == len) ) {
+      return d;
+    }
+    else {
+      int[] sal = Atom.slaq(a, ci);
+      Atom.chop(a,  bi, ci, 0, sal, d);
+      return Atom.malt(sal);
+    }
   }
 }

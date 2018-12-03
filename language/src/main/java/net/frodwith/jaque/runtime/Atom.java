@@ -13,6 +13,14 @@ public final class Atom {
 	public static final boolean BIG_ENDIAN = true;
 	public static final boolean LITTLE_ENDIAN = false;
 
+  public static boolean isZero(long a) {
+    return 0L == a;
+  }
+
+  public static boolean isZero(Object a) {
+    return (a instanceof Long) && (0L == ((long) a));
+  }
+
 	public static int compare(BigAtom a, BigAtom b) {
 		return MPN.cmp(a.words, a.words.length, b.words, b.words.length);
 	}
@@ -48,6 +56,17 @@ public final class Atom {
 			throw new ExitException("atom required");
 		}
 	}
+
+  // see requireInt
+  public static long requireLong(Object o) throws ExitException {
+    if ( o instanceof Long) {
+      return (long) o;
+    }
+    else {
+      CompilerDirectives.transferToInterpreter();
+      throw new ExitException("expected long");
+    }
+  }
 
 	// IMPORTANT: you may in fact want to FAIL unless you get an int,
 	//            this is EXIT unless given an int.

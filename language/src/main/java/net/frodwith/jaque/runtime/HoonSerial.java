@@ -7,7 +7,10 @@ import java.util.HashMap;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 
 import net.frodwith.jaque.data.Cell;
+import net.frodwith.jaque.runtime.Atom;
+import net.frodwith.jaque.runtime.HoonMath;
 import net.frodwith.jaque.exception.FailError;
+import net.frodwith.jaque.exception.ExitException;
 
 public final class HoonSerial {
   private final static class JamBuffer {
@@ -132,5 +135,94 @@ public final class HoonSerial {
     JamBuffer buf = new JamBuffer();
     jamBuf(noun, buf);
     return buf.toAtom();
+  }
+
+  public static Cell rub(Object a, Object b) throws ExitException {
+    Object c, d, e, w, x, y, z, p, q, m;
+
+    m = HoonMath.add(a, (long) HoonMath.met(b));
+    x = a;
+
+    while ( Atom.isZero(HoonMath.cut((byte)0, x, 1L, b)) ) {
+      y = HoonMath.increment(x);
+      
+      //  Sanity check: crash if decoding more bits than available
+      if ( Atom.compare(x, m) > 0 ) {
+        throw new ExitException("rub-decode-bits");
+      }
+
+      x = y;
+    }
+
+    if ( Equality.equals(x, a) ) {
+      return new Cell(1L, 0L);
+    }
+    c = HoonMath.sub(x, a);
+    d = HoonMath.increment(x);
+
+    x = HoonMath.dec(c);
+    y = HoonMath.bex(Atom.requireLong(x));
+    z = HoonMath.cut((byte)0, d, x, b);
+
+    e = HoonMath.add(y, z);
+    w = HoonMath.add(c, c);
+    y = HoonMath.add(w, e);
+    z = HoonMath.add(d, x);
+
+    p = HoonMath.add(w, e);
+    q = HoonMath.cut((byte)0, z, e, b);
+    
+    return new Cell(p, q);
+  }
+
+  private static Cell cue(Map<Object,Object> m, Object a, Object b) throws ExitException {
+    Object p, q;
+
+    if ( Atom.isZero(HoonMath.cut((byte) 0, b, 1L, a)) ) {
+      Object x = HoonMath.increment(b);
+      Cell   c = rub(x, a);
+
+      p = HoonMath.increment(c.head);
+      q = c.tail;
+      m.put(b, q);
+    }
+    else {
+      Object c = HoonMath.add(2L, b),
+             l = HoonMath.increment(b);
+
+      if ( Atom.isZero(HoonMath.cut((byte) 0, l, 1L, a)) ) {
+        Cell u, v;
+        Object w, x, y;
+
+        u = cue(m, a, c);
+        x = HoonMath.add(u.head, c);
+        v = cue(m, a, x);
+        w = new Cell(
+            Cell.require(u.tail).head,
+            Cell.require(v.tail).head);
+        y = HoonMath.add(u.head, v.head);
+        p = HoonMath.add(2L, y);
+        q = w;
+        m.put(b, q);
+      }
+      else {
+        Cell d = rub(c, a);
+        Object x = m.get(d.tail);
+
+        if ( null == x ) {
+          throw new ExitException("cue-bad-pointer");
+        }
+
+        p = HoonMath.add(2L, d.head);
+        q = x;
+      }
+    }
+    return new Cell(p, new Cell(q, 0L));
+  }
+
+  @TruffleBoundary
+  public static Object cue(Object a) throws ExitException {
+    Cell x = cue(new HashMap<>(), a, 0L);
+    return Cell.require(x.tail).head;
   }
 }

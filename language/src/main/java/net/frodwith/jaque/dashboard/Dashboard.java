@@ -10,10 +10,12 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
 import com.oracle.truffle.api.Assumption;
+import com.oracle.truffle.api.TruffleLogger;
 import com.oracle.truffle.api.utilities.CyclicAssumption;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.TruffleLanguage.ContextReference;
 
+import net.frodwith.jaque.NockLanguage;
 import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.FastClue;
@@ -33,6 +35,8 @@ public final class Dashboard {
   private final Map<BatteryHash,Registration> hot;
   private final Map<Location,AxisMap<NockFunction>> drivers;
   private final Cache<Cell,Battery> batteries;
+  private final static TruffleLogger LOG =
+    TruffleLogger.getLogger(NockLanguage.ID, Dashboard.class);
 
   public Dashboard(Map<Cell,ColdRegistration> cold,
                    Map<BatteryHash,Registration> hot,
@@ -126,10 +130,11 @@ public final class Dashboard {
 
   // unconditional (will not short-circuit)
   public void register(Cell core, FastClue clue) throws ExitException {
+    Location loc;
     if ( clue.toParent.isCrash() ) {
       RootLocation root = new RootLocation(clue.name, clue.hooks, core.tail);
       getRegistration(core).registerRoot(core.tail, root);
-      root.audit(clue);
+      loc = root;
     }
     else {
       Cell parentCore = Cell.require(clue.toParent.fragment(core));
@@ -137,7 +142,8 @@ public final class Dashboard {
       NockClass parentClass = parentCore.getMeta()
         .getObject(() -> supply).klass;
       if ( !(parentClass instanceof LocatedClass) ) {
-        // XX log the fact we tried to register a core with an unlocated parent
+        LOG.warning("trying to register " + clue.name +
+            " with unlocated parent.");
         return;
       }
       Location parent = ((LocatedClass) parentClass).location;
@@ -147,8 +153,9 @@ public final class Dashboard {
             (StaticLocation) parent)
         : new DynamicChildLocation(clue.name, clue.hooks, parent, clue.toParent);
       getRegistration(core).registerChild(clue.toParent, child, parent);
-      child.audit(clue);
+      loc = child;
     }
+    loc.audit(clue);
     stable.invalidate();
   }
 }
