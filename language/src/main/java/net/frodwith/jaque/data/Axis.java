@@ -41,13 +41,17 @@ public final class Axis implements Iterable<Axis.Fragment> {
     }
   }
   
-  public Axis(Object atom) {
+  private Axis(Object atom) {
     this.atom   = atom;
     this.length = HoonMath.met(atom) - 1;
   }
 
   public static Axis require(Object noun) throws ExitException {
     Object atom = Atom.require(noun);
+    return get(atom);
+  }
+
+  public static Axis get(Object atom) {
     if ( atom instanceof Long ) {
       switch ( ((Long) atom).intValue() ) {
         case 0:

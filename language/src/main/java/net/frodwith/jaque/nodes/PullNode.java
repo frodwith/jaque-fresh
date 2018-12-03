@@ -80,7 +80,7 @@ public abstract class PullNode extends NockCallLookupNode {
   private FragmentNode getFragmentNode() {
     if ( null == fragmentNode ) {
       CompilerDirectives.transferToInterpreter();
-      Axis inBattery = new Axis(HoonMath.mas(getArmAxis().atom));
+      Axis inBattery = Axis.get(HoonMath.mas(getArmAxis().atom));
       fragmentNode = FragmentNode.fromAxis(inBattery);
       insert(fragmentNode);
     }

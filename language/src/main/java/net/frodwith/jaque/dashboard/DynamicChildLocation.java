@@ -7,6 +7,7 @@ import com.oracle.truffle.api.CompilerDirectives;
 
 import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.data.Cell;
+import net.frodwith.jaque.data.FastClue;
 import net.frodwith.jaque.data.LocatedClass;
 
 import net.frodwith.jaque.exception.ExitException;
@@ -50,5 +51,14 @@ public final class DynamicChildLocation extends Location {
   @Override
   public void register(Registration registration) {
     registration.registerChild(toParent, this, parent);
+  }
+
+  @Override
+  public void audit(FastClue clue) {
+    if ( !clue.toParent.equals(toParent) ) {
+      LOG.warning(name + " axis mismatch: got " + clue.toParent.toString() +
+          ", expected " + toParent.toString() + ".");
+    }
+    super.audit(clue);
   }
 }

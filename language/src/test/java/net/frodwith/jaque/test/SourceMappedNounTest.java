@@ -57,8 +57,8 @@ public final class SourceMappedNounTest {
     assertEquals("-", "40", r.lookupAxis(Axis.HEAD).getCharacters());
     assertEquals("+", "[0   42]   1.042 ]", r.lookupAxis(Axis.TAIL).getCharacters());
     assertEquals("+<", "[0   42]", r.lookupAxis(Axis.SAMPLE).getCharacters());
-    assertEquals("+<-", "0", r.lookupAxis(new Axis(12L)).getCharacters());
-    assertEquals("+<+", "42", r.lookupAxis(new Axis(13L)).getCharacters());
+    assertEquals("+<-", "0", r.lookupAxis(Axis.get(12L)).getCharacters());
+    assertEquals("+<+", "42", r.lookupAxis(Axis.get(13L)).getCharacters());
     assertEquals("+>", "1.042", r.lookupAxis(Axis.CONTEXT).getCharacters());
     assertEquals(".", "[ 40 [0   42]   1.042 ]",
       r.lookupAxis(Axis.IDENTITY).getCharacters());
@@ -71,8 +71,8 @@ public final class SourceMappedNounTest {
     assertEquals("-", "40", r.lookupAxis(Axis.HEAD).getCharacters());
     assertEquals("+", "[0 42] 1.042]", r.lookupAxis(Axis.TAIL).getCharacters());
     assertEquals("+<", "[0 42]", r.lookupAxis(Axis.SAMPLE).getCharacters());
-    assertEquals("+<-", "0", r.lookupAxis(new Axis(12L)).getCharacters());
-    assertEquals("+<+", "42", r.lookupAxis(new Axis(13L)).getCharacters());
+    assertEquals("+<-", "0", r.lookupAxis(Axis.get(12L)).getCharacters());
+    assertEquals("+<+", "42", r.lookupAxis(Axis.get(13L)).getCharacters());
     assertEquals("+>", "1.042", r.lookupAxis(Axis.CONTEXT).getCharacters());
     assertEquals(".", "[40 [0 42] 1.042]",
       r.lookupAxis(Axis.IDENTITY).getCharacters());

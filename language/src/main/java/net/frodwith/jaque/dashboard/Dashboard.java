@@ -129,6 +129,7 @@ public final class Dashboard {
     if ( clue.toParent.isCrash() ) {
       RootLocation root = new RootLocation(clue.name, clue.hooks, core.tail);
       getRegistration(core).registerRoot(core.tail, root);
+      root.audit(clue);
     }
     else {
       Cell parentCore = Cell.require(clue.toParent.fragment(core));
@@ -146,6 +147,7 @@ public final class Dashboard {
             (StaticLocation) parent)
         : new DynamicChildLocation(clue.name, clue.hooks, parent, clue.toParent);
       getRegistration(core).registerChild(clue.toParent, child, parent);
+      child.audit(clue);
     }
     stable.invalidate();
   }

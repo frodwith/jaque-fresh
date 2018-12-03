@@ -9,7 +9,9 @@ REFLECTION
 
 Jet hot Dashboard
   on boot, need to iterate through whole dashboard and discover from hot
-  on initial registry find, check hot dashboard first
+    i don't think this is actually the case? it's fine to use the hot dashboard
+    simply as a source of discovery for unspotted cores. we don't need to respot
+    everything every time we get new hot info.
 
 put transferToInterpreters in the various places where RegistrationNodes replace();
 
