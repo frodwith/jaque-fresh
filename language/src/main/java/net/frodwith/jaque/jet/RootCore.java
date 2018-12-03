@@ -1,14 +1,23 @@
 package net.frodwith.jaque.jet;
 
+import java.util.Map;
+
+import net.frodwith.jaque.data.AxisMap;
+import net.frodwith.jaque.data.NockFunction;
+import net.frodwith.jaque.dashboard.Hook;
+import net.frodwith.jaque.dashboard.Location;
+import net.frodwith.jaque.dashboard.BatteryHash;
+import net.frodwith.jaque.dashboard.Registration;
+
 public final class RootCore extends JetCore {
   private final Object payload;
 
   public RootCore(String name,
                   Object payload,
-                  List<BatteryHash> hashes,
-                  List<JetArm> arms,
-                  List<JetHook> hooks,
-                  List<JetCore> children) {
+                  BatteryHash[] hashes,
+                  JetArm[] arms,
+                  JetHook[] hooks,
+                  JetCore[] children) {
     super(name, hashes, arms, hooks, children);
     this.payload = payload;
   }

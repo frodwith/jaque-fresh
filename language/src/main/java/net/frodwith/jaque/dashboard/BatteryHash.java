@@ -1,8 +1,10 @@
 package net.frodwith.jaque.dashboard;
 
 import java.util.Arrays;
+import java.util.Base64;
 
 import com.google.common.hash.Hashing;
+import com.google.common.hash.HashCode;
 import com.google.common.hash.HashFunction;
 
 import net.frodwith.jaque.data.Cell;
@@ -17,7 +19,8 @@ public final class BatteryHash {
   }
 
   public static BatteryHash hash(Cell battery) {
-    return new BatteryHash(hf.hashBytes(HoonSerial.jamBytes(battery)));
+    HashCode hc = hf.hashBytes(HoonSerial.jamBytes(battery));
+    return new BatteryHash(hc.asBytes());
   }
 
   @Override
@@ -27,12 +30,12 @@ public final class BatteryHash {
   }
 
   @Override
-  public boolean hashCode() {
+  public int hashCode() {
     return Arrays.hashCode(sha);
   }
 
   @Override
-  public boolean toString() {
-    return Base64.getEncoder().encode(sha);
+  public String toString() {
+    return Base64.getEncoder().encodeToString(sha);
   }
 }

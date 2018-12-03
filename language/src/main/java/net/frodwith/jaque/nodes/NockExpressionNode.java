@@ -17,7 +17,7 @@ import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.BigAtom;
 
 @GenerateWrapper
-public abstract class NockExpressionNode extends NockSubjectNode implements InstrumentableNode {
+public abstract class NockExpressionNode extends SubjectNode implements InstrumentableNode {
   private Axis axisInFormula;
 
   // Called by the creating code, not in a constructor because it messes with

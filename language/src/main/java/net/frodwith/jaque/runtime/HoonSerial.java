@@ -1,5 +1,7 @@
 package net.frodwith.jaque.runtime;
 
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+
 public final class HoonSerial {
   private final static class JamBuffer {
     public int a, b, bits;

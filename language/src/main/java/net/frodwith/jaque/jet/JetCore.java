@@ -1,25 +1,29 @@
 package net.frodwith.jaque.jet;
 
-import java.util.List;
+import java.util.Map;
 
-import net.frodwith.jaque.data.Axis;
+import net.frodwith.jaque.data.AxisMap;
+import net.frodwith.jaque.data.NockFunction;
+import net.frodwith.jaque.dashboard.Hook;
+import net.frodwith.jaque.dashboard.Location;
 import net.frodwith.jaque.dashboard.BatteryHash;
+import net.frodwith.jaque.dashboard.Registration;
 
 public abstract class JetCore {
-  public final String name;
-  public final List<BatteryHash> hashes;
-  public final List<JetArm> arms;
-  public final List<JetHook> hooks;
-  public final List<ChildCore> children;
+  protected final String name;
+  protected final BatteryHash[] hashes;
+  protected final JetArm[] arms;
+  protected final JetHook[] hooks;
+  protected final ChildCore[] children;
 
   protected abstract Location getLocation(Location parent,
                                           Map<String,Hook> hooks);
 
-  public JetCore(String name,
-                 List<BatteryHash> hashes,
-                 List<JetArm> arms,
-                 List<JetHook> hooks,
-                 List<ChildCore> children) {
+  protected JetCore(String name,
+                    BatteryHash[] hashes,
+                    JetArm[] arms,
+                    JetHook[] hooks,
+                    ChildCore[] children) {
     this.name     = name;
     this.hashes   = hashes;
     this.arms     = arms;

@@ -51,7 +51,7 @@ public final class Dashboard {
     Location      loc = null;
 
     if ( null != b.cold ) {
-      loc = b.cold.locate(core, () -> d);
+      loc = b.cold.registration.locate(core, () -> d);
     }
 
     if ( null == loc ) {
@@ -98,10 +98,9 @@ public final class Dashboard {
   }
 
   private Battery makeBattery(Cell noun) {
-    ColdRegistration cold = cold.get(noun);
-    BatteryHash hash = (null == cold) ? BatteryHash.hash(noun) : cold.hash;
-    Registration hot = hot.get(hash);
-    return new Battery(noun, cold, hot);
+    ColdRegistration cr = cold.get(noun);
+    BatteryHash hash = (null == cr) ? BatteryHash.hash(noun) : cr.hash;
+    return new Battery(noun, hash, cr, hot.get(hash));
   }
 
   private Registration getRegistration(Cell core) throws ExitException {
@@ -109,9 +108,10 @@ public final class Dashboard {
     Dashboard supply = this;
     Battery battery = Cell.require(core.head)
       .getMeta().getBattery(() -> supply);
-    return null == battery.registration
-      ? (battery.registration = new Registration(battery.hash))
-      : battery.registration;
+    if ( null == battery.cold ) {
+      battery.cold = new ColdRegistration(battery.hash);
+    }
+    return battery.cold.registration;
   }
 
   // unconditional (will not short-circuit)

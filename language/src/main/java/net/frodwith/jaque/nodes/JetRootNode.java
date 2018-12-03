@@ -11,15 +11,15 @@ import net.frodwith.jaque.NockLanguage;
 
 @NodeInfo(language = "nock")
 public final class JetRootNode extends RootNode {
-  @Child private NockSubjectNode bodyNode;
+  @Child private SubjectNode bodyNode;
   
   private static final Source JET_SOURCE
     = Source.newBuilder(NockLanguage.ID, "", "<jet source unavailable>")
     .build();
 
-  public NockRootNode(NockLanguage language,
-                      FrameDescriptor frameDescriptor,
-                      NockSubjectNode bodyNode) {
+  public JetRootNode(NockLanguage language,
+                     FrameDescriptor frameDescriptor,
+                     SubjectNode bodyNode) {
     super(language, frameDescriptor);
     this.bodyNode = bodyNode;
   }

@@ -5,7 +5,9 @@ import java.util.function.Supplier;
 import net.frodwith.jaque.nodes.FragmentNode;
 import net.frodwith.jaque.runtime.NockFunctionRegistry;
 import net.frodwith.jaque.exception.ExitException;
+import net.frodwith.jaque.dashboard.BatteryHash;
 import net.frodwith.jaque.dashboard.Registration;
+import net.frodwith.jaque.dashboard.ColdRegistration;
 
 // All battery nouns have a Battery, and some have registrations. We want to
 // cache the hash for all batteries, thus this class. This class does not and
@@ -13,11 +15,14 @@ import net.frodwith.jaque.dashboard.Registration;
 public final class Battery {
   public final Cell noun;
   public final Registration hot;
-  public Registration cold;
+  public final BatteryHash hash;
+  public ColdRegistration cold;
 
-  public Battery(Cell noun, Registration cold, Registration hot) {
+  public Battery(Cell noun, BatteryHash hash,
+                 ColdRegistration cold, Registration hot) {
     this.noun = noun;
     this.cold = cold;
+    this.hash = hash;
     this.hot  = hot;
   }
 

@@ -8,15 +8,31 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 
 import net.frodwith.jaque.NockLanguage;
+
 import net.frodwith.jaque.data.BigAtom;
 import net.frodwith.jaque.data.Cell;
+import net.frodwith.jaque.data.AxisMap;
+import net.frodwith.jaque.data.NockFunction;
+
+import net.frodwith.jaque.jet.JetTree;
+import net.frodwith.jaque.jet.RootCore;
+
+import net.frodwith.jaque.dashboard.Location;
+import net.frodwith.jaque.dashboard.Registration;
 import net.frodwith.jaque.dashboard.Dashboard;
+import net.frodwith.jaque.dashboard.BatteryHash;
+import net.frodwith.jaque.dashboard.ColdRegistration;
+
 
 public final class NockContext {
   private final Env env;
   private final NockLanguage language;
   public final Dashboard dashboard;
   public final NockFunctionRegistry functions;
+
+  public NockContext(NockLanguage language, Env env) {
+    this(language, env, new HashMap<>(), new JetTree(new RootCore[] {}));
+  }
 
   public NockContext(NockLanguage language, Env env,
                      Map<Cell, ColdRegistration> cold,

@@ -6,7 +6,7 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.BigAtom;
 
-public abstract class NockSubjectNode extends NockNode {
+public abstract class SubjectNode extends NockNode {
   public abstract Object executeGeneric(VirtualFrame frame);
 
   public long executeLong(VirtualFrame frame) throws UnexpectedResultException {

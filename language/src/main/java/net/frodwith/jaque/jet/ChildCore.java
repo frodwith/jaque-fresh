@@ -1,14 +1,21 @@
 package net.frodwith.jaque.jet;
 
+import java.util.Map;
+
+import net.frodwith.jaque.data.Axis;
+import net.frodwith.jaque.dashboard.Hook;
+import net.frodwith.jaque.dashboard.Location;
+import net.frodwith.jaque.dashboard.BatteryHash;
+
 public final class ChildCore extends JetCore {
   private final Axis toParent;
 
   public ChildCore(String name,
                    Axis toParent,
-                   List<BatteryHash> hashes,
-                   List<JetArm> arms,
-                   List<JetHook> hooks,
-                   List<JetCore> children) {
+                   BatteryHash[] hashes,
+                   JetArm[] arms,
+                   JetHook[] hooks,
+                   JetCore[] children) {
     super(name, hashes, arms, hooks, children);
     this.toParent = toParent;
   }
