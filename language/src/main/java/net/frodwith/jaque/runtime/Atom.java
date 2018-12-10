@@ -1,6 +1,7 @@
 package net.frodwith.jaque.runtime;
 
 import java.util.Arrays;
+import java.math.BigInteger;
 
 import com.oracle.truffle.api.CompilerDirectives;
 
@@ -290,5 +291,15 @@ public final class Atom {
       return new byte[1];
     }
     return wordsToBytes(words(atom), HoonMath.met((byte)3, atom), endian);
+  }
+
+  public static Object fromBigInteger(BigInteger big) {
+    return fromByteArray(big.toByteArray(), BIG_ENDIAN);
+  }
+
+  public static Object parseOption(Object option) {
+    return (option instanceof BigInteger)
+      ? Atom.fromBigInteger((BigInteger) option)
+      : (long) option;
   }
 }

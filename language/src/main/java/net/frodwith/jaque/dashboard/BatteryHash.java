@@ -1,7 +1,7 @@
 package net.frodwith.jaque.dashboard;
 
 import java.util.Arrays;
-import java.util.Base64;
+import java.math.BigInteger;
 
 import com.google.common.hash.Hashing;
 import com.google.common.hash.HashCode;
@@ -36,6 +36,24 @@ public final class BatteryHash {
 
   @Override
   public String toString() {
-    return Base64.getEncoder().encodeToString(sha);
+    StringBuilder b = new StringBuilder();
+    for ( int i = 0; i < 32; ++i ) {
+      b.append(String.format("%02x", sha[i]));
+    }
+    return b.toString();
+  }
+
+  public static BatteryHash parseOption(Object option) {
+    String hexDigits = (String) option;
+    BigInteger big = new BigInteger(hexDigits, 16);
+    byte[] bytes = big.toByteArray();
+    if ( bytes.length != 33 || 0 != bytes[0] ) {
+      throw new IllegalArgumentException(option.toString());
+    }
+    byte[] rev = new byte[32];
+    for ( int i = 1; i <= 32; i++ ) {
+      rev[32-i] = bytes[i];
+    }
+    return new BatteryHash(rev);
   }
 }

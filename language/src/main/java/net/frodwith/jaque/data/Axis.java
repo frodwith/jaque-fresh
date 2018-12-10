@@ -153,4 +153,13 @@ public final class Axis implements Iterable<Axis.Fragment> {
   public boolean inside(Axis parent) {
     return subAxis(atom, parent.atom);
   }
+
+  public static Axis parseOption(Object option) {
+    try {
+      return Axis.require(Atom.parseOption(option));
+    }
+    catch ( ExitException e ) {
+      throw new IllegalArgumentException(option.toString());
+    }
+  }
 }

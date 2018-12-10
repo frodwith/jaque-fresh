@@ -5,7 +5,7 @@ import java.util.Map;
 import com.oracle.truffle.api.dsl.NodeFactory;
 
 import net.frodwith.jaque.data.Axis;
-import net.frodwith.jaque.nodes.SubjectNode;
+import net.frodwith.jaque.nodes.jet.JetNode;
 import net.frodwith.jaque.dashboard.Hook;
 import net.frodwith.jaque.dashboard.PullHook;
 
@@ -14,8 +14,8 @@ import net.frodwith.jaque.dashboard.PullHook;
 public final class NameArm extends JetArm {
   private final String name;
 
-  protected NameArm(String name, NodeFactory<SubjectNode> factory) {
-    super(factory);
+  protected NameArm(String name, Class<? extends SubjectNode> klass) {
+    super(klass);
     this.name = name;
   }
 

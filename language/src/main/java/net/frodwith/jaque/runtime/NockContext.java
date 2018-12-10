@@ -1,7 +1,12 @@
 package net.frodwith.jaque.runtime;
 
+import java.util.function.Function;
 import java.util.Map;
 import java.util.HashMap;
+
+import org.graalvm.options.OptionValues;
+import org.graalvm.options.OptionKey;
+import org.graalvm.options.OptionType;
 
 import com.oracle.truffle.api.TruffleLanguage.Env;
 import com.oracle.truffle.api.CompilerDirectives;
@@ -31,19 +36,29 @@ public final class NockContext {
   public final NockFunctionRegistry functions;
 
   public NockContext(NockLanguage language, Env env) {
-    this(language, env, new HashMap<>(), new JetTree(new RootCore[] {}));
-  }
+    OptionValues values = env.getOptions();
 
-  public NockContext(NockLanguage language, Env env,
-                     Map<Cell, ColdRegistration> cold,
-                     JetTree tree) {
-    this.env       = env;
-    this.language  = language;
-    this.functions = new NockFunctionRegistry(language);
+    Function<String, JetTree> treeFn = (s) -> JetTree.parseOption(s);
+    JetTree defaultTree = new JetTree(new RootCore[0]);
+    OptionKey<JetTree> treeKey = new OptionKey(defaultTree,
+        new OptionType<JetTree>("jets", defaultTree, treeFn));
 
+    // TODO: parse a string (probably as a file path) to read cold
+    //       registration history from. Always a blank hashmap for now.
+    Map<Cell,ColdRegistration> defaultCold = new HashMap<>();
+    Function<String, Map<Cell,ColdRegistration>> coldFn = (s) -> defaultCold;
+    OptionKey<Map<Cell,ColdRegistration>> coldKey = new OptionKey(defaultCold,
+      new OptionType<Map<Cell,ColdRegistration>>("cold", defaultCold, coldFn));
+
+    JetTree tree = values.get(treeKey);
+    Map<Cell,ColdRegistration> cold = values.get(coldKey);
     Map<BatteryHash,Registration> hot = new HashMap<>();
     Map<Location,AxisMap<NockFunction>> drivers = new HashMap<>();
     tree.addToMaps(language, hot, drivers);
+
+    this.env       = env;
+    this.language  = language;
+    this.functions = new NockFunctionRegistry(language);
     this.dashboard = new Dashboard(cold, hot, drivers);
   }
 
