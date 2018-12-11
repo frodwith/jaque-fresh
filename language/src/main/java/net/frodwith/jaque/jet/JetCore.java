@@ -7,7 +7,11 @@ import java.util.ArrayList;
 
 import us.bpsm.edn.Keyword;
 
+import com.oracle.truffle.api.TruffleLanguage.ContextReference;
+
 import net.frodwith.jaque.NockLanguage;
+import net.frodwith.jaque.runtime.NockContext;
+import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.data.AxisMap;
 import net.frodwith.jaque.data.NockFunction;
 import net.frodwith.jaque.dashboard.Hook;
@@ -44,6 +48,7 @@ public abstract class JetCore {
 
   public final void addToMaps(Location parent,
                               NockLanguage language,
+                              ContextReference<NockContext> ref,
                               Map<BatteryHash,Registration> hot,
                               Map<Location,AxisMap<NockFunction>> driver) {
     Map<String,Hook> hookMap = new HashMap<>();
@@ -59,65 +64,14 @@ public abstract class JetCore {
     }
 
     AxisMap functions = AxisMap.EMPTY;
-    for ( JetArm a : arms ) {
-      functions = functions.insert(a.getAxis(hookMap), a.getFunction(language));
+    for ( JetArm arm : arms ) {
+      Axis ax = arm.getAxis(hookMap);
+      functions = functions.insert(ax, arm.getFunction(language, ref, ax));
     }
     driver.put(loc, functions);
 
     for ( ChildCore child : children ) {
-      child.addToMaps(loc, language, hot, driver);
-    }
-  }
-
-  protected static BatteryHash[] parseHashes(Object val) {
-    if ( !(val instanceof List) ) {
-      return new BatteryHash[0];
-    }
-    else {
-      List<BatteryHash> list = new ArrayList<>();
-      for ( Object o : (List<?>) val ) {
-        list.add(BatteryHash.parseOption(o));
-      }
-      return list.toArray(new BatteryHash[list.size()]);
-    }
-  }
-
-  protected static JetArm[] parseArms(Object val) {
-    if ( !(val instanceof List) ) {
-      return new JetArm[0];
-    }
-    else {
-      List<JetArm> list = new ArrayList<>();
-      for ( Object o : (List<?>) val ) {
-        list.add(JetArm.parseOption(o));
-      }
-      return list.toArray(new JetArm[list.size()]);
-    }
-  }
-
-  protected static JetHook[] parseHooks(Object val) {
-    if ( !(val instanceof List) ) {
-      return new JetHook[0];
-    }
-    else {
-      List<JetHook> list = new ArrayList<>();
-      for ( Object o : (List<?>) val ) {
-        list.add(JetHook.parseOption(o));
-      }
-      return list.toArray(new JetHook[list.size()]);
-    }
-  }
-
-  protected static ChildCore[] parseChildren(Object val) {
-    if ( !(val instanceof List) ) {
-      return new ChildCore[0];
-    }
-    else {
-      List<ChildCore> list = new ArrayList<>();
-      for ( Object o : (List<?>) val ) {
-        list.add(ChildCore.parseOption(o));
-      }
-      return list.toArray(new ChildCore[list.size()]);
+      child.addToMaps(loc, language, ref, hot, driver);
     }
   }
 }

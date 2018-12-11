@@ -33,23 +33,4 @@ public final class RootCore extends JetCore {
     assert( null == parent );
     return new RootLocation(name, hooks, payload);
   }
-
-  public void addToMaps(NockLanguage language,
-                        Map<BatteryHash,Registration> hotMap,
-                        Map<Location,AxisMap<NockFunction>> driverMap) {
-    addToMaps(null, language, hotMap, driverMap);
-  }
-
-  public static RootCore parseOption(Object option) {
-    Map<?,?> m = (Map<?,?>) option;
-    String name = (String) m.get(nameKey);
-    Object payload = Atom.parseOption(m.get(payloadKey));
-
-    BatteryHash[] hashes = parseHashes(m.get(hashKey));
-    JetArm[] arms = parseArms(m.get(armKey));
-    JetHook[] hooks = parseHooks(m.get(hookKey));
-    ChildCore[] children = parseChildren(m.get(childKey));
-
-    return new RootCore(name, payload, hashes, arms, hooks, children);
-  }
 }

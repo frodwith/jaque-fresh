@@ -33,18 +33,4 @@ public final class ChildCore extends JetCore {
       ? new StaticChildLocation(name, hooks, (StaticLocation) parent)
       : new DynamicChildLocation(name, hooks, parent, toParent);
   }
-
-  public static ChildCore parseOption(Object option) {
-    Map<?,?> m = (Map<?,?>) option;
-    String name = (String) m.get(nameKey);
-    Object ao = m.get(axisKey);
-    Axis toParent = Axis.parseOption(m.get(axisKey));
-
-    BatteryHash[] hashes = parseHashes(m.get(hashKey));
-    JetArm[] arms = parseArms(m.get(armKey));
-    JetHook[] hooks = parseHooks(m.get(hookKey));
-    ChildCore[] children = parseChildren(m.get(childKey));
-
-    return new ChildCore(name, toParent, hashes, arms, hooks, children);
-  }
 }

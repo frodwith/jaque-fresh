@@ -1,21 +1,25 @@
 package net.frodwith.jaque.jet;
 
 import java.util.Map;
+import java.util.function.BiFunction;
 
 import com.oracle.truffle.api.dsl.NodeFactory;
+import com.oracle.truffle.api.TruffleLanguage.ContextReference;
 
 import net.frodwith.jaque.data.Axis;
-import net.frodwith.jaque.nodes.jet.JetNode;
+import net.frodwith.jaque.nodes.SubjectNode;
 import net.frodwith.jaque.dashboard.Hook;
 import net.frodwith.jaque.dashboard.PullHook;
+import net.frodwith.jaque.runtime.NockContext;
 
 // you can jet arms by name as long as there's a hook description
 // and the hook is to pull an arm on the current core
 public final class NameArm extends JetArm {
   private final String name;
 
-  protected NameArm(String name, Class<? extends SubjectNode> klass) {
-    super(klass);
+  public NameArm(String name,
+    BiFunction<ContextReference<NockContext>, Axis, SubjectNode> factory) {
+    super(factory);
     this.name = name;
   }
 

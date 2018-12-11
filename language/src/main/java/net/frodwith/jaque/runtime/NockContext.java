@@ -13,6 +13,7 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 
 import net.frodwith.jaque.NockLanguage;
+import net.frodwith.jaque.NockOptions;
 
 import net.frodwith.jaque.data.BigAtom;
 import net.frodwith.jaque.data.Cell;
@@ -38,20 +39,11 @@ public final class NockContext {
   public NockContext(NockLanguage language, Env env) {
     OptionValues values = env.getOptions();
 
-    Function<String, JetTree> treeFn = (s) -> JetTree.parseOption(s);
-    JetTree defaultTree = new JetTree(new RootCore[0]);
-    OptionKey<JetTree> treeKey = new OptionKey(defaultTree,
-        new OptionType<JetTree>("jets", defaultTree, treeFn));
+    JetTree tree =
+      language.getJetTree(values.get(NockOptions.JET_TREE));
+    Map<Cell,ColdRegistration> cold =
+      language.findHistory(values.get(NockOptions.COLD_HISTORY));
 
-    // TODO: parse a string (probably as a file path) to read cold
-    //       registration history from. Always a blank hashmap for now.
-    Map<Cell,ColdRegistration> defaultCold = new HashMap<>();
-    Function<String, Map<Cell,ColdRegistration>> coldFn = (s) -> defaultCold;
-    OptionKey<Map<Cell,ColdRegistration>> coldKey = new OptionKey(defaultCold,
-      new OptionType<Map<Cell,ColdRegistration>>("cold", defaultCold, coldFn));
-
-    JetTree tree = values.get(treeKey);
-    Map<Cell,ColdRegistration> cold = values.get(coldKey);
     Map<BatteryHash,Registration> hot = new HashMap<>();
     Map<Location,AxisMap<NockFunction>> drivers = new HashMap<>();
     tree.addToMaps(language, hot, drivers);

@@ -1,18 +1,21 @@
 package net.frodwith.jaque.jet;
 
 import java.util.Map;
+import java.util.function.BiFunction;
 
-import com.oracle.truffle.api.dsl.NodeFactory;
+import com.oracle.truffle.api.TruffleLanguage.ContextReference;
 
 import net.frodwith.jaque.data.Axis;
-import net.frodwith.jaque.nodes.jet.JetNode;
+import net.frodwith.jaque.nodes.SubjectNode;
 import net.frodwith.jaque.dashboard.Hook;
+import net.frodwith.jaque.runtime.NockContext;
 
 public final class AxisArm extends JetArm {
   private final Axis axis;
 
-  protected AxisArm(Axis axis, Class<? extends SubjectNode> klass) {
-    super(klass);
+  public AxisArm(Axis axis,
+    BiFunction<ContextReference<NockContext>, Axis, SubjectNode> factory) {
+    super(factory);
     this.axis = axis;
   }
 
