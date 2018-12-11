@@ -41,10 +41,6 @@ public final class NockLanguage extends TruffleLanguage<NockContext> {
   public static final String ID = "nock";
   public static final String MIME_TYPE = "application/x-nock";
 
-  private static final org.graalvm.polyglot.Source slamSource = 
-    org.graalvm.polyglot.Source.newBuilder(ID, 
-      "[9 2 10 [6 0 3] 0 2]", "<interal slam source>").buildLiteral();
-
   private static final Map<String,JetTree> installedJets =
     new HashMap<>();
   private static final Map<String,Map<Cell,ColdRegistration>> histories =
@@ -154,14 +150,13 @@ public final class NockLanguage extends TruffleLanguage<NockContext> {
     return Truffle.getRuntime().createCallTarget(rootNode);
   }
 
-  public static Value cons(Context context, Object head, Object tail) {
-    return Value.asValue(
-      new Cell(context.asValue(head).asHostObject(), 
-               context.asValue(tail).asHostObject()));
-  }
-
-  public static Value slam(Context context, Object core, Object sample) {
-    return Value.asValue(
-        context.eval(slamSource).execute(cons(context, core, sample)));
+  @Override
+  public Object findMetaObject(NockContext context, Object o) {
+    if ( o instanceof Cell ) {
+      return ((Cell) o).getMeta(context);
+    }
+    else {
+      return null;
+    }
   }
 }

@@ -82,8 +82,11 @@ public class AckermanTest {
   public void testUnjetted() {
     Context context = Context.create();
     Value gate = context.eval(ackSource).execute();
-    Value product = NockLanguage.slam(context, gate, new Cell(2L, 2L));
-    assertEquals("unjetted", 7L, product.as(Number.class));
+    Value meta = gate.getMetaObject();
+    assertTrue(meta.canInvokeMember("2"));
+    //assertTrue(false);
+    //Value product = meta.invokeMember("2", 2L, 2L);
+    //assertEquals("unjetted", 7L, product.as(Number.class));
   }
 
   @Test
