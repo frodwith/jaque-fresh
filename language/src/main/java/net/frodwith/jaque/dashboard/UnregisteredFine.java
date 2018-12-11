@@ -3,6 +3,7 @@ package net.frodwith.jaque.dashboard;
 import java.util.function.Supplier;
 
 import net.frodwith.jaque.data.Cell;
+import net.frodwith.jaque.runtime.NockContext;
 
 public final class UnregisteredFine extends UnlocatedFine {
   public UnregisteredFine(Cell battery) {
@@ -10,7 +11,7 @@ public final class UnregisteredFine extends UnlocatedFine {
   }
 
   @Override
-  public boolean extraChecks(Cell core, Supplier<Dashboard> supply) {
+  public boolean extraChecks(Cell core, NockContext context) {
     return true;
   }
 }

@@ -4,6 +4,7 @@ import java.util.function.Supplier;
 
 import com.oracle.truffle.api.Assumption;
 
+import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.dashboard.FineCheck;
 import net.frodwith.jaque.dashboard.Dashboard;
 import net.frodwith.jaque.dashboard.Registration;
@@ -19,7 +20,7 @@ public final class RegisteredClass extends UnlocatedClass {
   }
 
   @Override
-  public final FineCheck getFine(Cell core, Supplier<Dashboard> supply) {
+  public final FineCheck getFine(Cell core, NockContext context) {
     return new RegisteredFine(core);
   }
 

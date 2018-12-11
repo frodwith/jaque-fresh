@@ -31,12 +31,12 @@ public final class StaticRegistrationNode extends RegistrationNode {
         return this.core;
       }
       else {
-        Supplier<Dashboard> supply = getSupplier();
+        NockContext context = contextReference.get();
         NockObject object;
         try {
-          object = this.core.getMeta().getObject(supply);
+          object = this.core.getMeta(context).getObject();
           replacement = new FineRegistrationNode(
-              this.clue, object.getFine(supply),
+              this.clue, object.getFine(context),
               contextReference);
         }
         catch ( ExitException e ) {

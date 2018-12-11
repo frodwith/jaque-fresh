@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 
 import net.frodwith.jaque.data.Cell;
+import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.exception.ExitException;
 
 public final class DynamicFine extends LocatedFine {
@@ -28,7 +29,7 @@ public final class DynamicFine extends LocatedFine {
 
   @ExplodeLoop
   @Override
-  public boolean check(Cell core, Supplier<Dashboard> supply) {
+  public boolean check(Cell core, NockContext context) {
     final Cell[] cores = new Cell[steps.length];
     try {
       int i;
@@ -47,12 +48,12 @@ public final class DynamicFine extends LocatedFine {
         }
       }
 
-      if ( !root.check(core, supply) ) {
+      if ( !root.check(core, context) ) {
         return false;
       }
 
       for ( i = 0; i < steps.length; ++i ) {
-        steps[i].save(cores[i]);
+        steps[i].save(cores[i], context);
       }
 
       return true;

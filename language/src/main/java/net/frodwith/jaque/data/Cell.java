@@ -8,6 +8,7 @@ import com.oracle.truffle.api.interop.ForeignAccess;
 
 import net.frodwith.jaque.runtime.Mug;
 import net.frodwith.jaque.runtime.Equality;
+import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.dashboard.Location;
 
 import net.frodwith.jaque.exception.ExitException;
@@ -128,18 +129,22 @@ public final class Cell implements TruffleObject, Serializable {
     return am != bm;
   }
 
-  public CellMeta getMeta() {
+  public CellMeta getMeta(NockContext context) {
     CellMeta cm;
     if ( null == meta ) {
-      cm = new CellMeta(this, 0);
-      meta = cm;
+      meta = cm = new CellMeta(context, this, 0);
     }
-    else if ( this.meta instanceof Integer ) {
-      cm = new CellMeta(this, 0);
-      meta = cm;
+    else if ( meta instanceof Integer ) {
+      meta = cm = new CellMeta(context, this, (int) meta);
     }
     else {
       cm = (CellMeta) meta;
+      /* it is possible that the same cell will be run in different contexts. If
+       * two threads with different contexts are running on the same shared
+       * cell, there is potential for unproductive clobbering. */
+      if ( cm.forContext(context) ) {
+        meta = cm = new CellMeta(context, this, cm.cachedMug());
+      }
     }
     return cm;
   }

@@ -9,6 +9,7 @@ import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.FastClue;
 import net.frodwith.jaque.data.LocatedClass;
+import net.frodwith.jaque.runtime.NockContext;
 
 import net.frodwith.jaque.exception.ExitException;
 
@@ -26,13 +27,13 @@ public final class DynamicChildLocation extends Location {
   }
 
   @Override
-  public FineCheck buildFine(Cell core, Supplier<Dashboard> supply) {
+  public FineCheck buildFine(Cell core, NockContext context) {
     try {
       Cell battery = Cell.require(core.head);
       FineCheck parentFine = Cell.require(toParent.fragment(core))
-        .getMeta().getObject(supply).getFine(supply);
+        .getMeta(context).getObject().getFine(context);
       LocatedFine fine = (LocatedFine) parentFine;
-      LocatedClass klass = (LocatedClass) core.getMeta().getObject(supply).klass;
+      LocatedClass klass = (LocatedClass) core.getMeta(context).getObject().klass;
       return fine.addStep(new FineStep(battery, toParent, klass));
     }
     catch ( ExitException | ClassCastException e ) {

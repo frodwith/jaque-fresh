@@ -4,6 +4,7 @@ import java.util.function.Supplier;
 
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.runtime.Equality;
+import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.exception.ExitException;
 
 public abstract class UnlocatedFine extends FineCheck {
@@ -13,10 +14,9 @@ public abstract class UnlocatedFine extends FineCheck {
     this.battery = battery;
   }
 
-  protected abstract boolean
-    extraChecks(Cell core, Supplier<Dashboard> supply);
+  protected abstract boolean extraChecks(Cell core, NockContext context);
 
-  public final boolean check(Cell core, Supplier<Dashboard> supply) {
-    return Equality.equals(core.head, battery) && extraChecks(core, supply);
+  public final boolean check(Cell core, NockContext context) {
+    return Equality.equals(core.head, battery) && extraChecks(core, context);
   }
 }

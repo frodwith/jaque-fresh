@@ -6,6 +6,7 @@ import net.frodwith.jaque.data.NockObject;
 import net.frodwith.jaque.data.LocatedClass;
 
 import net.frodwith.jaque.runtime.Equality;
+import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.exception.ExitException;
 
 public final class FineStep {
@@ -31,7 +32,7 @@ public final class FineStep {
     return Cell.require(toParent.fragment(core));
   }
 
-  public void save(Cell core) {
-    core.getMeta().setObject(new NockObject(klass, core));
+  public void save(Cell core, NockContext context) {
+    core.getMeta(context).setObject(new NockObject(klass, core));
   }
 }

@@ -18,6 +18,7 @@ import net.frodwith.jaque.data.NockFunction;
 import net.frodwith.jaque.dashboard.Location;
 import net.frodwith.jaque.dashboard.BatteryHash;
 import net.frodwith.jaque.dashboard.Registration;
+import net.frodwith.jaque.runtime.NockContext;
 
 public final class JetTree {
   public final RootCore[] roots;
@@ -27,10 +28,11 @@ public final class JetTree {
   }
 
   public void addToMaps(NockLanguage language,
+                        NockContext context,
                         Map<BatteryHash,Registration> hot,
                         Map<Location, AxisMap<NockFunction>> driver) {
     for ( RootCore r : roots ) {
-      r.addToMaps(null, language, language.getContextReference(), hot, driver);
+      r.addToMaps(null, language, context, hot, driver);
     }
   }
 }

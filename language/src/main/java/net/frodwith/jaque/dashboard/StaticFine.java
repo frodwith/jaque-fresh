@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.NockObject;
 import net.frodwith.jaque.runtime.Equality;
+import net.frodwith.jaque.runtime.NockContext;
 
 public final class StaticFine extends LocatedFine {
   private final Cell staticNoun;
@@ -16,9 +17,9 @@ public final class StaticFine extends LocatedFine {
   }
 
   @Override
-  public boolean check(Cell core, Supplier<Dashboard> supply) {
+  public boolean check(Cell core, NockContext context) {
     if ( Equality.equals(core, staticNoun) ) {
-      core.getMeta().setObject(object);
+      core.getMeta(context).setObject(object);
       return true;
     }
     else {

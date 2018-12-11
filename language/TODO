@@ -1,3 +1,7 @@
+messages:
+  meta objects can support slam/kick/exec etc!
+  we can also support write (via edit) and maybe do lark reads.
+
 kind of map that is one-thing-then-a-hashmap, for use in Registration
 
 REFLECTION
@@ -7,11 +11,7 @@ REFLECTION
   native image, but someone can tell that image "this is how you match an add,
   use your baked in AddNode."
 
-Jet hot Dashboard
-  on boot, need to iterate through whole dashboard and discover from hot
-    i don't think this is actually the case? it's fine to use the hot dashboard
-    simply as a source of discovery for unspotted cores. we don't need to respot
-    everything every time we get new hot info.
+  We can also just configure the jet classes we supply to allow reflection.
 
 put transferToInterpreters in the various places where RegistrationNodes replace();
 

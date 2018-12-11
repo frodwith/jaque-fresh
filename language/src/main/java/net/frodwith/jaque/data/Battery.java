@@ -3,6 +3,7 @@ package net.frodwith.jaque.data;
 import java.util.function.Supplier;
 
 import net.frodwith.jaque.nodes.FragmentNode;
+import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.runtime.NockFunctionRegistry;
 import net.frodwith.jaque.exception.ExitException;
 import net.frodwith.jaque.dashboard.BatteryHash;
@@ -25,10 +26,9 @@ public final class Battery {
     this.hot  = hot;
   }
 
-  public NockFunction
-    getArm(FragmentNode fragmentNode,
-           Supplier<NockFunctionRegistry> supply)
-      throws ExitException {
-    return Cell.require(fragmentNode.executeFragment(noun)).getMeta().getFunction(supply);
+  public NockFunction getArm(FragmentNode fragmentNode, 
+                             NockContext context) throws ExitException {
+    return Cell.require(fragmentNode.executeFragment(noun))
+           .getMeta(context).getFunction();
   }
 }

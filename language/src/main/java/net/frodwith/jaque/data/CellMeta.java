@@ -17,12 +17,14 @@ import net.frodwith.jaque.exception.ExitException;
 public final class CellMeta {
   private int mug;
   private Cell cell;
+  private NockContext context;
 
   private NockFunction function;
   private NockObject object;
   private Battery battery;
 
-  public CellMeta(Cell cell, int mug) {
+  public CellMeta(NockContext context, Cell cell, int mug) {
+    this.context   = context;
     this.cell      = cell;
     this.mug       = mug;
     this.battery   = null;
@@ -30,9 +32,14 @@ public final class CellMeta {
     this.function  = null;
   }
 
-  public NockObject getObject(Supplier<Dashboard> supply) throws ExitException {
+  public boolean forContext(NockContext context) {
+    // Could also check that the contexts are compatible in some way.
+    return context == this.context;
+  }
+
+  public NockObject getObject() throws ExitException {
     if ( !hasObject() ) {
-      object = supply.get().getObject(cell);
+      object = context.dashboard.getObject(cell);
     }
     return object;
   }
@@ -60,27 +67,24 @@ public final class CellMeta {
 
   public void writeObject(Cell edited, Axis written) {
     if ( hasObject() && object.klass.copyableEdit(written) ) {
-      edited.getMeta().object = object.like(edited);
+      edited.getMeta(context).object = object.like(edited);
     }
   }
 
   public boolean knownAt(Location location) {
-    return hasObject() 
-      && (object.klass instanceof LocatedClass)
-      && (location == ((LocatedClass) object.klass).location);
+    return hasObject() && object.klass.locatedAt(location);
   }
 
-  public Battery getBattery(Supplier<Dashboard> supply) {
+  public Battery getBattery() {
     if ( null == battery ) {
-      battery = supply.get().getBattery(cell);
+      battery = context.dashboard.getBattery(cell);
     }
     return battery;
   }
 
-  public NockFunction getFunction(Supplier<NockFunctionRegistry> supply) 
-    throws ExitException {
+  public NockFunction getFunction() throws ExitException {
     if ( null == function ) {
-      function = supply.get().lookup(cell);
+      function = context.functions.lookup(cell);
     }
     return function;
   }
@@ -102,6 +106,7 @@ public final class CellMeta {
 
   public void unify(CellMeta other) {
     other.cell = cell;
+    boolean mine = false, his = false;
 
     // mugs
     if ( 0 == mug ) {
@@ -114,25 +119,40 @@ public final class CellMeta {
     // batteries
     if ( null == battery ) {
       battery = other.battery;
+      his = true;
     }
     else if ( null == other.battery ) {
       other.battery = battery;
+      mine = true;
     }
 
     // functions
     if ( null == function ) {
       function = other.function;
+      his = true;
     }
     else if ( null == other.function ) {
       other.function = function;
+      mine = true;
     }
 
     // objects
     if ( null == object ) {
       object = other.object;
+      his = true;
     }
     else {
       other.object = object;
+      mine = true;
+    }
+
+    if ( !other.forContext(context) ) {
+      if ( mine && !his ) {
+        other.context = context;
+      }
+      else if ( his && !mine ) {
+        context = other.context;
+      }
     }
   }
 }

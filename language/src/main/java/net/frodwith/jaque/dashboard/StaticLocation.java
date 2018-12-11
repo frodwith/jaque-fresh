@@ -6,16 +6,16 @@ import java.util.function.Supplier;
 import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.exception.ExitException;
+import net.frodwith.jaque.runtime.NockContext;
 
 public abstract class StaticLocation extends Location {
   protected StaticLocation(String name, Map<String,Hook> hooks) {
     super(name, hooks);
   }
 
-  public final LocatedFine
-    buildFine(Cell core, Supplier<Dashboard> supply)
-      throws ExitException {
-    return new StaticFine(core, core.getMeta().getObject(supply));
+  public final LocatedFine buildFine(Cell core, NockContext context)
+    throws ExitException {
+    return new StaticFine(core, core.getMeta(context).getObject());
   }
 
   public final boolean copyableEdit(Axis axis) {

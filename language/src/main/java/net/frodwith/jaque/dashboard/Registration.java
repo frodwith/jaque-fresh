@@ -13,6 +13,7 @@ import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.NockClass;
 import net.frodwith.jaque.data.LocatedClass;
 import net.frodwith.jaque.runtime.Atom;
+import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.exception.ExitException;
 
 // One canonical persistent object per REGISTERED battery.  These objects are
@@ -27,7 +28,7 @@ public final class Registration {
   private final Map<Object,Location> roots;
   private final ArrayList<Parents> parents;
 
-  public Registration() {
+  public Registration(NockContext context) {
     this.roots = new HashMap<>();
     this.parents = new ArrayList<>();
   }
@@ -66,7 +67,7 @@ L0: for ( i = 0; i < len; ++i ) {
   }
 
   @TruffleBoundary
-  public Location locate(Cell core, Supplier<Dashboard> dash) {
+  public Location locate(Cell core, NockContext context) {
     try {
       Location root = roots.get(core.tail);
       if ( root != null ) {
@@ -75,7 +76,7 @@ L0: for ( i = 0; i < len; ++i ) {
       else {
         for ( Parents p : parents ) {
           Object at = p.axis.fragment(core);
-          NockClass parent = Cell.require(at).getMeta().getObject(dash).klass;
+          NockClass parent = Cell.require(at).getMeta(context).getObject().klass;
           if ( parent instanceof LocatedClass ) {
             Location found = p.map.get(((LocatedClass) parent).location);
             if ( null != found ) {

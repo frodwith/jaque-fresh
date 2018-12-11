@@ -9,6 +9,7 @@ import net.frodwith.jaque.NockLanguage;
 import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.FastClue;
+import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.exception.ExitException;
 
 public abstract class Location {
@@ -22,9 +23,8 @@ public abstract class Location {
     this.hooks = hooks;
   }
 
-  public abstract FineCheck
-    buildFine(Cell core, Supplier<Dashboard> supply)
-      throws ExitException;
+  public abstract FineCheck buildFine(Cell core, NockContext context)
+    throws ExitException;
 
   public abstract void register(Registration registration);
 

@@ -51,14 +51,18 @@ public abstract class PullNode extends NockCallLookupNode {
   }
 
   @Specialization(limit = "INLINE_CACHE_SIZE",
-                  guards = "fine.check(core, getSupplier())",
+                  guards = "fine.check(core, getContext())",
                   assumptions = "object.klass.valid",
                   replaces = "doStatic")
   protected NockCall doFine(Cell core,
     @Cached("getObject(core)") NockObject object,
     @Cached("getArm(object)") NockFunction arm,
-    @Cached("object.getFine(getSupplier())") FineCheck fine) {
+    @Cached("object.getFine(getContext())") FineCheck fine) {
     return new NockCall(arm, core);
+  }
+
+  protected NockContext getContext() {
+    return getContextReference().get();
   }
 
   @Specialization(replaces = "doFine")
@@ -73,10 +77,6 @@ public abstract class PullNode extends NockCallLookupNode {
     throw new NockException("atom not core", this);
   }
 
-  protected Supplier<Dashboard> getSupplier() {
-    return () -> getContextReference().get().dashboard;
-  }
-
   private FragmentNode getFragmentNode() {
     if ( null == fragmentNode ) {
       CompilerDirectives.transferToInterpreter();
@@ -88,12 +88,8 @@ public abstract class PullNode extends NockCallLookupNode {
   }
 
   protected NockFunction getArm(NockObject object) {
-    Axis a = getArmAxis();
-    FragmentNode frag = getFragmentNode();
-    ContextReference<NockContext> ref = getContextReference();
-    Supplier<NockFunctionRegistry> supply = () -> ref.get().functions;
     try {
-      return object.klass.getArm(a, frag, supply);
+      return object.klass.getArm(getArmAxis(), getFragmentNode(), getContext());
     }
     catch ( ExitException e ) {
       throw new NockException("fail to fetch arm from battery", e, this);
@@ -102,7 +98,7 @@ public abstract class PullNode extends NockCallLookupNode {
 
   protected NockObject getObject(Cell core) {
     try {
-      return core.getMeta().getObject(getSupplier());
+      return core.getMeta(getContext()).getObject();
     }
     catch ( ExitException e ) {
       throw new NockException("core not object", e, this);

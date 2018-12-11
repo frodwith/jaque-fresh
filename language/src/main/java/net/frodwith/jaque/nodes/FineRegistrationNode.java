@@ -35,7 +35,7 @@ public final class FineRegistrationNode extends RegistrationNode {
 
     RegistrationNode replacement;
     if ( Equality.equals(this.clue.noun, clue) ) {
-      if ( fine.check(cc, getSupplier()) ) {
+      if ( fine.check(cc, contextReference.get()) ) {
         return core;
       }
       else {

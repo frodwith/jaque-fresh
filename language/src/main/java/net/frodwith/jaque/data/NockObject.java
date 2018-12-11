@@ -2,6 +2,7 @@ package net.frodwith.jaque.data;
 
 import java.util.function.Supplier;
 
+import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.dashboard.FineCheck;
 import net.frodwith.jaque.dashboard.Dashboard;
 import net.frodwith.jaque.exception.ExitException;
@@ -23,10 +24,10 @@ public final class NockObject {
     this(klass, noun, null);
   }
 
-  public FineCheck getFine(Supplier<Dashboard> supply) {
+  public FineCheck getFine(NockContext context) {
     if ( null == fine ) {
       try {
-        fine = klass.getFine(noun, supply);
+        fine = klass.getFine(noun, context);
       }
       catch ( ExitException e ) {
         // the noun got us here in the first place, can't happen

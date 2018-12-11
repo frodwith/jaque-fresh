@@ -48,7 +48,7 @@ public abstract class JetCore {
 
   public final void addToMaps(Location parent,
                               NockLanguage language,
-                              ContextReference<NockContext> ref,
+                              NockContext context,
                               Map<BatteryHash,Registration> hot,
                               Map<Location,AxisMap<NockFunction>> driver) {
     Map<String,Hook> hookMap = new HashMap<>();
@@ -56,7 +56,7 @@ public abstract class JetCore {
       hookMap.put(h.name, h.hook);
     }
 
-    Registration r = new Registration();
+    Registration r = new Registration(context);
     Location loc = getLocation(parent, hookMap);
     loc.register(r);
     for ( BatteryHash h : hashes ) {
@@ -66,12 +66,12 @@ public abstract class JetCore {
     AxisMap functions = AxisMap.EMPTY;
     for ( JetArm arm : arms ) {
       Axis ax = arm.getAxis(hookMap);
-      functions = functions.insert(ax, arm.getFunction(language, ref, ax));
+      functions = functions.insert(ax, arm.getFunction(language, ax));
     }
     driver.put(loc, functions);
 
     for ( ChildCore child : children ) {
-      child.addToMaps(loc, language, ref, hot, driver);
+      child.addToMaps(loc, language, context, hot, driver);
     }
   }
 }

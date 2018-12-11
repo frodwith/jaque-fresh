@@ -4,8 +4,8 @@ public final class ColdRegistration {
   public final BatteryHash hash;
   public final Registration registration;
 
-  public ColdRegistration(BatteryHash hash) {
+  public ColdRegistration(Registration registration, BatteryHash hash) {
     this.hash = hash;
-    this.registration = new Registration();
+    this.registration = registration;
   }
 }

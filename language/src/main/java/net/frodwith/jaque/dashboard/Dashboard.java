@@ -27,9 +27,11 @@ import net.frodwith.jaque.data.LocatedClass;
 import net.frodwith.jaque.data.NockFunction;
 import net.frodwith.jaque.data.Battery;
 import net.frodwith.jaque.data.AxisMap;
+import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.exception.ExitException;
 
 public final class Dashboard {
+  private final NockContext context;
   private final CyclicAssumption stable = new CyclicAssumption("dashboard");
   private final Map<Cell,ColdRegistration> cold;
   private final Map<BatteryHash,Registration> hot;
@@ -38,36 +40,37 @@ public final class Dashboard {
   private final static TruffleLogger LOG =
     TruffleLogger.getLogger(NockLanguage.ID, Dashboard.class);
 
-  public Dashboard(Map<Cell,ColdRegistration> cold,
+  public Dashboard(NockContext context,
+                   Map<Cell,ColdRegistration> cold,
                    Map<BatteryHash,Registration> hot,
                    Map<Location,AxisMap<NockFunction>> drivers) {
     this.hot       = hot;
     this.cold      = cold;
     this.drivers   = drivers;
+    this.context   = context;
     this.batteries = CacheBuilder.newBuilder().softValues().build();
   }
 
   // these class objects could in principle be cached in some way, but they are
   // not expensive and the sharing they enable is primarily useful for edit
   public NockClass getClass(Cell core) throws ExitException {
-    final Battery   b = getBattery(Cell.require(core.head));
-    final Dashboard d = this;
-    Location      loc = null;
+    Battery  b = getBattery(Cell.require(core.head));
+    Location loc = null;
 
     if ( null != b.cold ) {
-      loc = b.cold.locate(core, () -> d);
+      loc = b.cold.locate(core, context);
     }
 
     if ( null == loc ) {
       if ( null != b.hot ) {
-        if ( null != (loc = b.hot.locate(core, () -> d)) ) {
+        if ( null != (loc = b.hot.locate(core, context)) ) {
           loc.register(freeze(b));
           stable.invalidate();
         }
       }
     }
 
-    final Assumption a = stable.getAssumption();
+    Assumption a = stable.getAssumption();
 
     if ( null != loc ) {
       AxisMap<NockFunction> drive = drivers.get(loc);
@@ -115,8 +118,9 @@ public final class Dashboard {
 
   private Registration freeze(Battery battery) {
     if ( null == battery.cold ) {
-      ColdRegistration cr = new ColdRegistration(battery.hash);
-      battery.cold = cr.registration;
+      Registration r = new Registration(context);
+      ColdRegistration cr = new ColdRegistration(r, battery.hash);
+      battery.cold = r;
       cold.put(battery.noun, cr);
     }
     return battery.cold;
@@ -124,8 +128,7 @@ public final class Dashboard {
 
   private Registration getRegistration(Cell core) throws ExitException {
     // call through meta so caching sticks to the cell
-    Dashboard supply = this;
-    return freeze(Cell.require(core.head).getMeta().getBattery(() -> supply));
+    return freeze(Cell.require(core.head).getMeta(context).getBattery());
   }
 
   // unconditional (will not short-circuit)
@@ -139,8 +142,7 @@ public final class Dashboard {
     else {
       Cell parentCore = Cell.require(clue.toParent.fragment(core));
       Dashboard supply = this;
-      NockClass parentClass = parentCore.getMeta()
-        .getObject(() -> supply).klass;
+      NockClass parentClass = parentCore.getMeta(context).getObject().klass;
       if ( !(parentClass instanceof LocatedClass) ) {
         LOG.warning("trying to register " + clue.name +
             " with unlocated parent.");

@@ -46,12 +46,12 @@ public final class NockContext {
 
     Map<BatteryHash,Registration> hot = new HashMap<>();
     Map<Location,AxisMap<NockFunction>> drivers = new HashMap<>();
-    tree.addToMaps(language, hot, drivers);
+    tree.addToMaps(language, this, hot, drivers);
 
     this.env       = env;
     this.language  = language;
     this.functions = new NockFunctionRegistry(language);
-    this.dashboard = new Dashboard(cold, hot, drivers);
+    this.dashboard = new Dashboard(this, cold, hot, drivers);
   }
 
   public static Object fromForeignValue(Object a) {

@@ -32,10 +32,8 @@ public abstract class JetArm {
 
   public abstract Axis getAxis(Map<String,Hook> hooks);
 
-  public final NockFunction getFunction(NockLanguage language, 
-                                        ContextReference<NockContext> ref,
-                                        Axis axis) {
-    SubjectNode node = factory.apply(ref, axis);
+  public final NockFunction getFunction(NockLanguage language, Axis axis) {
+    SubjectNode node = factory.apply(language.getContextReference(), axis);
     JetRootNode root = new JetRootNode(language, NockLanguage.DESCRIPTOR, node);
     RootCallTarget target = Truffle.getRuntime().createCallTarget(root);
     return new NockFunction(target);
