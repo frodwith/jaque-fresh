@@ -22,6 +22,12 @@ public abstract class UnlocatedClass extends NockClass {
   }
 
   @Override
+  public final NockFunction 
+    getArm(Axis axis, NockContext context) throws ExitException {
+    return battery.getArm(axis.mas(), context);
+  }
+
+  @Override
   public final boolean locatedAt(Location location) {
     return false;
   }

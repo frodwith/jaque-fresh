@@ -3,8 +3,8 @@ package net.frodwith.jaque.data;
 import java.util.Iterator;
 
 import com.oracle.truffle.api.nodes.ExplodeLoop;
-
 import net.frodwith.jaque.exception.ExitException;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 
 import net.frodwith.jaque.runtime.Atom;
 import net.frodwith.jaque.runtime.HoonMath;
@@ -71,6 +71,10 @@ public final class Axis implements Iterable<Axis.Fragment> {
     return new Axis(atom);
   }
 
+  public Axis mas() {
+    return get(HoonMath.mas(atom));
+  }
+
   public Axis peg(int under) {
     return peg((long)under);
   }
@@ -98,6 +102,20 @@ public final class Axis implements Iterable<Axis.Fragment> {
   @Override
   public Iterator<Fragment> iterator() {
     return new Cursor();
+  }
+
+  @TruffleBoundary
+  public Object edit(Object noun, Object value) throws ExitException {
+    // XX: could explode this with a stack
+    if ( 0 == length ) {
+      return value;
+    }
+    else {
+      Cell c = Cell.require(noun);
+      return inHead()
+        ? new Cell(mas().edit(c.head, value), c.tail)
+        : new Cell(c.head, mas().edit(c.tail, value));
+    }
   }
 
   @ExplodeLoop

@@ -18,8 +18,8 @@ import net.frodwith.jaque.exception.ExitException;
 
 public final class CellMeta implements TruffleObject {
   private int mug;
-  private Cell cell;
-  private NockContext context;
+  public  Cell cell;
+  public NockContext context;
 
   private NockFunction function;
   private NockObject object;

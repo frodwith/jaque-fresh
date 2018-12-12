@@ -22,6 +22,9 @@ public abstract class NockClass {
 
   public abstract boolean locatedAt(Location location);
 
+  public abstract NockFunction getArm(Axis axis, NockContext context)
+      throws ExitException;
+
   public abstract NockFunction 
     getArm(Axis axis, FragmentNode fragment, NockContext context)
       throws ExitException;

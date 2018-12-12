@@ -1,6 +1,8 @@
 package net.frodwith.jaque.data;
 
 import java.io.Serializable;
+import java.io.StringWriter;
+import java.io.IOException;
 
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.interop.TruffleObject;
@@ -10,6 +12,7 @@ import net.frodwith.jaque.runtime.Mug;
 import net.frodwith.jaque.runtime.Equality;
 import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.dashboard.Location;
+import net.frodwith.jaque.printer.MappedNounPrinter;
 
 import net.frodwith.jaque.exception.ExitException;
 
@@ -150,6 +153,7 @@ public final class Cell implements TruffleObject, Serializable {
   }
 
   public boolean knownAt(Location location) {
+    // XX pass me a context, i need to check if they match
     return (meta instanceof CellMeta) && ((CellMeta)meta).knownAt(location);
   }
 
@@ -168,4 +172,15 @@ public final class Cell implements TruffleObject, Serializable {
   public ForeignAccess getForeignAccess() {
     return CellMessageResolutionForeign.ACCESS;
   }
+/* for debugging
+  public String pretty() {
+    StringWriter w = new StringWriter();
+    try {
+      MappedNounPrinter.print(w, this);
+    }
+    catch ( ExitException | IOException e ) {
+    }
+    return w.toString();
+  }
+  */
 }

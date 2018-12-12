@@ -30,6 +30,13 @@ public final class LocatedClass extends NockClass {
     NockFunction f = drivers.get(axis);
     return ( null != f ) ? f : battery.getArm(fragment, context);
   }
+
+  @Override
+  public final NockFunction
+    getArm(Axis axis, NockContext context) throws ExitException {
+    NockFunction f = drivers.get(axis);
+    return ( null != f ) ? f : battery.getArm(axis.mas(), context);
+  }
   
   @Override
   public final FineCheck getFine(Cell core, NockContext context)

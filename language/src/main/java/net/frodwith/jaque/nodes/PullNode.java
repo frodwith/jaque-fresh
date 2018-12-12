@@ -80,7 +80,7 @@ public abstract class PullNode extends NockCallLookupNode {
   private FragmentNode getFragmentNode() {
     if ( null == fragmentNode ) {
       CompilerDirectives.transferToInterpreter();
-      Axis inBattery = Axis.get(HoonMath.mas(getArmAxis().atom));
+      Axis inBattery = getArmAxis().mas();
       fragmentNode = FragmentNode.fromAxis(inBattery);
       insert(fragmentNode);
     }
@@ -89,7 +89,7 @@ public abstract class PullNode extends NockCallLookupNode {
 
   protected NockFunction getArm(NockObject object) {
     try {
-      return object.klass.getArm(getArmAxis(), getFragmentNode(), getContext());
+      return object.getArm(getArmAxis(), getFragmentNode(), getContext());
     }
     catch ( ExitException e ) {
       throw new NockException("fail to fetch arm from battery", e, this);

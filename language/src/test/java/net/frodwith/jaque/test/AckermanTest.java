@@ -28,7 +28,9 @@ import net.frodwith.jaque.dashboard.BatteryHash;
 import net.frodwith.jaque.test.nodes.*;
 
 /*
+.*  ~
 !=
+=<  ack
 =>  %kack
 ~%  %kack  ~  ~
 |%
@@ -52,10 +54,9 @@ import net.frodwith.jaque.test.nodes.*;
 
 public class AckermanTest {
   private boolean unjetted = false, hinted = false;
-  private static final String ACK_SOURCE_STRING = "[7 [1 1.801.675.115] 8 [1 [7 [8 [1 0] [1 8 [1 0] 8 [1 8 [4 0 6] 6 [5 [0 2] 0 62] [0 14] 9 2 10 [6 0 2] 0 3] 9 2 0 1] 0 1] 11 [1.953.718.630 1 6.514.020 [0 7] 0] 0 1] 7 [8 [1 0 0] [1 6 [5 [1 0] 0 12] [4 0 13] 6 [5 [1 0] 0 13] [9 2 10 [6 [8 [9 4 0 7] 9 2 10 [6 0 28] 0 2] 1 1] 0 1] 9 2 10 [6 [8 [9 4 0 7] 9 2 10 [6 0 28] 0 2] 9 2 10 [13 8 [9 4 0 7] 9 2 10 [6 0 29] 0 2] 0 1] 0 1] 0 1] 11 [1.953.718.630 1 7.037.793 [0 7] 0] 0 1] 11 [1.953.718.630 1 1.801.675.115 [1 0] 0] 0 1]";
+  private static final String ACK_SOURCE_STRING = "[7 [7 [1 1.801.675.115] 8 [1 [7 [8 [1 0] [1 8 [1 0] 8 [1 8 [4 0 6] 6 [5 [0 2] 0 62] [0 14] 9 2 10 [6 0 2] 0 3] 9 2 0 1] 0 1] 11 [1.953.718.630 1 6.514.020 [0 7] 0] 0 1] 7 [8 [1 0 0] [1 6 [5 [1 0] 0 12] [4 0 13] 6 [5 [1 0] 0 13] [9 2 10 [6 [8 [9 4 0 7] 9 2 10 [6 0 28] 0 2] 1 1] 0 1] 9 2 10 [6 [8 [9 4 0 7] 9 2 10 [6 0 28] 0 2] 9 2 10 [13 8 [9 4 0 7] 9 2 10 [6 0 29] 0 2] 0 1] 0 1] 0 1] 11 [1.953.718.630 1 7.037.793 [0 7] 0] 0 1] 11 [1.953.718.630 1 1.801.675.115 [1 0] 0] 0 1] 9 5 0 1]";
   private static final Source ackSource = 
     Source.newBuilder("nock", ACK_SOURCE_STRING, "ackerman.nock").buildLiteral();
-
 
   @BeforeClass
   public static void installJets() {
@@ -82,11 +83,8 @@ public class AckermanTest {
   public void testUnjetted() {
     Context context = Context.create();
     Value gate = context.eval(ackSource).execute();
-    Value meta = gate.getMetaObject();
-    assertTrue(meta.canInvokeMember("2"));
-    //assertTrue(false);
-    //Value product = meta.invokeMember("2", 2L, 2L);
-    //assertEquals("unjetted", 7L, product.as(Number.class));
+    Value product = gate.getMetaObject().invokeMember("2", 2L, 2L);
+    assertEquals("unjetted", 7L, product.as(Number.class));
   }
 
   @Test

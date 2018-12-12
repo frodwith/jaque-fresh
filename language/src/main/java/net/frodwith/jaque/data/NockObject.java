@@ -2,6 +2,7 @@ package net.frodwith.jaque.data;
 
 import java.util.function.Supplier;
 
+import net.frodwith.jaque.nodes.FragmentNode;
 import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.dashboard.FineCheck;
 import net.frodwith.jaque.dashboard.Dashboard;
@@ -10,8 +11,8 @@ import net.frodwith.jaque.exception.ExitException;
 // NockClass contains all the relevant dispatch information, and our (lazy,
 // cached) fine check tells us if another object can share our class.
 public final class NockObject {
-  public final NockClass klass;
   public final Cell noun;
+  public final NockClass klass;
   private FineCheck fine;
 
   private NockObject(NockClass klass, Cell noun, FineCheck fine) {
@@ -39,5 +40,16 @@ public final class NockObject {
 
   public NockObject like(Cell core) {
     return new NockObject(klass, core, fine);
+  }
+
+  public NockFunction getArm(Axis arm, NockContext context)
+    throws ExitException {
+    return klass.getArm(arm, context);
+  }
+
+  public NockFunction
+    getArm(Axis axis, FragmentNode fragmentNode, NockContext context)
+      throws ExitException {
+    return klass.getArm(axis, fragmentNode, context);
   }
 }
