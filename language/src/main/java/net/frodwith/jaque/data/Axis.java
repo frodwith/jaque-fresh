@@ -6,6 +6,7 @@ import com.oracle.truffle.api.nodes.ExplodeLoop;
 import net.frodwith.jaque.exception.ExitException;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 
+import net.frodwith.jaque.runtime.Mug;
 import net.frodwith.jaque.runtime.Atom;
 import net.frodwith.jaque.runtime.HoonMath;
 import net.frodwith.jaque.runtime.Equality;
@@ -166,6 +167,16 @@ public final class Axis implements Iterable<Axis.Fragment> {
         return Equality.equals(chopped, parent);
       }
     }
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    return (o instanceof Axis) && Equality.equals(atom, ((Axis)o).atom);
+  }
+
+  @Override
+  public int hashCode() {
+    return Mug.get(atom);
   }
 
   public boolean inside(Axis parent) {

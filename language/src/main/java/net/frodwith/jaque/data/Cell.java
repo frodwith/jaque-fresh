@@ -172,7 +172,8 @@ public final class Cell implements TruffleObject, Serializable {
   public ForeignAccess getForeignAccess() {
     return CellMessageResolutionForeign.ACCESS;
   }
-/* for debugging
+
+/* for debugging */
   public String pretty() {
     StringWriter w = new StringWriter();
     try {
@@ -182,5 +183,4 @@ public final class Cell implements TruffleObject, Serializable {
     }
     return w.toString();
   }
-  */
 }

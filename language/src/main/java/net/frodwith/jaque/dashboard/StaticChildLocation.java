@@ -1,6 +1,7 @@
 package net.frodwith.jaque.dashboard;
 
 import java.util.Map;
+import java.util.Objects;
 
 import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.data.FastClue;
@@ -18,6 +19,23 @@ public final class StaticChildLocation extends StaticLocation {
   @Override
   public void register(Registration registration) {
     registration.registerChild(Axis.TAIL, this, parent);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if ( !(o instanceof StaticChildLocation) ) {
+      return false;
+    }
+    StaticChildLocation scl = (StaticChildLocation) o;
+
+    return name.equals(scl.name) 
+      && hooks.equals(scl.hooks)
+      && parent.equals(scl.parent);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(name, hooks, parent);
   }
 
   @Override

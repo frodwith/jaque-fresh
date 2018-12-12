@@ -51,6 +51,11 @@ public final class Dashboard {
     this.batteries = CacheBuilder.newBuilder().softValues().build();
   }
 
+  private AxisMap getDrivers(Location loc) {
+    AxisMap<NockFunction> drive = drivers.get(loc);
+    return (null == drive) ? AxisMap.EMPTY : drive;
+  }
+
   // these class objects could in principle be cached in some way, but they are
   // not expensive and the sharing they enable is primarily useful for edit
   public NockClass getClass(Cell core) throws ExitException {
@@ -65,7 +70,7 @@ public final class Dashboard {
       if ( null != b.hot ) {
         if ( null != (loc = b.hot.locate(core, context)) ) {
           loc.register(freeze(b));
-          stable.invalidate();
+          invalidate();
         }
       }
     }
@@ -73,11 +78,7 @@ public final class Dashboard {
     Assumption a = stable.getAssumption();
 
     if ( null != loc ) {
-      AxisMap<NockFunction> drive = drivers.get(loc);
-      if ( drive == null ) {
-        drive = AxisMap.EMPTY;
-      }
-      return new LocatedClass(b, a, loc, drive);
+      return new LocatedClass(b, a, loc, getDrivers(loc));
     }
     else if ( (null == b.cold) && (null == b.hot) ) {
       return new UnregisteredClass(b, a);
@@ -131,6 +132,10 @@ public final class Dashboard {
     return freeze(Cell.require(core.head).getMeta(context).getBattery());
   }
 
+  private void invalidate() {
+    stable.invalidate();
+  }
+
   // unconditional (will not short-circuit)
   public void register(Cell core, FastClue clue) throws ExitException {
     Location loc;
@@ -141,7 +146,6 @@ public final class Dashboard {
     }
     else {
       Cell parentCore = Cell.require(clue.toParent.fragment(core));
-      Dashboard supply = this;
       NockClass parentClass = parentCore.getMeta(context).getObject().klass;
       if ( !(parentClass instanceof LocatedClass) ) {
         LOG.warning("trying to register " + clue.name +
@@ -158,6 +162,14 @@ public final class Dashboard {
       loc = child;
     }
     loc.audit(clue);
-    stable.invalidate();
+    invalidate();
+
+    /*
+    Assumption a = stable.getAssumption();
+    Battery    b = getBattery(Cell.require(core.head));
+    LocatedClass klass = new LocatedClass(b, a, loc, getDrivers(loc));
+    NockObject object  = new NockObject(klass, core);
+    core.getMeta(context).setObject(object);
+    */
   }
 }

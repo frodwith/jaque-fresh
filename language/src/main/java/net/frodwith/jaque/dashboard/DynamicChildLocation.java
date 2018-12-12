@@ -1,7 +1,7 @@
 package net.frodwith.jaque.dashboard;
 
 import java.util.Map;
-import java.util.function.Supplier;
+import java.util.Objects;
 
 import com.oracle.truffle.api.CompilerDirectives;
 
@@ -47,6 +47,23 @@ public final class DynamicChildLocation extends Location {
   @Override
   public boolean copyableEdit(Axis axis) {
     return axis.inTail() && !axis.inside(toParent);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if ( !(o instanceof DynamicChildLocation) ) {
+      return false;
+    }
+    DynamicChildLocation dcl = (DynamicChildLocation) o;
+    return name.equals(dcl.name) 
+      && hooks.equals(dcl.hooks)
+      && toParent.equals(dcl.toParent)
+      && parent.equals(dcl.parent);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(name, hooks, toParent, parent);
   }
 
   @Override
