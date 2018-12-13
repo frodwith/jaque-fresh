@@ -1,5 +1,6 @@
 package net.frodwith.jaque.nodes;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLanguage.ContextReference;
 
 import net.frodwith.jaque.data.Cell;
@@ -46,6 +47,7 @@ public final class FineRegistrationNode extends RegistrationNode {
     else {
       replacement = new FullyDynamicRegistrationNode(contextReference);
     }
+    CompilerDirectives.transferToInterpreter();
     replace(replacement);
     return replacement.executeRegister(core, clue);
   }

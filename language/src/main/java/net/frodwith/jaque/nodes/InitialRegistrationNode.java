@@ -1,5 +1,6 @@
 package net.frodwith.jaque.nodes;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLanguage.ContextReference;
 
 import net.frodwith.jaque.data.Cell;
@@ -21,6 +22,7 @@ public final class InitialRegistrationNode extends RegistrationNode {
       register(cc, fc);
       StaticRegistrationNode stat 
         = new StaticRegistrationNode(cc, fc, contextReference);
+      CompilerDirectives.transferToInterpreter();
       replace(stat);
     }
     catch ( ExitException e ) {

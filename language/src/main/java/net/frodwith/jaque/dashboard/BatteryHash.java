@@ -23,6 +23,15 @@ public final class BatteryHash {
     return new BatteryHash(hc.asBytes());
   }
 
+  public static BatteryHash read(String hexDigits) {
+    BigInteger big = new BigInteger(hexDigits, 16);
+    byte[] bytes = big.toByteArray();
+    if ( bytes.length != 33 || 0 != bytes[0] ) {
+      throw new IllegalArgumentException(hexDigits);
+    }
+    return new BatteryHash(Arrays.copyOf(bytes, 32));
+  }
+
   @Override
   public boolean equals(Object o) {
     return (o instanceof BatteryHash) &&
@@ -41,19 +50,5 @@ public final class BatteryHash {
       b.append(String.format("%02x", sha[i]));
     }
     return b.toString();
-  }
-
-  public static BatteryHash parseOption(Object option) {
-    String hexDigits = (String) option;
-    BigInteger big = new BigInteger(hexDigits, 16);
-    byte[] bytes = big.toByteArray();
-    if ( bytes.length != 33 || 0 != bytes[0] ) {
-      throw new IllegalArgumentException(option.toString());
-    }
-    byte[] rev = new byte[32];
-    for ( int i = 1; i <= 32; i++ ) {
-      rev[32-i] = bytes[i];
-    }
-    return new BatteryHash(rev);
   }
 }

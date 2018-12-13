@@ -1,24 +1,6 @@
-messages:
-  we can also support write (via edit).
+Potentially, we could have an edit message.
 
 kind of map that is one-thing-then-a-hashmap, for use in Registration
-
-REFLECTION
-  We can't load user-supplied classes from the generated native images.
-  Jet configuration can be un-static, for sure, but it has to select from
-  pre-existing implementation node classes. IE, AddNode has to baked into the
-  native image, but someone can tell that image "this is how you match an add,
-  use your baked in AddNode."
-
-  We can also just configure the jet classes we supply to allow reflection.
-
-put transferToInterpreters in the various places where RegistrationNodes replace();
-
-put NockFunctions in a cache instead of a map, don't depend on value equality
-  maybe.
-
-Fast
-  test by jetting dec/add and running large mul
 
 Test CellMeta caching (w/edit)
 

@@ -1,6 +1,7 @@
 package net.frodwith.jaque.test;
 
 import org.junit.Test;
+import org.junit.Before;
 import org.junit.BeforeClass;
 
 import static org.junit.Assume.assumeTrue;
@@ -29,8 +30,9 @@ import net.frodwith.jaque.dashboard.BatteryHash;
 import net.frodwith.jaque.test.nodes.*;
 
 /*
-.*  ~
-!=
+::  0xf7dc.a0db.495c.7ef2.0322.7c92.e0b9.93ff.bf9f.7695.3702.c927.42a7.aede.ba43.c8a9
+::  0x8bd3.ab82.1878.69ab.35ac.9293.df0a.4753.f612.6c4f.4973.7288.533a.d51d.d114.2fe6
+::  =-  [`@ux`(shax (jam -:ack)) `@ux`(shax (jam +>-:ack))]
 =<  ack
 =>  %kack
 ~%  %kack  ~  ~
@@ -58,19 +60,25 @@ public class AckermanTest {
   private static final Source ackSource = 
     Source.newBuilder("nock", ACK_SOURCE_STRING, "ackerman.nock").buildLiteral();
 
+  private static final String KACK_HASH =
+    "8bd3ab82187869ab35ac9293df0a4753f6126c4f49737288533ad51dd1142fe6";
+
+  private static final String DEC_HASH =
+    "f7dca0db495c7ef203227c92e0b993ffbf9f76953702c92742a7aedeba43c8a9";
+
   @BeforeClass
   public static void installJets() {
     NockLanguage.installJetTree("ack", 
       new JetTree(new RootCore[] {
         new RootCore("kack",
           Cords.fromString("kack"),
-          new BatteryHash[0],
+          new BatteryHash[] { BatteryHash.read(KACK_HASH) },
           new JetArm[0],
           new JetHook[0],
           new ChildCore[] {
             new ChildCore("dec",
               Axis.CONTEXT,
-              new BatteryHash[0],
+              new BatteryHash[] { BatteryHash.read(DEC_HASH) },
               new JetArm[] {
                 new AxisArm(Axis.HEAD, (ref, axis) ->
                     MockDecNodeGen.create(new SlotNode(Axis.SAMPLE)))
@@ -79,30 +87,58 @@ public class AckermanTest {
               new ChildCore[0])})}));
   }
 
-  @Test
-  public void testUnjetted() {
-    Context context = Context.create();
+  @Before
+  public void init() {
+    MockDecNode.called = false;
+  }
+
+  private void doTest(Context context) {
     Value gate = context.eval(ackSource).execute();
     Value product = gate.getMetaObject().invokeMember("2", 2L, 2L);
     assertEquals(7L, product.as(Number.class));
+  }
+
+  @Test
+  public void testUnjetted() {
+    Context context = Context.create();
+    doTest(context);
+    assertFalse(MockDecNode.called);
+    context.close();
+  }
+  
+  @Test
+  public void testSlow() {
+    Context context = Context.newBuilder("nock")
+                             .option("nock.jets", "ack")
+                             .option("nock.fast", "false")
+                             .option("nock.hash", "false")
+                             .build();
+    doTest(context);
+    assertFalse(MockDecNode.called);
     context.close();
   }
 
   @Test
-  public void testHinted() {
+  public void testFast() {
     Context context = Context.newBuilder("nock")
                              .option("nock.jets", "ack")
+                             .option("nock.fast", "true")
+                             .option("nock.hash", "false")
                              .build();
-    assertFalse(MockDecNode.called);
-    Value gate = context.eval(ackSource).execute();
-    Value product = gate.getMetaObject().invokeMember("2", 2L, 2L);
-    assertEquals(7L, product.as(Number.class));
+    doTest(context);
     assertTrue(MockDecNode.called);
     context.close();
   }
 
   @Test
-  public void testHashboard() {
-    assumeTrue(false);
+  public void testHashed() {
+    Context context = Context.newBuilder("nock")
+                             .option("nock.jets", "ackHash")
+                             .option("nock.fast", "false")
+                             .option("nock.hash", "true")
+                             .build();
+    doTest(context);
+    assertTrue(MockDecNode.called);
+    context.close();
   }
 }
