@@ -1,7 +1,5 @@
 package net.frodwith.jaque.data;
 
-import static net.frodwith.jaque.runtime.NockContext.fromForeignValue;
-
 import com.oracle.truffle.api.interop.CanResolve;
 import com.oracle.truffle.api.interop.MessageResolution;
 import com.oracle.truffle.api.interop.Resolve;
@@ -9,9 +7,11 @@ import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.interop.ArityException;
 import com.oracle.truffle.api.nodes.Node;
 
-import net.frodwith.jaque.nodes.*;
+import net.frodwith.jaque.NockLanguage;
 import net.frodwith.jaque.data.NockCall;
 import net.frodwith.jaque.data.NockFunction;
+import net.frodwith.jaque.nodes.NockCallDispatchNode;
+import net.frodwith.jaque.nodes.NockCallDispatchNodeGen;
 
 @MessageResolution(receiverType = NockFunction.class)
 public class NockFunctionMessageResolution {
@@ -22,17 +22,7 @@ public class NockFunctionMessageResolution {
       NockCallDispatchNodeGen.create();
 
     public Object access(NockFunction function, Object[] arguments) {
-      Object subject;
-      switch ( arguments.length ) {
-        case 0:
-          subject = 0L;
-          break;
-        case 1:
-          subject = fromForeignValue(arguments[0]);
-          break;
-        default:
-          throw ArityException.raise(1, arguments.length);
-      }
+      Object subject = NockLanguage.fromArguments(arguments, 0L);
       return dispatch.executeCall(new NockCall(function, subject));
     }
   }

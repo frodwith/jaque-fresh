@@ -85,6 +85,7 @@ public class AckermanTest {
     Value gate = context.eval(ackSource).execute();
     Value product = gate.getMetaObject().invokeMember("2", 2L, 2L);
     assertEquals(7L, product.as(Number.class));
+    context.close();
   }
 
   @Test
@@ -97,6 +98,7 @@ public class AckermanTest {
     Value product = gate.getMetaObject().invokeMember("2", 2L, 2L);
     assertEquals(7L, product.as(Number.class));
     assertTrue(MockDecNode.called);
+    context.close();
   }
 
   @Test

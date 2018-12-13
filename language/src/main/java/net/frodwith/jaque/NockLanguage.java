@@ -22,6 +22,8 @@ import com.oracle.truffle.api.frame.FrameSlotTypeException;
 import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.source.SourceSection;
+import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 
 import net.frodwith.jaque.jet.JetTree;
 import net.frodwith.jaque.jet.RootCore;
@@ -158,5 +160,40 @@ public final class NockLanguage extends TruffleLanguage<NockContext> {
     else {
       return null;
     }
+  }
+
+  @TruffleBoundary
+  private static long fromForeignNumber(Object a) {
+    return ((Number) a).longValue();
+  }
+
+  public static Object fromForeignValue(Object a) {
+    if ( a instanceof Long || a instanceof BigAtom || a instanceof Cell ) {
+      return a;
+    }
+    else if ( a instanceof Character ) {
+      return (long) ((Character) a).charValue();
+    }
+    else if ( a instanceof Number ) {
+      return fromForeignNumber(a);
+    }
+    else {
+      CompilerDirectives.transferToInterpreter();
+      throw new IllegalArgumentException(a + " is not a noun");
+    }
+  }
+
+  public static Object fromArguments(Object[] arguments) {
+    Object product = fromForeignValue(arguments[arguments.length-1]);
+    for ( int i = arguments.length-2; i >= 0; --i ) {
+      product = new Cell(fromForeignValue(arguments[i]), product);
+    }
+    return product;
+  }
+
+  public static Object fromArguments(Object[] arguments, Object nullValue) {
+    return (null == arguments || 0 == arguments.length)
+      ? nullValue
+      : fromArguments(arguments);
   }
 }

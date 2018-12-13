@@ -1,7 +1,5 @@
 package net.frodwith.jaque.data;
 
-import static net.frodwith.jaque.runtime.NockContext.fromForeignValue;
-
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.interop.Message;
 import com.oracle.truffle.api.interop.MessageResolution;
@@ -11,6 +9,7 @@ import com.oracle.truffle.api.interop.Resolve;
 import com.oracle.truffle.api.interop.CanResolve;
 import com.oracle.truffle.api.interop.TruffleObject;
 
+import net.frodwith.jaque.NockLanguage;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.NockCall;
 import net.frodwith.jaque.data.NockFunction;
@@ -23,28 +22,14 @@ import net.frodwith.jaque.exception.NockException;
 @MessageResolution(receiverType = CellMeta.class)
 public abstract class CellMetaMessageResolution extends Node {
 
-  protected static Object argsToNoun(Object[] arguments) {
-    Object product = fromForeignValue(arguments[arguments.length-1]);
-    for ( int i = arguments.length-2; i >= 0; --i ) {
-      product = new Cell(fromForeignValue(arguments[i]), product);
-    }
-    return product;
-  }
-
   @Resolve(message = "EXECUTE")
   public abstract static class CellExecuteNode extends Node {
     @Child private NockCallDispatchNode dispatch =
       NockCallDispatchNodeGen.create();
 
     protected Object access(CellMeta reciever, Object[] arguments) {
-      Object subject;
       NockFunction function;
-      if ( 0 == arguments.length ) {
-        subject = 0L;
-      }
-      else {
-        subject = argsToNoun(arguments);
-      }
+      Object subject = NockLanguage.fromArguments(arguments, 0L);
       try {
         function = reciever.getFunction();
       }
@@ -59,7 +44,7 @@ public abstract class CellMetaMessageResolution extends Node {
 	public abstract static class CellInvokeNode extends Node {
 		@Child private NockCallDispatchNode dispatch = NockCallDispatchNodeGen.create();
 
-    private Object accessRaw(CellMeta receiver, String name) {
+    private Object accessZero(CellMeta receiver, String name) {
       Axis axis;
       NockFunction arm;
 
@@ -100,12 +85,13 @@ public abstract class CellMetaMessageResolution extends Node {
 
     public Object access(CellMeta receiver, String name, Object[] arguments) {
       if ( 0 == arguments.length ) {
-        return accessRaw(receiver, name);
+        return accessZero(receiver, name);
       }
       try {
-        Object subject   = Axis.SAMPLE.edit(receiver.cell, argsToNoun(arguments));
+        Object sample    = NockLanguage.fromArguments(arguments);
+        Object subject   = Axis.SAMPLE.edit(receiver.cell, sample);
         CellMeta newMeta = Cell.require(subject).getMeta(receiver.context);
-        return accessRaw(newMeta, name);
+        return accessZero(newMeta, name);
       }
       catch ( ExitException e ) {
         throw UnsupportedMessageException.raise(Message.INVOKE);

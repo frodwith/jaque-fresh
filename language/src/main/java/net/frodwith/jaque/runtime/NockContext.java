@@ -53,25 +53,4 @@ public final class NockContext {
     this.functions = new NockFunctionRegistry(language);
     this.dashboard = new Dashboard(this, cold, hot, drivers);
   }
-
-  public static Object fromForeignValue(Object a) {
-    if ( a instanceof Long || a instanceof BigAtom || a instanceof Cell ) {
-      return a;
-    }
-    else if ( a instanceof Character ) {
-      return (long) ((Character) a).charValue();
-    }
-    else if ( a instanceof Number ) {
-      return fromForeignNumber(a);
-    }
-    else {
-      CompilerDirectives.transferToInterpreter();
-      throw new IllegalArgumentException(a + " is not a noun");
-    }
-  }
-
-  @TruffleBoundary
-  private static long fromForeignNumber(Object a) {
-    return ((Number) a).longValue();
-  }
 }

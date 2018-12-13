@@ -1,6 +1,5 @@
 messages:
-  meta objects can support slam/kick/exec etc!
-  we can also support write (via edit) and maybe do lark reads.
+  we can also support write (via edit).
 
 kind of map that is one-thing-then-a-hashmap, for use in Registration
 
