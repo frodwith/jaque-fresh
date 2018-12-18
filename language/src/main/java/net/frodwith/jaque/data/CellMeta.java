@@ -86,7 +86,7 @@ public final class CellMeta implements TruffleObject {
 
   public NockFunction getFunction() throws ExitException {
     if ( null == function ) {
-      function = context.functions.lookup(cell);
+      function = context.lookupFunction(cell);
     }
     return function;
   }

@@ -14,27 +14,27 @@ import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 
 import net.frodwith.jaque.NockLanguage;
 import net.frodwith.jaque.NockOptions;
-
+import net.frodwith.jaque.jet.JetTree;
+import net.frodwith.jaque.jet.RootCore;
 import net.frodwith.jaque.data.BigAtom;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.AxisMap;
 import net.frodwith.jaque.data.NockFunction;
-
-import net.frodwith.jaque.jet.JetTree;
-import net.frodwith.jaque.jet.RootCore;
-
+import net.frodwith.jaque.parser.FormulaParser;
+import net.frodwith.jaque.exception.ExitException;
 import net.frodwith.jaque.dashboard.Location;
 import net.frodwith.jaque.dashboard.Registration;
 import net.frodwith.jaque.dashboard.Dashboard;
 import net.frodwith.jaque.dashboard.BatteryHash;
 import net.frodwith.jaque.dashboard.ColdRegistration;
 
-
 public final class NockContext {
   private final Env env;
   private final NockLanguage language;
+  private final boolean fast, hash;
+  private final FormulaParser parser;
   public final Dashboard dashboard;
-  public final NockFunctionRegistry functions;
+  private final Map<Cell,NockFunction> functions;
 
   public NockContext(NockLanguage language, Env env) {
     OptionValues values = env.getOptions();
@@ -50,7 +50,19 @@ public final class NockContext {
 
     this.env       = env;
     this.language  = language;
-    this.functions = new NockFunctionRegistry(language);
+    this.fast      = values.get(NockOptions.FAST);
+    this.hash      = values.get(NockOptions.HASH);
+    this.parser    = new FormulaParser(language);
+    this.functions = new HashMap<>();
     this.dashboard = new Dashboard(this, cold, hot, drivers);
+  }
+
+  public NockFunction lookupFunction(Cell formula) throws ExitException {
+    NockFunction f = functions.get(formula);
+    if ( null == f ) {
+      f = new NockFunction(parser.cellTarget(formula));
+      functions.put(formula, f);
+    }
+    return f;
   }
 }

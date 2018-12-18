@@ -1,6 +1,15 @@
+Invalid formulas --
+  [6 [1 0] [1 %perfectly-cromulent] %definitely-a-crash] ... this could be a
+  valid formula (fsvo valid). it should crash not when we try to compile it, but
+  the definitely a crash branch should be compiled as a bail. when you try to
+  run it, you should just get "%perfectly-cromulent", since the false-branch will
+  never occur.
+
 Potentially, we could have an edit message.
 
 kind of map that is one-thing-then-a-hashmap, for use in Registration
+
+Test hashboard modes
 
 Test CellMeta caching (w/edit)
 

@@ -133,7 +133,7 @@ public class AckermanTest {
   @Test
   public void testHashed() {
     Context context = Context.newBuilder("nock")
-                             .option("nock.jets", "ackHash")
+                             .option("nock.jets", "ack")
                              .option("nock.fast", "false")
                              .option("nock.hash", "true")
                              .build();

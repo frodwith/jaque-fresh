@@ -32,6 +32,7 @@ import net.frodwith.jaque.data.BigAtom;
 import net.frodwith.jaque.data.NockFunction;
 import net.frodwith.jaque.data.SourceMappedNoun;
 import net.frodwith.jaque.parser.CustomParser;
+import net.frodwith.jaque.parser.FormulaParser;
 import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.exception.ExitException;
 import net.frodwith.jaque.dashboard.ColdRegistration;
@@ -42,6 +43,8 @@ import net.frodwith.jaque.dashboard.ColdRegistration;
 public final class NockLanguage extends TruffleLanguage<NockContext> {
   public static final String ID = "nock";
   public static final String MIME_TYPE = "application/x-nock";
+
+  private final FormulaParser formulaParser = new FormulaParser(this);
 
   private static final Map<String,JetTree> installedJets =
     new HashMap<>();
@@ -146,7 +149,7 @@ public final class NockLanguage extends TruffleLanguage<NockContext> {
     }
     SourceSection whole     = source.createSection(0, source.getLength());
     SourceMappedNoun mapped = CustomParser.parse(whole);
-    RootCallTarget target   = NockFunction.mappedTarget(this, mapped);
+    RootCallTarget target   = formulaParser.mappedTarget(mapped);
     NockFunction function   = new NockFunction(target);
     RootNode rootNode       = RootNode.createConstantNode(function);
     return Truffle.getRuntime().createCallTarget(rootNode);
