@@ -103,24 +103,26 @@ public final class Dashboard {
   }
 
   private Battery makeBattery(Cell noun) {
-    BatteryHash hash;
-    Registration r;
+    Registration r, hr;
     ColdRegistration cr = cold.get(noun);
+    BatteryHash h;
     if ( null == cr ) {
-      hash = BatteryHash.hash(noun);
-      r    = null;
+      h = context.hash ? BatteryHash.hash(noun) : null;
+      r = null;
     }
     else {
-      hash = cr.hash;
-      r    = cr.registration;
+      h = context.hash ? cr.getHash() : cr.cachedHash();
+      r = cr.registration;
     }
-    return new Battery(noun, hash, r, hot.get(hash));
+    hr = context.hash ? hot.get(h) : null;
+    return new Battery(noun, h, r, hr);
   }
 
   private Registration freeze(Battery battery) {
     if ( null == battery.cold ) {
       Registration r = new Registration(context);
-      ColdRegistration cr = new ColdRegistration(r, battery.hash);
+      ColdRegistration cr =
+        new ColdRegistration(r, battery.noun, battery.cachedHash());
       battery.cold = r;
       cold.put(battery.noun, cr);
     }
@@ -164,12 +166,10 @@ public final class Dashboard {
     loc.audit(clue);
     invalidate();
 
-    /*
     Assumption a = stable.getAssumption();
     Battery    b = getBattery(Cell.require(core.head));
     LocatedClass klass = new LocatedClass(b, a, loc, getDrivers(loc));
     NockObject object  = new NockObject(klass, core);
     core.getMeta(context).setObject(object);
-    */
   }
 }

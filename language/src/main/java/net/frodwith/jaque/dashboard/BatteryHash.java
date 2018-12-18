@@ -3,6 +3,7 @@ package net.frodwith.jaque.dashboard;
 import java.util.Arrays;
 import java.math.BigInteger;
 
+import com.google.common.io.BaseEncoding;
 import com.google.common.hash.Hashing;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.HashFunction;
@@ -10,9 +11,11 @@ import com.google.common.hash.HashFunction;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.runtime.HoonSerial;
 
+
 public final class BatteryHash {
   private byte[] sha;
   private static final HashFunction hf = Hashing.sha256();
+  private static final BaseEncoding hex = BaseEncoding.base16().lowerCase();
 
   private BatteryHash(byte[] sha) {
     this.sha = sha;
@@ -24,12 +27,7 @@ public final class BatteryHash {
   }
 
   public static BatteryHash read(String hexDigits) {
-    BigInteger big = new BigInteger(hexDigits, 16);
-    byte[] bytes = big.toByteArray();
-    if ( bytes.length != 33 || 0 != bytes[0] ) {
-      throw new IllegalArgumentException(hexDigits);
-    }
-    return new BatteryHash(Arrays.copyOf(bytes, 32));
+    return new BatteryHash(hex.decode(hexDigits));
   }
 
   @Override
@@ -45,10 +43,6 @@ public final class BatteryHash {
 
   @Override
   public String toString() {
-    StringBuilder b = new StringBuilder();
-    for ( int i = 0; i < 32; ++i ) {
-      b.append(String.format("%02x", sha[i]));
-    }
-    return b.toString();
+    return hex.encode(sha, 0, 32);
   }
 }

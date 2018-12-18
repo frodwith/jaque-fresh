@@ -20,7 +20,7 @@ public final class FastNode extends NockExpressionNode {
   public Object executeGeneric(VirtualFrame frame) {
     Object clue = hintNode.executeGeneric(frame);
     Object core = nextNode.executeGeneric(frame);
-    registerNode.executeRegister(core, clue);
+    registerNode.doRegistration(core, clue);
     return core;
   }
 }

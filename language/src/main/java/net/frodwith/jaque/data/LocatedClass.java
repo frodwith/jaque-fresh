@@ -9,7 +9,6 @@ import net.frodwith.jaque.dashboard.FineCheck;
 import net.frodwith.jaque.dashboard.Location;
 import net.frodwith.jaque.dashboard.Dashboard;
 import net.frodwith.jaque.runtime.NockContext;
-import net.frodwith.jaque.runtime.NockFunctionRegistry;
 import net.frodwith.jaque.exception.ExitException;
 
 public final class LocatedClass extends NockClass {

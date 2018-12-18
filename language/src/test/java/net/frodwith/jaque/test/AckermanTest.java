@@ -30,9 +30,26 @@ import net.frodwith.jaque.dashboard.BatteryHash;
 import net.frodwith.jaque.test.nodes.*;
 
 /*
-::  0xf7dc.a0db.495c.7ef2.0322.7c92.e0b9.93ff.bf9f.7695.3702.c927.42a7.aede.ba43.c8a9
-::  0x8bd3.ab82.1878.69ab.35ac.9293.df0a.4753.f612.6c4f.4973.7288.533a.d51d.d114.2fe6
-::  =-  [`@ux`(shax (jam -:ack)) `@ux`(shax (jam +>-:ack))]
+::  ["cc674e8bd17242c2978f95620a9aea7fa8f663b3857167f60ed620e5358c68ce"
+::   "e62f14d11dd53a53887273494f6c12f653470adf9392ac35ab69781882abd38b"]
+::  =-  =<  [(mash -:dec) (mash +>-:dec)]
+::      |%
+::      ++  hexi
+::        |=  a=@
+::        ^-  tape
+::        =/  t  (slag 2 (scow %ux a))
+::        ?:  =(2 (lent t))
+::          t
+::        '0'^t
+::      ++  mash
+::        |=  a=*
+::        =/  h  (shax (jam a))
+::        =|  i=@
+::        |-  ^-  tape
+::        ?.  (lth i 32)  ""
+::        %+  weld  (hexi (cut 3 [i 1] h))
+::        $(i +(i))
+::      --
 =<  ack
 =>  %kack
 ~%  %kack  ~  ~
@@ -60,11 +77,11 @@ public class AckermanTest {
   private static final Source ackSource = 
     Source.newBuilder("nock", ACK_SOURCE_STRING, "ackerman.nock").buildLiteral();
 
-  private static final String KACK_HASH =
-    "8bd3ab82187869ab35ac9293df0a4753f6126c4f49737288533ad51dd1142fe6";
-
   private static final String DEC_HASH =
-    "f7dca0db495c7ef203227c92e0b993ffbf9f76953702c92742a7aedeba43c8a9";
+    "cc674e8bd17242c2978f95620a9aea7fa8f663b3857167f60ed620e5358c68ce";
+
+  private static final String KACK_HASH =
+    "e62f14d11dd53a53887273494f6c12f653470adf9392ac35ab69781882abd38b";
 
   @BeforeClass
   public static void installJets() {

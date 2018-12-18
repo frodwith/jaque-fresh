@@ -18,13 +18,13 @@ public final class StaticClueRegistrationNode extends RegistrationNode {
     this.clue = clue;
   }
 
-  protected Object executeRegister(Object core, Object clue) {
+  protected void executeRegister(Object core, Object clue) {
     Cell cc;
     try {
       cc = Cell.require(core);
     }
     catch ( ExitException e ) {
-      return core;
+      return;
     }
 
     if ( Equality.equals(this.clue.noun, clue) ) {
@@ -34,13 +34,12 @@ public final class StaticClueRegistrationNode extends RegistrationNode {
       catch ( ExitException e ) {
         // XX: log the failure
       }
-      return core;
     }
     else {
       RegistrationNode replacement = new FullyDynamicRegistrationNode(contextReference);
       CompilerDirectives.transferToInterpreter();
       replace(replacement);
-      return replacement.executeRegister(core, clue);
+      replacement.executeRegister(core, clue);
     }
   }
 }

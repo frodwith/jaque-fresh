@@ -1,5 +1,7 @@
 package net.frodwith.jaque.data;
 
+import java.io.StringWriter;
+import java.io.IOException;
 import java.io.Serializable;
 
 import com.oracle.truffle.api.interop.ForeignAccess;
@@ -7,6 +9,7 @@ import com.oracle.truffle.api.interop.TruffleObject;
 
 import net.frodwith.jaque.runtime.Mug;
 import net.frodwith.jaque.runtime.Equality;
+import net.frodwith.jaque.printer.SimpleAtomPrinter;
 
 public final class BigAtom implements TruffleObject, Serializable {
   public int[] words;
@@ -30,5 +33,17 @@ public final class BigAtom implements TruffleObject, Serializable {
 
   public ForeignAccess getForeignAccess() {
     return BigAtomMessageResolutionForeign.ACCESS;
+  }
+
+  // for debugging
+  public String pretty() {
+    StringWriter out = new StringWriter();
+    try {
+      SimpleAtomPrinter.raw(out, words, 16, 0);
+      return out.toString();
+    }
+    catch ( IOException e ) {
+      return "noun misprint";
+    }
   }
 }

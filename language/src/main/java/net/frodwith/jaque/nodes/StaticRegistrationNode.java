@@ -25,11 +25,11 @@ public final class StaticRegistrationNode extends RegistrationNode {
     this.clue = clue;
   }
 
-  protected Object executeRegister(Object core, Object clue) {
+  protected void executeRegister(Object core, Object clue) {
     RegistrationNode replacement;
     if ( Equality.equals(this.clue.noun, clue) ) {
       if ( Equality.equals(this.core, core) ) {
-        return this.core;
+        return;
       }
       else {
         NockContext context = contextReference.get();
@@ -42,7 +42,7 @@ public final class StaticRegistrationNode extends RegistrationNode {
         }
         catch ( ExitException e ) {
           // XX log non-core registration
-          return core;
+          return;
         }
       }
     }
@@ -51,6 +51,6 @@ public final class StaticRegistrationNode extends RegistrationNode {
     }
     CompilerDirectives.transferToInterpreter();
     replace(replacement);
-    return replacement.executeRegister(core, clue);
+    replacement.executeRegister(core, clue);
   }
 }

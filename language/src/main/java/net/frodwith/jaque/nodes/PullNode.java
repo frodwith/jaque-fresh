@@ -21,7 +21,6 @@ import net.frodwith.jaque.data.NockFunction;
 import net.frodwith.jaque.runtime.Equality;
 import net.frodwith.jaque.runtime.HoonMath;
 import net.frodwith.jaque.runtime.NockContext;
-import net.frodwith.jaque.runtime.NockFunctionRegistry;
 
 import net.frodwith.jaque.dashboard.Dashboard;
 import net.frodwith.jaque.dashboard.FineCheck;

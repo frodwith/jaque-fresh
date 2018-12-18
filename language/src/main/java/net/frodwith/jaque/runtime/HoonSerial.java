@@ -25,8 +25,8 @@ public final class HoonSerial {
     }
 
     public int byteLength() {
-      int bel = bits >>> 5;
-      if ( bits != bel << 5 ) {
+      int bel = bits >>> 3;
+      if ( bits != bel << 3 ) {
         bel++;
       }
       return bel;

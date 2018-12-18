@@ -25,19 +25,19 @@ public final class FineRegistrationNode extends RegistrationNode {
     this.fine = fine;
   }
 
-  protected Object executeRegister(Object core, Object clue) {
+  protected void executeRegister(Object core, Object clue) {
     Cell cc;
     try {
       cc = Cell.require(core);
     }
     catch ( ExitException e ) {
-      return core;
+      return;
     }
 
     RegistrationNode replacement;
     if ( Equality.equals(this.clue.noun, clue) ) {
       if ( fine.check(cc, contextReference.get()) ) {
-        return core;
+        return;
       }
       else {
         replacement =
@@ -49,6 +49,6 @@ public final class FineRegistrationNode extends RegistrationNode {
     }
     CompilerDirectives.transferToInterpreter();
     replace(replacement);
-    return replacement.executeRegister(core, clue);
+    replacement.executeRegister(core, clue);
   }
 }

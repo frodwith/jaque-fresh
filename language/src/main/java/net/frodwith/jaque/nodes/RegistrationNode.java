@@ -17,13 +17,15 @@ public abstract class RegistrationNode extends NockNode {
     this.contextReference = contextReference;
   }
 
-  protected abstract Object executeRegister(Object core, Object clue);
+  protected abstract void executeRegister(Object core, Object clue);
+
+  public final void doRegistration(Object core, Object clue) {
+    if ( contextReference.get().fast ) {
+      executeRegister(core, clue);
+    }
+  }
 
   protected final void register(Cell core, FastClue clue) throws ExitException {
     contextReference.get().dashboard.register(core, clue);
-  }
-
-  protected final Supplier<Dashboard> getSupplier() {
-    return () -> contextReference.get().dashboard;
   }
 }

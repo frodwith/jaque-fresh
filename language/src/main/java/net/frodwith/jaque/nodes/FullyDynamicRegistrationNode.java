@@ -14,12 +14,11 @@ public final class FullyDynamicRegistrationNode extends RegistrationNode {
     super(contextReference);
   }
 
-  protected Object executeRegister(Object core, Object clue) {
+  protected void executeRegister(Object core, Object clue) {
     try {
       register(Cell.require(core), FastClue.parse(clue));
     }
     catch ( ExitException e ) {
     }
-    return core;
   }
 }

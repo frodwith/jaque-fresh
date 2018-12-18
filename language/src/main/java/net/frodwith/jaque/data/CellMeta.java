@@ -10,7 +10,6 @@ import com.oracle.truffle.api.TruffleLanguage.ContextReference;
 
 import net.frodwith.jaque.runtime.Mug;
 import net.frodwith.jaque.runtime.NockContext;
-import net.frodwith.jaque.runtime.NockFunctionRegistry;
 
 import net.frodwith.jaque.dashboard.Dashboard;
 import net.frodwith.jaque.dashboard.Location;

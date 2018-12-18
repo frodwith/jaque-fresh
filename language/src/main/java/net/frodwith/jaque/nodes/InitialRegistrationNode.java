@@ -15,7 +15,7 @@ public final class InitialRegistrationNode extends RegistrationNode {
     super(contextReference);
   }
 
-  protected Object executeRegister(Object core, Object clue) {
+  protected void executeRegister(Object core, Object clue) {
     try {
       Cell cc     = Cell.require(core);
       FastClue fc = FastClue.parse(clue);
@@ -27,6 +27,5 @@ public final class InitialRegistrationNode extends RegistrationNode {
     }
     catch ( ExitException e ) {
     }
-    return core;
   }
 }

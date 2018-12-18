@@ -31,10 +31,10 @@ import net.frodwith.jaque.dashboard.ColdRegistration;
 public final class NockContext {
   private final Env env;
   private final NockLanguage language;
-  private final boolean fast, hash;
   private final FormulaParser parser;
-  public final Dashboard dashboard;
   private final Map<Cell,NockFunction> functions;
+  public final Dashboard dashboard;
+  public final boolean fast, hash;
 
   public NockContext(NockLanguage language, Env env) {
     OptionValues values = env.getOptions();
