@@ -14,10 +14,10 @@ public abstract class CellMessageResolution {
   @Resolve(message = "READ")
   public abstract static class CellReadNode extends Node {
     protected Object access(Cell reciever, String name) {
-      if ( name == "head" ) {
+      if ( name.equals("head") ) {
         return reciever.head;
       }
-      else if ( name == "tail" ) {
+      else if ( name.equals("tail") ) {
         return reciever.tail;
       }
       else {

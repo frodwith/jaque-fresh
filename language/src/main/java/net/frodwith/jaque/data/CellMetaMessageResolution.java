@@ -22,8 +22,23 @@ import net.frodwith.jaque.exception.NockException;
 @MessageResolution(receiverType = CellMeta.class)
 public abstract class CellMetaMessageResolution extends Node {
 
+  @Resolve(message = "READ")
+  public abstract static class CellMetaReadNode extends Node {
+    protected Object access(CellMeta reciever, String name) {
+      for (int i = 0; i < 0; i++) {
+        System.err.println(name);
+      }
+      if ( name.equals("isCore") ) {
+        return reciever.hasObject();
+      }
+      else {
+        throw UnknownIdentifierException.raise(name);
+      }
+    }
+  }
+
   @Resolve(message = "EXECUTE")
-  public abstract static class CellExecuteNode extends Node {
+  public abstract static class CellMetaExecuteNode extends Node {
     @Child private NockCallDispatchNode dispatch =
       NockCallDispatchNodeGen.create();
 
@@ -41,7 +56,7 @@ public abstract class CellMetaMessageResolution extends Node {
   }
 
   @Resolve(message = "INVOKE")
-	public abstract static class CellInvokeNode extends Node {
+	public abstract static class CellMetaInvokeNode extends Node {
 		@Child private NockCallDispatchNode dispatch = NockCallDispatchNodeGen.create();
 
     private Object accessZero(CellMeta receiver, String name) {
@@ -100,7 +115,7 @@ public abstract class CellMetaMessageResolution extends Node {
   }
 
   @CanResolve
-  public abstract static class CheckCellMeta extends Node {
+  public abstract static class CellMetaCheckNode extends Node {
     protected static boolean test(TruffleObject receiver) {
       return receiver instanceof CellMeta;
     }

@@ -28,6 +28,7 @@ import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import net.frodwith.jaque.jet.JetTree;
 import net.frodwith.jaque.jet.RootCore;
 import net.frodwith.jaque.data.Cell;
+import net.frodwith.jaque.data.CellMeta;
 import net.frodwith.jaque.data.BigAtom;
 import net.frodwith.jaque.data.NockFunction;
 import net.frodwith.jaque.data.SourceMappedNoun;
@@ -126,6 +127,7 @@ public final class NockLanguage extends TruffleLanguage<NockContext> {
   @Override
   public boolean isObjectOfLanguage(Object o) {
     return o instanceof NockFunction
+      || o instanceof CellMeta
       || o instanceof Cell
       || o instanceof BigAtom
       || o instanceof Long;

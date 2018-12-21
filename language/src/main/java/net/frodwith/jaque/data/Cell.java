@@ -45,9 +45,15 @@ public final class Cell implements TruffleObject, Serializable {
   }
 
   public int mug() {
-    int mug = cachedMug();
-    if ( 0 == mug ) {
+    int mug;
+    if ( null == meta ) {
       meta = mug = Mug.calculate(this);
+    }
+    else if ( meta instanceof Integer ) {
+      mug = (int) meta;
+    }
+    else {
+      mug = ((CellMeta)meta).mug();
     }
     return mug;
   }
@@ -134,19 +140,22 @@ public final class Cell implements TruffleObject, Serializable {
 
   public CellMeta getMeta(NockContext context) {
     CellMeta cm;
-    if ( null == meta ) {
-      meta = cm = new CellMeta(context, this, 0);
+    if ( null == this.meta ) {
+      cm = new CellMeta(context, this, 0);
+      this.meta = cm;
     }
     else if ( meta instanceof Integer ) {
-      meta = cm = new CellMeta(context, this, (int) meta);
+      cm = new CellMeta(context, this, (int) meta);
+      this.meta = cm;
     }
     else {
       cm = (CellMeta) meta;
       /* it is possible that the same cell will be run in different contexts. If
        * two threads with different contexts are running on the same shared
        * cell, there is potential for unproductive clobbering. */
-      if ( cm.forContext(context) ) {
-        meta = cm = new CellMeta(context, this, cm.cachedMug());
+      if ( !cm.forContext(context) ) {
+        cm = new CellMeta(context, this, cm.cachedMug());
+        this.meta = cm;
       }
     }
     return cm;
