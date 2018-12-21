@@ -83,9 +83,31 @@ public final class FormulaParser {
   private NockExpressionNode 
     parseIf(Object arg, Axis axis, boolean tail) throws ExitException {
     Trel args = Trel.require(arg);
-    return new IfNode(parseExpr(args.p, axis.peg(6), false),
-                      parseExpr(args.q, axis.peg(14), tail),
-                      parseExpr(args.r, axis.peg(15), tail));
+
+    NockExpressionNode yes, no, test = parseExpr(args.p, axis.peg(6), false);
+    ExitException yex = null, nex = null;
+
+    try {
+      yes = parseExpr(args.q, axis.peg(14), tail);
+    }
+    catch ( ExitException e ) {
+      yex = e;
+      yes = new BailNode();
+    }
+    try {
+      no  = parseExpr(args.r, axis.peg(15), tail);
+    }
+    catch ( ExitException e) {
+      nex = e;
+      no  = new BailNode();
+    }
+
+    if ( null != yex && null != nex ) {
+      throw new ExitException(yex.getMessage() + " and " + nex.getMessage());
+    }
+    else {
+      return new IfNode(test, yes, no);
+    }
   }
 
   private NockExpressionNode 

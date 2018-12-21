@@ -124,7 +124,7 @@ public class AckermanTest {
   }
   
   @Test
-  public void testSlow() {
+  public void testOff() {
     Context context = Context.newBuilder("nock")
                              .option("nock.jets", "ack")
                              .option("nock.fast", "false")
@@ -148,10 +148,22 @@ public class AckermanTest {
   }
 
   @Test
-  public void testHashed() {
+  public void testHash() {
     Context context = Context.newBuilder("nock")
                              .option("nock.jets", "ack")
                              .option("nock.fast", "false")
+                             .option("nock.hash", "true")
+                             .build();
+    doTest(context);
+    assertTrue(MockDecNode.called);
+    context.close();
+  }
+
+  @Test
+  public void testOn() {
+    Context context = Context.newBuilder("nock")
+                             .option("nock.jets", "ack")
+                             .option("nock.fast", "true")
                              .option("nock.hash", "true")
                              .build();
     doTest(context);

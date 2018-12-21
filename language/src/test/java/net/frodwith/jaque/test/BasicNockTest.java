@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Value;
@@ -126,6 +127,29 @@ public class BasicNockTest {
     }
     assertNotNull(cell);
     assertTrue(cell.isGuestException());
+  }
+
+  @Test
+  public void testFunkyIf() {
+    Value test = context.eval("nock", "[6 [0 1] 1 1 42]");
+    PolyglotException thrown = null;
+
+    try {
+      assertEquals(42L, test.execute(1L).as(Number.class));
+    }
+    catch ( PolyglotException e ) {
+      thrown = e;
+    }
+    assertNull(thrown);
+
+    try {
+      test.execute(0L);
+    }
+    catch ( PolyglotException e ) {
+      thrown = e;
+    }
+    assertNotNull(thrown);
+    assertTrue(thrown.isGuestException());
   }
 
   @Test
