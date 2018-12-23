@@ -47,17 +47,22 @@ public class SerialTest {
     Object a = 5456L, b = 42L;
     aeq("jam 1", a, HoonSerial.jam(b));
     aeq("cue 1", b, HoonSerial.cue(a));
+
     a = simple("1.054.973.063.816.666.730.241");
     b = new Cell(c("foo"), c("bar"));
     aeq("jam 2", a, HoonSerial.jam(b));
     aeq("cue 2", b, HoonSerial.cue(a));
+
+    // this failed once
+    Object at = simple("16.167.128.708.910.327.756");
+    aeq("64-bit direct atom", at, HoonSerial.cue(HoonSerial.jam(at)));
   }
 
   // QuickCheck would be better, but we can make do
   @Test
   public void testRandom() throws ExitException {
     Random r = new Random();
-    for ( int i = 0; i < 1024; ++i ) {
+    for ( int i = 0; i < 8192; ++i ) {
       Object noun = randomNoun(r, 0);
       aeq("random jam #" + i, noun, HoonSerial.cue(HoonSerial.jam(noun)));
     }

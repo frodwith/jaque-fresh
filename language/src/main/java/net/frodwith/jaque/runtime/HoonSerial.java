@@ -1,5 +1,8 @@
 package net.frodwith.jaque.runtime;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayDeque;
 import java.util.Map;
 import java.util.HashMap;
@@ -13,128 +16,171 @@ import net.frodwith.jaque.exception.FailError;
 import net.frodwith.jaque.exception.ExitException;
 
 public final class HoonSerial {
-  private final static class JamBuffer {
-    public int a, b, bits;
-    public int[] words;
+  private final static class JamStream {
+    private final OutputStream out;
+    private final Map<Object,Object> offsets;
 
-    public JamBuffer() {
-      this.a     = 89;  // fib(11)
-      this.b     = 144; // fib(12)
-      this.bits  = 0;
-      this.words = new int[5];
+    private byte currentByte;
+    private byte bitsInCurrent;
+    private Object offset;
+
+    public JamStream(OutputStream out) {
+      this.out = out;
+      this.currentByte = 0;
+      this.bitsInCurrent = 0;
+      this.offset = 0L;
+      this.offsets = new HashMap<>();
     }
 
-    public int byteLength() {
-      int bel = bits >>> 3;
-      if ( bits != bel << 3 ) {
-        bel++;
+    private void writeBit(boolean bit) throws IOException {
+      if ( bit ) {
+        currentByte |= (1 << bitsInCurrent);
       }
-      return bel;
-    }
-
-    public Object toAtom() {
-      return Atom.malt(words);
-    }
-
-    public byte[] toByteArray() {
-      return Atom.wordsToBytes(words, byteLength());
-    }
-
-    public void grow(int mor) {
-      int want = bits + mor;
-      if ( want < mor ) {
-        // overflow
-        throw new FailError("jam bit count overflow");
+      if ( 8 == ++bitsInCurrent ) {
+        out.write(currentByte);
+        currentByte = 0;
+        bitsInCurrent = 0;
       }
-      if ( want > a ) {
-        int old = a >>> 5, c = 0, big;
-        if ( old << 5 != a ) {
-          ++old;
-        }
-        // fibbonaci growth
-        while ( c < want ) {
-          c = a + b;
-          b = a;
-          a = c;
-        }
-        big = c >>> 5;
-        if ( (big << 5) != c ) {
-          big++;
-        }
-        int[] olds = words;
-        words = new int[big];
-        System.arraycopy(olds, 0, words, 0, olds.length);
+      offset = HoonMath.increment(offset);
+    }
+
+    public void close() throws IOException {
+      if ( bitsInCurrent != 0 ) {
+        out.write(currentByte);
       }
+      currentByte = 0;
+      bitsInCurrent = 0;
+      out.close();
     }
 
-    public void chop(int met, Object atom) {
-      grow(met);
-      Atom.chop((byte) 0, 0, met, bits, words, atom);
-      bits += met;
-    }
-
-    public void atom(Object a) {
-			if ( (a instanceof Long) && (0L == (long) a) ) {
-				chop(1, 1L);
-			}
-			else {
+    private void writeAtom(Object a) throws IOException {
+      if ( (a instanceof Long) && (0L == (long) a) ) {
+        writeBit(true);
+      }
+      else {
         int b = HoonMath.met(a),
             c = 32 - Integer.numberOfLeadingZeros(b);
-        chop(c+1, 1L << c);
-        chop(c-1, (long) (b & ((1 << (c-1)) - 1)));
-        chop(b, a);
-			}
+
+        for ( int i = 0; i < c; i++ ) {
+          writeBit(false);
+        }
+        writeBit(true);
+
+        for ( int i = b; i > 1; i >>= 1 ) {
+          writeBit(1 == (i & 1));
+        }
+
+        rawAtom(a);
+      }
+    }
+
+    /* simple version of rawAtom, for debugging
+    private void rawAtom(Object atom) throws IOException {
+      int atomBits = HoonMath.met(atom);
+
+      for ( int i = 0; i < atomBits; i++ ) {
+        writeBit(Atom.getNthBit(atom, i));
+      }
+    } */
+
+    private void rawAtom(Object atom) throws IOException {
+      int atomBits = HoonMath.met(atom);
+
+      // clear currentByte buffer
+      if ( bitsInCurrent != 0 ) {
+        int i = 0;
+        while ( bitsInCurrent != 0 && i < atomBits ) {
+          writeBit(Atom.getNthBit(atom, i++));
+        }
+        if ( i == atomBits ) {
+          return;
+        }
+        else {
+          atom = HoonMath.rsh((byte) 0, i, atom);
+        }
+      }
+
+      // write whole bytes
+      final byte[] rest = Atom.toByteArray(atom);
+      int whole = rest.length - 1;
+      for (int i = 0; i < whole; i++) {
+        out.write(rest[i]);
+      }
+      offset = HoonMath.add(offset, ((long) whole) << 3);
+
+      // keep what's left of the last byte
+      byte last = rest[whole];
+      int lastBits = 32 - Integer.numberOfLeadingZeros(0xff & last);
+      if ( 8 == lastBits ) {
+        out.write(last);
+        currentByte = 0;
+        bitsInCurrent = 0;
+      }
+      else {
+        currentByte = last;
+        bitsInCurrent = (byte) lastBits;
+      }
+      offset = HoonMath.add(offset, (long) lastBits);
+    }
+
+    @TruffleBoundary
+    public void writeNoun(Object noun) throws IOException {
+      ArrayDeque<Object> stack = new ArrayDeque<>();
+      stack.push(noun);
+      do {
+        Object top = stack.pop();
+        Object done = offsets.get(top);
+        if ( null == done ) {
+          offsets.put(top, offset);
+          if ( top instanceof Cell ) {
+            Cell c = (Cell) top;
+            writeBit(true);
+            writeBit(false);
+            stack.push(c.tail);
+            stack.push(c.head);
+          }
+          else {
+            writeBit(false);
+            writeAtom(top);
+          }
+        }
+        else if ( top instanceof Cell ) {
+          writeBit(true);
+          writeBit(true);
+          writeAtom(done);
+        }
+        else if ( HoonMath.met(top) <= HoonMath.met(done) ) {
+          writeBit(false);
+          writeAtom(top);
+        }
+        else {
+          writeBit(true);
+          writeBit(true);
+          writeAtom(done);
+        }
+      } while (!stack.isEmpty());
     }
   }
 
-  @TruffleBoundary
-  private static void jamBuf(Object noun, JamBuffer buf) {
-    ArrayDeque<Object> stack = new ArrayDeque<>();
-    Map<Object,Long> offsets = new HashMap<>();
-    stack.push(noun);
-    do {
-      Object top = stack.pop();
-      Long offset = offsets.get(top);
-      if ( null == offset ) {
-        offsets.put(top, (long) buf.bits);
-        if ( top instanceof Cell ) {
-          Cell c = (Cell) top;
-          buf.chop(2, 1L);
-          stack.push(c.tail);
-          stack.push(c.head);
-        }
-        else {
-          buf.chop(1, 0L);
-          buf.atom(top);
-        }
-      }
-      else if ( top instanceof Cell ) {
-        buf.chop(2, 3L);
-        buf.atom(offset);
-      }
-      else {
-        if ( HoonMath.met(top) <= HoonMath.met(offset) ) {
-          buf.chop(1, 0L);
-          buf.atom(top);
-        }
-        else {
-          buf.chop(2, 3L);
-          buf.atom(offset);
-        }
-      }
-    } while ( !stack.isEmpty() );
+  public static void jamStream(OutputStream out, Object noun) throws IOException {
+    JamStream s = new JamStream(out);
+    s.writeNoun(noun);
+    s.close();
   }
 
   public static byte[] jamBytes(Object noun) {
-    JamBuffer buf = new JamBuffer();
-    jamBuf(noun, buf);
-    return buf.toByteArray();
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    try {
+      jamStream(out, noun);
+      return out.toByteArray();
+    }
+    catch ( IOException e ) {
+      throw new FailError(e.getMessage());
+    }
   }
 
   public static Object jam(Object noun) {
-    JamBuffer buf = new JamBuffer();
-    jamBuf(noun, buf);
-    return buf.toAtom();
+    return Atom.fromByteArray(jamBytes(noun));
   }
 
   public static Cell rub(Object a, Object b) throws ExitException {

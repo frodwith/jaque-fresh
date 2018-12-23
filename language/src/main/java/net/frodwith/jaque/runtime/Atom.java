@@ -179,7 +179,7 @@ public final class Atom {
 	}
 
 	public static boolean getNthBit(long atom, int n) {
-		if ( n >= (Long.SIZE - 1) ) {
+		if ( n > 63 ) {
 			return false;
 		}
 		else {
