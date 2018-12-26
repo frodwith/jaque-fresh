@@ -14,4 +14,5 @@ import net.frodwith.jaque.exception.ExitException;
 
 public final class Motes {
   public static final int FAST = 0x74736166;
+  public static final int MEMO = 0x6f6d656d;
 }

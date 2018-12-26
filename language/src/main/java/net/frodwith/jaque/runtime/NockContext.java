@@ -12,6 +12,9 @@ import com.oracle.truffle.api.TruffleLanguage.Env;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+
 import net.frodwith.jaque.NockLanguage;
 import net.frodwith.jaque.NockOptions;
 import net.frodwith.jaque.jet.JetTree;
@@ -33,6 +36,7 @@ public final class NockContext {
   private final NockLanguage language;
   private final FormulaParser parser;
   private final Map<Cell,NockFunction> functions;
+  private final Cache<Cell,Object> memoCache;
   public final Dashboard dashboard;
   public final boolean fast, hash;
 
@@ -55,6 +59,9 @@ public final class NockContext {
     this.parser    = new FormulaParser(language);
     this.functions = new HashMap<>();
     this.dashboard = new Dashboard(this, cold, hot, drivers);
+    this.memoCache = CacheBuilder.newBuilder()
+      .maximumSize(values.get(NockOptions.MEMO_SIZE))
+      .build();
   }
 
   public NockFunction lookupFunction(Cell formula) throws ExitException {
@@ -64,5 +71,13 @@ public final class NockContext {
       functions.put(formula, f);
     }
     return f;
+  }
+
+  public Object lookupMemo(Object subject, Cell formula) {
+    return memoCache.getIfPresent(new Cell(subject, formula));
+  }
+
+  public void recordMemo(Object subject, Cell formula, Object product) {
+    memoCache.put(new Cell(subject, formula), product);
   }
 }

@@ -23,6 +23,10 @@ public final class NockOptions {
   public static final OptionKey<Boolean> HASH = new OptionKey<Boolean>(true);
   public static final String HASH_HELP = "discover registrations by battery hash";
 
+  public static final String MEMO_SIZE_NAME = "nock.memo";
+  public static final OptionKey<Integer> MEMO_SIZE = new OptionKey<Integer>(1024);
+  public static final String MEMO_SIZE_HELP = "size (n entries) of MEMO cache";
+
 	public static void describe(List<OptionDescriptor> options) {
     options.add(OptionDescriptor.newBuilder(JET_TREE, JET_TREE_NAME)
                                 .category(OptionCategory.USER)
@@ -42,6 +46,11 @@ public final class NockOptions {
     options.add(OptionDescriptor.newBuilder(HASH, HASH_NAME)
                                 .category(OptionCategory.USER)
                                 .help(HASH_HELP)
+                                .build());
+
+    options.add(OptionDescriptor.newBuilder(MEMO_SIZE, MEMO_SIZE_NAME)
+                                .category(OptionCategory.USER)
+                                .help(MEMO_SIZE_HELP)
                                 .build());
 	}
 }
