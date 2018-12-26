@@ -41,10 +41,14 @@ public abstract class PullNode extends NockCallLookupNode {
   protected abstract ContextReference<NockContext> getContextReference();
 
   @Specialization(limit = "1",
-                  guards = "sameCells(object.noun, core)",
+                  guards = {
+                    "sameCells(object.noun, core)",
+                    "cachedContext == getContext()"
+                  },
                   assumptions = "object.klass.valid")
   protected NockCall doStatic(Cell core,
     @Cached("getObject(core)") NockObject object,
+    @Cached("getContext()") NockContext cachedContext,
     @Cached("new(getArm(object), object.noun)") NockCall call) {
     return call;
   }

@@ -1,7 +1,3 @@
-Test CellMeta caching (w/edit)
-
-Review pullNode to ensure per-context meta caching is respected
-
 Memo
   with One Big Guava Cache
   and tests
