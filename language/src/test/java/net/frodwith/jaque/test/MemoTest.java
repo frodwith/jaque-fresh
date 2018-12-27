@@ -146,8 +146,6 @@ public class MemoTest {
     context.close();
   }
 
-  // decnode and addnode don't exist yet
-
   @Test
   public void testFib() {
     Value gate = context.eval(fibSource).execute();
