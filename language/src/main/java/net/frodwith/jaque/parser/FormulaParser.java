@@ -190,7 +190,6 @@ public final class FormulaParser {
           return new FastNode(language.getContextReference(),
             clue, parseExpr(next, nextAxis, false));
         case Motes.MEMO:
-          //return MemoNode.create(clue, parseExpr(next, false));
           return new MemoNode(language.getContextReference(), Cell.require(next),
             clue, parseExpr(next, nextAxis, false));
         default:
@@ -202,11 +201,9 @@ public final class FormulaParser {
         case Motes.SPOT:
           return StackNode.create(hints.head, clue, parseExpr(next, false));
 
-
         case Motes.SLOG:
           return SlogNode.create(clue, parseExpr(next, tail));
-
-          */
+        */
       }
     }
   }

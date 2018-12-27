@@ -155,24 +155,29 @@ public final class HoonMath {
     return Atom.malt(dst);
   }
   
-  public static long add(long a, long b) throws ArithmeticException {
+  public static long addLongs(long a, long b) throws ArithmeticException {
+    // XX - should we be using Math.addExact here?
     long c = a + b;
-    if ( Long.compareUnsigned(c, a) < 0 ||
-         Long.compareUnsigned(c, b) < 0 ) {
+    if ( Long.compareUnsigned(c, a) < 0 ) {
       throw new ArithmeticException();
     }
     return c;
   }
-  
- public static Object add(Object a, Object b) {
-    if ( a instanceof Long && b instanceof Long ) {
-      try {
-        return add((long) a, (long) b);
-      }
-      catch (ArithmeticException e) {
-      }
+
+  public static Object add(long a, long b) {
+    try {
+      return addLongs(a, b);
     }
-    return add(Atom.words(a), Atom.words(b));
+    catch (ArithmeticException e) {
+      return add(Atom.words(a), Atom.words(b));
+    }
+  }
+  
+  public static Object add(Object a, Object b) {
+    if ( a instanceof Long && b instanceof Long ) {
+      return add((long) a, (long) b);
+    }
+    return addWords(Atom.words(a), Atom.words(b));
   }
 
   public static long dec(long atom) throws ExitException {

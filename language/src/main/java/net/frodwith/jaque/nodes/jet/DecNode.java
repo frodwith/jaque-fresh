@@ -1,45 +1,37 @@
 package net.frodwith.jaque.nodes.jet;
 
-import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.NodeChild;
-import com.oracle.truffle.api.dsl.Fallback;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.dsl.GenerateNodeFactory;
+import com.oracle.truffle.api.dsl.Fallback;
 
-import net.frodwith.jaque.data.Axis;
+import com.oracle.truffle.api.CompilerDirectives;
+
 import net.frodwith.jaque.data.BigAtom;
 import net.frodwith.jaque.nodes.SlotNode;
 import net.frodwith.jaque.nodes.SubjectNode;
 import net.frodwith.jaque.runtime.HoonMath;
 import net.frodwith.jaque.exception.NockException;
 
-@GenerateNodeFactory
 @NodeChild(value="sample", type=SlotNode.class)
-public abstract class DecNode extends JetNode {
-  @Override
-  public final SubjectNode[] createInputNodes() {
-    return new SubjectNode[] { new SlotNode(Axis.SAMPLE) };
-  }
-
+public abstract class DecNode extends SubjectNode {
   @Specialization
-  protected long doLong(long atom) {
-    if ( 0 == atom ) {
+  protected long decLong(long sample) {
+    if ( 0L == sample ) {
       CompilerDirectives.transferToInterpreter();
       throw new NockException("decrement underflow", this);
     }
     else {
-      return atom - 1;
+      return sample - 1;
     }
   }
 
   @Specialization
-  protected Object doBig(BigAtom atom) {
-    return HoonMath.dec(atom);
+  protected Object decBigAtom(BigAtom sample) {
+    return HoonMath.dec(sample);
   }
 
   @Fallback
-  protected Object doCrash(Object o) {
+  protected Object decOther(Object sample) {
     throw new NockException("decrement cell", this);
   }
 }
