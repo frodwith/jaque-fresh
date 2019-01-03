@@ -79,7 +79,8 @@ public final class Tanks {
     }
   }
   
-  private static final Object re_win_din(Object tab, Object edg) {
+  private static final Object re_win_din(Object tab, Object edg)
+    throws ExitException {
     return HoonMath.mod(HoonMath.add(2L, tab), 
                         HoonMath.mul(2L, HoonMath.div(edg, 3L)));
   }

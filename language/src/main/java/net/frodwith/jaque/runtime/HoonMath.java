@@ -144,11 +144,8 @@ public final class HoonMath {
   }
   
   public static long addLongs(long a, long b) throws ArithmeticException {
-    long c = a + b;
-    if ( Long.compareUnsigned(c, a) < 0 ) {
-      throw new ArithmeticException();
-    }
-    return c;
+    // fine if we throw exception even when we could represent as unsigned
+    return Math.addExact(a, b);
   }
 
   public static Object add(long a, long b) {
@@ -224,8 +221,13 @@ public final class HoonMath {
       : subtractWords(Atom.words(a), Atom.words(b));
   }
 
-  public static long div(long a, long b) {
-    return Long.divideUnsigned(a, b);
+  public static long div(long a, long b) throws ExitException {
+    if ( 0L == b ) {
+      throw new ExitException("divide by zero");
+    }
+    else {
+      return Long.divideUnsigned(a, b);
+    }
   }
 
   /* This code is substantially adapted from Kawa's IntNum.java -- see the note at
@@ -263,6 +265,7 @@ public final class HoonMath {
     return new Cell(Atom.malt(xwords), Atom.malt(ywords));
   }
 
+  // NO ZERO CHECK
   private static Object div(int[] x, int[] y) {
     int cmp = Atom.compare(x,y);
     if ( cmp < 0 ) {
@@ -281,11 +284,16 @@ public final class HoonMath {
     }
   }
 
-  public static Object div(Object a, Object b) {
-    if ( (a instanceof Long) && (b instanceof Long) ) {
+  public static Object div(Object a, Object b) throws ExitException {
+    if ( Atom.isZero(b) ) {
+      throw new ExitException("divide by zero");
+    }
+    else if ( (a instanceof Long) && (b instanceof Long) ) {
       return div((long) a, (long) b);
     }
-    return div(Atom.words(a), Atom.words(b));
+    else {
+      return div(Atom.words(a), Atom.words(b));
+    }
   }
 
   public static long mod(long a, long b) {
@@ -340,8 +348,23 @@ public final class HoonMath {
     }
   }
 
-  public static long mul(long a, long b) throws ArithmeticException {
-    return Math.multiplyExact(a, b);
+  public static long mulLongs(long a, long b) throws ArithmeticException {
+    if ( (a < 0L) || (b < 0L) ) {
+      // multiplyExact would get cute with negative numbers
+      throw new ArithmeticException();
+    }
+    else {
+      return Math.multiplyExact(a, b);
+    }
+  }
+
+  public static Object mul(long a, long b) {
+    try {
+      return mulLongs(a, b);
+    }
+    catch (ArithmeticException e) {
+      return mul(Atom.words(a), Atom.words(b));
+    }
   }
  
   private static Object mul(int[] x, int[] y) {
