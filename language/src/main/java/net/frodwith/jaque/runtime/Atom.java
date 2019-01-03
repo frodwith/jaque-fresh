@@ -11,7 +11,7 @@ import net.frodwith.jaque.data.BigAtom;
 import net.frodwith.jaque.exception.ExitException;
 
 public final class Atom {
-	public static final boolean BIG_ENDIAN = true, LITTLE_ENDIAN = false;
+  public static final boolean BIG_ENDIAN = true, LITTLE_ENDIAN = false;
   public static final long YES = 0L, NO = 1L;
 
   private static class Counter {
@@ -116,6 +116,7 @@ public final class Atom {
       case 1:
         return false;
       default:
+        CompilerDirectives.transferToInterpreter();
         throw new ExitException("non-loobean");
     }
   }
@@ -172,7 +173,7 @@ public final class Atom {
 	public static int requireInt(Object o) throws ExitException {
 		if ( o instanceof Long ) {
 			long atom = (long) o;
-			if ( 1 != Long.compareUnsigned(atom, 0xFFFFFFFF) ) {
+			if ( 1 != Long.compareUnsigned(atom, 0xFFFFFFFFL) ) {
 				return (int) atom;
 			}
 		}
