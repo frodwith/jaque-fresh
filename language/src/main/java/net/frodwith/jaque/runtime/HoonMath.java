@@ -341,16 +341,7 @@ public final class HoonMath {
   }
 
   public static long mul(long a, long b) throws ArithmeticException {
-    long c = a * b;
-    if ( Long.compareUnsigned(c, a) >= 0 ) {
-      return c;
-    }
-    else if ( 0L == c && (0L == a || 0L == b) ) {
-      return 0L;
-    }
-    else {
-      throw new ArithmeticException();
-    }
+    return Math.multiplyExact(a, b);
   }
  
   private static Object mul(int[] x, int[] y) {
