@@ -11,8 +11,79 @@ import net.frodwith.jaque.data.BigAtom;
 import net.frodwith.jaque.exception.ExitException;
 
 public final class Atom {
-	public static final boolean BIG_ENDIAN = true;
-	public static final boolean LITTLE_ENDIAN = false;
+	public static final boolean BIG_ENDIAN = true, LITTLE_ENDIAN = false;
+  public static final long YES = 0L, NO = 1L;
+
+  private static class Counter {
+    protected boolean small;
+    protected long direct;
+    protected int[] words;
+
+    public Counter(Object initial) {
+      if ( initial instanceof Long ) {
+        this.small = true;
+        this.direct = (long) initial;
+      }
+      else {
+        int[] w = ((BigAtom)initial).words;
+        this.small = false;
+        this.words = Arrays.copyOf(w, w.length);
+      }
+    }
+
+    public Object atom() {
+      return small ? direct : new BigAtom(Arrays.copyOf(words, words.length));
+    }
+  }
+
+  public static final class CountDown extends Counter {
+    public CountDown(Object initial) {
+      super(initial);
+    }
+
+    public boolean isZero() {
+      return small && 0L == direct;
+    }
+
+    // integer underflow happens if isZero() is true. call that first.
+    public void next() {
+      if ( small ) {
+        --direct;
+      }
+      else if ( (words.length == 3) &&
+                (words[0] == 0) &&
+                (words[1] == 0) &&
+                (words[2] == 1) ) {
+        small = true;
+        direct = 0xFFFFFFFFFFFFFFFFL;
+      }
+      else {
+        words = Atom.decrementInPlace(words);
+      }
+    }
+  }
+
+  public static final class CountUp extends Counter {
+    public CountUp(Object initial) {
+      super(initial);
+    }
+
+    public CountUp() {
+      super(0L);
+    }
+
+    public void next() {
+      if ( small ) {
+        if ( 0L == ++direct ) {
+          small = false;
+          words = new int[] { 0, 0, 1 };
+        }
+      }
+      else {
+        words = incrementInPlace(words);
+      }
+    }
+  }
 
   public static boolean isZero(long a) {
     return 0L == a;
@@ -20,6 +91,33 @@ public final class Atom {
 
   public static boolean isZero(Object a) {
     return (a instanceof Long) && (0L == ((long) a));
+  }
+
+  public static boolean isYes(long a) {
+    return 0L == a;
+  }
+
+  public static boolean isYes(Object a) {
+    return (a instanceof Long) && (0L == ((long) a));
+  }
+
+  public static boolean isNo(long a) {
+    return 1L == a;
+  }
+
+  public static boolean isNo(Object a) {
+    return (a instanceof Long) && (1L == ((long) a));
+  }
+
+  public static boolean requireLoobean(Object a) throws ExitException {
+    switch ( requireInt(a) ) {
+      case 0:
+        return true;
+      case 1:
+        return false;
+      default:
+        throw new ExitException("non-loobean");
+    }
   }
 
 	public static int compare(BigAtom a, BigAtom b) {
@@ -101,34 +199,37 @@ public final class Atom {
 			: words((long) o);
 	}
 
+  public static long wordsToLong(int[] words) {
+    return (words.length == 1)
+      ? words[0] & 0xffffffffL
+      : ((words[1] & 0xffffffffL) << 32) | (words[0] & 0xffffffffL);
+  }
+
 	public static Object malt(int[] words) {
-		int bad = 0;
+    int bad = 0;
 
-		for ( int i = words.length - 1; i >= 0; --i) {
-			if ( words[i] == 0 ) {
-				++bad;
-			}
-			else {
-				break;
-			}
-		}
+    for ( int i = words.length - 1; i >= 0; --i) {
+      if ( words[i] == 0 ) {
+        ++bad;
+      }
+      else {
+        break;
+      }
+    }
 
-		if ( bad > 0 ) {
-			words = Arrays.copyOfRange(words, 0, words.length - bad);
-		}
+    if ( bad > 0 ) {
+      words = Arrays.copyOfRange(words, 0, words.length - bad);
+    }
 
-		if ( 0 == words.length ) {
-			return 0L;
-		}
-		else if ( words != null && words.length > 2 ) {
-			return new BigAtom(words);
-		}
-		else if (words.length == 1) {
-			return words[0] & 0xffffffffL;
-		}
-		else {
-			return ((words[1] & 0xffffffffL) << 32) | (words[0] & 0xffffffffL);
-		}
+    if ( 0 == words.length ) {
+      return 0L;
+    }
+    else if ( words != null && words.length > 2 ) {
+      return new BigAtom(words);
+    }
+    else {
+      return wordsToLong(words);
+    }
 	}
 
 	public static int[] slaq(byte bloq, int len) {
@@ -280,6 +381,32 @@ public final class Atom {
       reverse(buf);
     }
     return buf;
+  }
+
+  public static int[] incrementInPlace(int[] vol) {
+    for ( int i = 0; i < vol.length; i++ ) {
+      if ( 0 != ++vol[i] ) {
+        return vol;
+      }
+    }
+    int[] bigger = new int[vol.length + 1];
+    bigger[bigger.length] = 1;
+    return bigger;
+  }
+
+  // note: you can decrement a word array under BigAtom.MINIMUM with this.
+  public static int[] decrementInPlace(int[] vol) {
+    for ( int i = 0; i < vol.length; i++ ) {
+      if ( 0 == vol[i] ) {
+        int[] smaller = new int[vol.length - 1];
+        Arrays.fill(smaller, 0xFFFFFFFF);
+        return smaller;
+      }
+      else {
+        vol[i] -= 1;
+      }
+    }
+    return vol;
   }
 
   public static byte[] wordsToBytes(int[] wor, int bel) {

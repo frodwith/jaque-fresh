@@ -6,13 +6,12 @@ import com.oracle.truffle.api.CompilerDirectives;
 
 import gnu.math.MPN;
 
+import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.BigAtom;
 import net.frodwith.jaque.exception.ExitException;
 import net.frodwith.jaque.exception.FailError;
 
 public final class HoonMath {
-  public static final BigAtom MINIMUM_BIGATOM = new BigAtom(new int[] {0, 0, 1});
-
   public static int met(byte bloq, Object atom) {
     int gal, daz;
 
@@ -109,17 +108,6 @@ public final class HoonMath {
     }
   }
 
-  private static int[] incrementInPlace(int[] vol) {
-    for ( int i = 0; i < vol.length; i++ ) {
-      if ( 0 != ++vol[i] ) {
-        return vol;
-      }
-    }
-    int[] bigger = new int[vol.length + 1];
-    bigger[bigger.length] = 1;
-    return bigger;
-  }
-
   public static long unsignedIncrementExact(long atom) throws ArithmeticException {
     if ( 0L == ++atom ) {
       throw new ArithmeticException();
@@ -132,13 +120,13 @@ public final class HoonMath {
       return unsignedIncrementExact((long) atom);
     } 
     catch (ArithmeticException e) {
-      return MINIMUM_BIGATOM;
+      return BigAtom.MINIMUM;
     }
   }
 
   public static BigAtom increment(BigAtom atom) {
     final int[] words = Arrays.copyOf(atom.words, atom.words.length);
-    incrementInPlace(words);
+    Atom.incrementInPlace(words);
     return new BigAtom(words);
   }
   
@@ -156,7 +144,6 @@ public final class HoonMath {
   }
   
   public static long addLongs(long a, long b) throws ArithmeticException {
-    // XX - should we be using Math.addExact here?
     long c = a + b;
     if ( Long.compareUnsigned(c, a) < 0 ) {
       throw new ArithmeticException();
@@ -190,17 +177,12 @@ public final class HoonMath {
   }
 
   public static Object dec(BigAtom atom) {
-    int[] result;
-    if ( atom.words[0] == 0 ) {
-      result = new int[atom.words.length - 1];
-      Arrays.fill(result, 0xFFFFFFFF);
-    }
-    else {
-      result = Arrays.copyOf(atom.words, atom.words.length);
-      result[0] -= 1;
-    }
-
-    return Atom.malt(result);
+    int[] w = atom.words;
+    w = Arrays.copyOf(w, w.length);
+    w = Atom.decrementInPlace(w);
+    return ( 2 == w.length )
+      ? Atom.wordsToLong(w)
+      : new BigAtom(w);
   }
 
   public static Object dec(Object atom) throws ExitException {
@@ -211,7 +193,6 @@ public final class HoonMath {
       return dec((BigAtom) atom);
     }
   }
-
 
   public static Object subtractWords(int[] a, int[] b) throws ExitException {
     MPNSquare s = new MPNSquare(a, b);
@@ -243,6 +224,98 @@ public final class HoonMath {
       : subtractWords(Atom.words(a), Atom.words(b));
   }
 
+  public static long div(long a, long b) {
+    return Long.divideUnsigned(a, b);
+  }
+
+  /* This code is substantially adapted from Kawa's IntNum.java -- see the note at
+   * the top of gnu.math.MPN */
+  private static Cell divmod(int[] x, int[] y) {
+    int xlen = x.length,
+        ylen = y.length,
+        rlen, qlen;
+    int[] xwords = Arrays.copyOf(x, xlen+2),
+          ywords = Arrays.copyOf(y, ylen);
+
+    int nshift = MPN.count_leading_zeros(ywords[ylen-1]);
+    if (nshift != 0) {
+      MPN.lshift(ywords, 0, ywords, ylen, nshift);
+      int x_high = MPN.lshift(xwords, 0, xwords, xlen, nshift);
+      xwords[xlen++] = x_high;
+    }
+
+    if (xlen == ylen) {
+      xwords[xlen++] = 0;
+    }
+
+    MPN.divide(xwords, xlen, ywords, ylen);
+    rlen = ylen;
+    MPN.rshift0(ywords, xwords, 0, rlen, nshift);
+    qlen = xlen + 1 - ylen;
+    xwords = Arrays.copyOfRange(xwords, ylen, ylen+qlen);
+    while ( rlen > 1 && 0 == ywords[rlen - 1] ) {
+      --rlen;
+    }
+    if ( ywords[rlen-1] < 0 ) {
+      ywords[rlen++] = 0;
+    }
+
+    return new Cell(Atom.malt(xwords), Atom.malt(ywords));
+  }
+
+  private static Object div(int[] x, int[] y) {
+    int cmp = Atom.compare(x,y);
+    if ( cmp < 0 ) {
+      return 0L;
+    }
+    else if ( 0 == cmp ) {
+      return 1L;
+    }
+    else if ( 1 == y.length ) {
+      int[] q = new int[x.length];
+      MPN.divmod_1(q, x, x.length, y[0]);
+      return Atom.malt(q);
+    }
+    else {
+      return divmod(x,y).head;
+    }
+  }
+
+  public static Object div(Object a, Object b) {
+    if ( (a instanceof Long) && (b instanceof Long) ) {
+      return div((long) a, (long) b);
+    }
+    return div(Atom.words(a), Atom.words(b));
+  }
+
+  public static long mod(long a, long b) {
+    return Long.remainderUnsigned(a, b);
+  }
+
+  public static Object mod(int[] x, int[] y) {
+    int cmp = Atom.compare(x,y);
+    if ( cmp < 0 ) {
+      return y;
+    }
+    else if ( 0 == cmp ) {
+      return 0L;
+    }
+    else if ( 1 == y.length ) {
+      int[] q = new int[x.length];
+      return (long) MPN.divmod_1(q, x, x.length, y[0]);
+    }
+    else {
+      return divmod(x,y).tail;
+    }
+  }
+
+  public static Object mod(Object a, Object b) {
+    if ( (a instanceof Long) && (b instanceof Long) ) {
+      return mod((long) a, (long) b);
+    }
+    return mod(Atom.words(a), Atom.words(b));
+  }
+
   public static Object peg(Object axis, Object to) {
     if ( (to instanceof Long) && (1L == (long) to) ) {
       return axis;
@@ -266,6 +339,49 @@ public final class HoonMath {
       return add(f, g);
     }
   }
+
+  public static long mul(long a, long b) throws ArithmeticException {
+    long c = a * b;
+    if ( Long.compareUnsigned(c, a) >= 0 ) {
+      return c;
+    }
+    else if ( 0L == c && (0L == a || 0L == b) ) {
+      return 0L;
+    }
+    else {
+      throw new ArithmeticException();
+    }
+  }
+ 
+  private static Object mul(int[] x, int[] y) {
+    int xlen = x.length,
+        ylen = y.length;
+    int[] dest = new int[xlen + ylen];
+
+    if ( xlen < ylen ) {
+      int zlen = xlen;
+      int[] z = x;
+
+      x = y;
+      y = z;
+      xlen = ylen;
+      ylen = zlen;
+    }
+
+    MPN.mul(dest, x, xlen, y, ylen);
+    return Atom.malt(dest);
+  }
+
+  public static Object mul(Object a, Object b) {
+    if ( (a instanceof Long) && (b instanceof Long) ) {
+      try {
+        return mul((long) a, (long) b);
+      }
+      catch (ArithmeticException e) {
+      }
+    }
+    return mul(Atom.words(a), Atom.words(b));
+  } 
 
   public static Object bex(long a) {
     if (a < 64) {

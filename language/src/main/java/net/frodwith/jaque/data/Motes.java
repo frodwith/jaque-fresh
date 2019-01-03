@@ -13,6 +13,10 @@ import net.frodwith.jaque.runtime.Cords;
 import net.frodwith.jaque.exception.ExitException;
 
 public final class Motes {
-  public static final int FAST = 0x74736166;
-  public static final int MEMO = 0x6f6d656d;
+  public static final int
+    FAST = 0x74736166,
+    MEMO = 0x6f6d656d,
+    ROSE = 0x65736f72,
+    PALM = 0x6d6c6170,
+    LEAF = 0x6661656c;
 }

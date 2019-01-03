@@ -12,6 +12,8 @@ import net.frodwith.jaque.runtime.Equality;
 import net.frodwith.jaque.printer.SimpleAtomPrinter;
 
 public final class BigAtom implements TruffleObject, Serializable {
+  public static final BigAtom MINIMUM = new BigAtom(new int[] {0, 0, 1});
+
   public int[] words;
   public int mug;
 
