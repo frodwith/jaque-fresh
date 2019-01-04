@@ -1,9 +1,26 @@
-Memo
-  with One Big Guava Cache
-  and tests
-Slog
-  tests can capture logs right?
+QuickCheck HoonSerial tests (replace randomNoun)
+
+Test all the new Slog stuff
+  Math tests (add/sub/mul/div/mod, examples & quickcheck)
+  List tests (unit-test each libary function, examples should be fine)
+  Tank tests (wash at least one example of each kind, some should line break)
+  Slog hint test with mock logger
+
 Stack Hints
+  Create a new local variable, tax.
+  to process a stack hint,
+    1) compute the clue
+    2) set tax accordingly
+    3) TruffleRuntime.createVirtualFrame(...)
+    4) execute tail-formula in fresh frame
+    5) unset tax
+
+  Catchers of NockException can call TruffleStackTraceElement.getStackTrace(e),
+  get the frames, and collect tax. Without a kernel the command line
+  interpreters will print the java stack trace and die. With a kernel, they
+  collect and pass the tax to +mook, getting a toon, and log the resulting (list
+  tank). And then maybe die, depending on what mode they're in. Look ma, no
+  Context!
 
 Step through some nock in a debugger
 
