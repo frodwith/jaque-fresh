@@ -144,8 +144,14 @@ public final class HoonMath {
   }
   
   public static long addLongs(long a, long b) throws ArithmeticException {
-    // fine if we throw exception even when we could represent as unsigned
-    return Math.addExact(a, b);
+    // Do not use Math.addExact here: gives bad results for signed longs
+    long c = a + b;
+    if ( Long.compareUnsigned(c, a) >= 0 ) {
+      return c;
+    }
+    else {
+      throw new ArithmeticException();
+    }
   }
 
   public static Object add(long a, long b) {
@@ -153,10 +159,10 @@ public final class HoonMath {
       return addLongs(a, b);
     }
     catch (ArithmeticException e) {
-      return add(Atom.words(a), Atom.words(b));
+      return addWords(Atom.words(a), Atom.words(b));
     }
   }
-  
+
   public static Object add(Object a, Object b) {
     if ( a instanceof Long && b instanceof Long ) {
       return add((long) a, (long) b);
@@ -203,11 +209,13 @@ public final class HoonMath {
   }
 
   public static long sub(long a, long b) throws ExitException {
-    if ( -1 == Long.compareUnsigned(a, b) ) {
-      throw new ExitException("subtract underflow");
-    }
-    else {
-      return a - b;
+    switch ( Long.compareUnsigned(a, b) ) {
+      case 0:
+        return 0L;
+      case 1:
+        return a - b;
+      default:
+        throw new ExitException("subtract underflow");
     }
   }
 
@@ -267,7 +275,7 @@ public final class HoonMath {
 
   // NO ZERO CHECK
   private static Object div(int[] x, int[] y) {
-    int cmp = Atom.compare(x,y);
+    int cmp = Atom.compareWords(x, y);
     if ( cmp < 0 ) {
       return 0L;
     }
@@ -296,12 +304,14 @@ public final class HoonMath {
     }
   }
 
-  public static long mod(long a, long b) {
+  // throws on divide by zero
+  public static long mod(long a, long b) throws ArithmeticException {
     return Long.remainderUnsigned(a, b);
   }
 
+  // NO ZERO CHECK
   public static Object mod(int[] x, int[] y) {
-    int cmp = Atom.compare(x,y);
+    int cmp = Atom.compareWords(x, y);
     if ( cmp < 0 ) {
       return y;
     }
@@ -317,11 +327,16 @@ public final class HoonMath {
     }
   }
 
-  public static Object mod(Object a, Object b) {
-    if ( (a instanceof Long) && (b instanceof Long) ) {
+  public static Object mod(Object a, Object b) throws ExitException {
+    if ( Atom.isZero(b) ) {
+      throw new ExitException("mod by zero");
+    }
+    else if ( (a instanceof Long) && (b instanceof Long) ) {
       return mod((long) a, (long) b);
     }
-    return mod(Atom.words(a), Atom.words(b));
+    else {
+      return mod(Atom.words(a), Atom.words(b));
+    }
   }
 
   public static Object peg(Object axis, Object to) {

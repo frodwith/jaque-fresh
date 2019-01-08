@@ -121,9 +121,13 @@ public final class Atom {
     }
   }
 
-	public static int compare(BigAtom a, BigAtom b) {
-		return MPN.cmp(a.words, a.words.length, b.words, b.words.length);
-	}
+  public static int compareWords(int[] a, int[] b) {
+    return MPN.cmp(a, a.length, b, b.length);
+  }
+
+  public static int compare(BigAtom a, BigAtom b) {
+    return compareWords(a.words, b.words);
+  }
 
 	public static int compare(long a, long b) {
 		return Long.compareUnsigned(a, b);
