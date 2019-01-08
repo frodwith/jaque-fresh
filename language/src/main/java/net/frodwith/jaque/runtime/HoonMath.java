@@ -343,7 +343,6 @@ public final class HoonMath {
         throw new AssertionError();
       }
 
-      
       return add(f, g);
     }
   }

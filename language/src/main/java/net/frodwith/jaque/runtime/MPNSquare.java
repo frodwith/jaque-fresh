@@ -6,9 +6,8 @@ public final class MPNSquare {
   int[] y;
   int   len;
 
-  public MPNSquare(Object a, Object b) {
-    int[] aw = Atom.words(a), bw = Atom.words(b);
-    int   as = aw.length, bs = bw.length;
+  public MPNSquare(int[] aw, int[] bw) {
+    int as = aw.length, bs = bw.length;
     if (as > bs) {
       len = as;
       x   = aw;

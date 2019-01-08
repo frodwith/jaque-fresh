@@ -5,8 +5,6 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
 
-import us.bpsm.edn.Keyword;
-
 import com.oracle.truffle.api.TruffleLanguage.ContextReference;
 
 import net.frodwith.jaque.NockLanguage;
@@ -25,11 +23,6 @@ public abstract class JetCore {
   public final JetArm[] arms;
   public final JetHook[] hooks;
   public final ChildCore[] children;
-  protected static final Keyword nameKey  = Keyword.newKeyword("name"),
-                                 hashKey  = Keyword.newKeyword("hashes"),
-                                 armKey   = Keyword.newKeyword("arms"),
-                                 hookKey  = Keyword.newKeyword("hooks"),
-                                 childKey = Keyword.newKeyword("children");
 
   protected abstract Location getLocation(Location parent,
                                           Map<String,Hook> hooks);

@@ -15,6 +15,8 @@ public final class NockException extends RuntimeException implements TruffleExce
     this.location = location;
   }
 
+  // XX - probably want to ignore cause, according to javadoc for
+  // TruffleException
   @TruffleBoundary
   public NockException(String message, Throwable cause, Node location) {
     super(message, cause);

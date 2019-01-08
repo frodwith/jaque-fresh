@@ -77,7 +77,7 @@ public final class Axis implements Iterable<Axis.Fragment> {
   }
 
   public Axis peg(int under) {
-    return peg((long)under);
+    return peg((long) (under & 0xFFFFFFFF));
   }
 
   public Axis peg(long under) {

@@ -3,6 +3,11 @@ package net.frodwith.jaque.test;
 import java.util.Random;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import com.pholser.junit.quickcheck.runner.JUnitQuickcheck;
+import com.pholser.junit.quickcheck.From;
+import com.pholser.junit.quickcheck.Property;
 
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.runtime.Atom;
@@ -11,9 +16,12 @@ import net.frodwith.jaque.runtime.HoonSerial;
 import net.frodwith.jaque.runtime.Cords;
 import net.frodwith.jaque.exception.ExitException;
 
+import net.frodwith.jaque.test.quickcheck.NounGenerator;
+
 import static org.junit.Assert.assertTrue;
 import static net.frodwith.jaque.parser.CustomParser.simple;
 
+@RunWith(JUnitQuickcheck.class)
 public class SerialTest {
   private static void aeq(String msg, Object a, Object b) {
     assertTrue(msg, Equality.equals(a, b));
@@ -21,25 +29,6 @@ public class SerialTest {
 
   private static Object c(String s) {
     return Cords.fromString(s);
-  }
-
-  private static Object randomAtom(Random r) {
-    byte[] bytes = new byte[r.nextInt(16)];
-    r.nextBytes(bytes);
-    return Atom.fromByteArray(bytes);
-  }
-
-  private static Cell randomCell(Random r, int depth) {
-    return new Cell(randomNoun(r, depth+1), randomNoun(r, depth+1));
-  }
-
-  private static Object randomNoun(Random r, int depth) {
-    if ( depth < 10 && r.nextBoolean() ) {
-      return randomCell(r, depth);
-    }
-    else {
-      return randomAtom(r);
-    }
   }
 
   @Test
@@ -58,13 +47,9 @@ public class SerialTest {
     aeq("64-bit direct atom", at, HoonSerial.cue(HoonSerial.jam(at)));
   }
 
-  // QuickCheck would be better, but we can make do
-  @Test
-  public void testRandom() throws ExitException {
-    Random r = new Random();
-    for ( int i = 0; i < 8192; ++i ) {
-      Object noun = randomNoun(r, 0);
-      aeq("random jam #" + i, noun, HoonSerial.cue(HoonSerial.jam(noun)));
-    }
+  @Property(trials=8192)
+  public void testRoundTrip(@From(NounGenerator.class) Object noun)
+    throws ExitException {
+    aeq("quickcheck", noun, HoonSerial.cue(HoonSerial.jam(noun)));
   }
 }

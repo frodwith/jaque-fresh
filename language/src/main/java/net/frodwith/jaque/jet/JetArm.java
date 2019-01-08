@@ -10,8 +10,6 @@ import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.TruffleLanguage.ContextReference;
 
-import us.bpsm.edn.Keyword;
-
 import net.frodwith.jaque.NockLanguage;
 import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.data.NockFunction;

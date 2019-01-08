@@ -8,10 +8,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
-import us.bpsm.edn.parser.Parser;
-import us.bpsm.edn.parser.Parsers;
-import us.bpsm.edn.parser.Parseable;
-
 import net.frodwith.jaque.NockLanguage;
 import net.frodwith.jaque.data.AxisMap;
 import net.frodwith.jaque.data.NockFunction;

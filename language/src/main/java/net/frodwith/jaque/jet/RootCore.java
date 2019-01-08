@@ -2,8 +2,6 @@ package net.frodwith.jaque.jet;
 
 import java.util.Map;
 
-import us.bpsm.edn.Keyword;
-
 import net.frodwith.jaque.NockLanguage;
 import net.frodwith.jaque.data.AxisMap;
 import net.frodwith.jaque.data.NockFunction;
@@ -16,7 +14,6 @@ import net.frodwith.jaque.dashboard.Registration;
 
 public final class RootCore extends JetCore {
   public final Object payload;
-  private static final Keyword payloadKey  = Keyword.newKeyword("payload");
 
   public RootCore(String name,
                   Object payload,

@@ -1,5 +1,3 @@
-QuickCheck HoonSerial tests (replace randomNoun)
-
 Test all the new Slog stuff
   Math tests (add/sub/mul/div/mod, examples & quickcheck)
   List tests (unit-test each libary function, examples should be fine)

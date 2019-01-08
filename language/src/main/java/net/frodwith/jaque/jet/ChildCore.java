@@ -2,8 +2,6 @@ package net.frodwith.jaque.jet;
 
 import java.util.Map;
 
-import us.bpsm.edn.Keyword;
-
 import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.dashboard.Hook;
 import net.frodwith.jaque.dashboard.Location;
@@ -14,7 +12,6 @@ import net.frodwith.jaque.dashboard.BatteryHash;
 
 public final class ChildCore extends JetCore {
   public final Axis toParent;
-  private static final Keyword axisKey = Keyword.newKeyword("parent");
 
   public ChildCore(String name,
                    Axis toParent,
