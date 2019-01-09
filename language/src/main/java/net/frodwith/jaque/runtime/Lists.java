@@ -41,6 +41,15 @@ public final class Lists {
     }
   }
 
+  public static Object make(Object... nouns) {
+    int i = nouns.length;
+    Object r = 0L;
+    while ( --i >= 0 ) {
+      r = new Cell(nouns[i], r);
+    }
+    return r;
+  }
+
   public static Deque<Object> toDeque(Object list) throws ExitException {
     Deque<Object> s = new ArrayDeque<>();
     Iterator i = new Iterator(list);
@@ -111,6 +120,7 @@ public final class Lists {
     Atom.CountUp c = new Atom.CountUp();
 
     while ( i.hasNext() ) {
+      i.next();
       c.next();
     }
 

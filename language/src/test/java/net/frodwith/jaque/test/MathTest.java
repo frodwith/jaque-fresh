@@ -24,7 +24,6 @@ public class MathTest {
   @Test
   public void addExamples() throws ExitException {
     assertNounEquals("ltuae", 42L, HoonMath.add(40L, 2L));
-    System.err.println(HoonMath.add(5L, 0xFFFFFFFFFFFFFFFFL));
     assertNounEquals("add to max long", simple("18.446.744.073.709.551.620"),
       HoonMath.add(5L, 0xFFFFFFFFFFFFFFFFL));
   }

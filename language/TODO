@@ -1,5 +1,5 @@
 Test all the new Slog stuff
-  List tests (unit-test each libary function, examples should be fine)
+  Tape tests (examples)
   Tank tests (wash at least one example of each kind, some should line break)
   Slog hint test with mock logger
 
