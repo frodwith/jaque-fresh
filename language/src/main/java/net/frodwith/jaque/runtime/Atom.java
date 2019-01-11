@@ -48,7 +48,7 @@ public final class Atom {
     // integer underflow happens if isZero() is true. call that first.
     public void next() {
       if ( small ) {
-        --direct;
+        direct -= 1;
       }
       else if ( (words.length == 3) &&
                 (words[0] == 0) &&

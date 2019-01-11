@@ -2,6 +2,7 @@ package net.frodwith.jaque.test;
 
 import org.junit.Test;
 
+import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.runtime.Lists;
 import net.frodwith.jaque.runtime.Tapes;
 import net.frodwith.jaque.exception.ExitException;
@@ -31,5 +32,12 @@ public class TapeTest {
   public void testRunt() throws ExitException {
     assertEquals("gghello",
       Tapes.toString(Tapes.runt(2L, (long) 'g', helloTape)));
+  }
+
+  @Test
+  public void testTrim() throws ExitException {
+    Cell trimmed = Tapes.trim(2L, helloTape);
+    assertEquals("he", Tapes.toString(trimmed.head));
+    assertEquals("llo", Tapes.toString(trimmed.tail));
   }
 }

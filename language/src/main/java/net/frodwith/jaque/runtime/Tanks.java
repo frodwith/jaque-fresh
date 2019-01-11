@@ -12,10 +12,12 @@ import net.frodwith.jaque.exception.ExitException;
  * hoon.hoon. You know who to blame. */
 
 public final class Tanks {
-  private static final long SPACE = 32L;
+  private static final long ACE = ' ',
+                            BAS = '\\',
+                            FAS = '/';
 
   private static boolean isSpace(Object atom) {
-    return (atom instanceof Long) && (SPACE == ((long) atom));
+    return (atom instanceof Long) && (ACE == ((long) atom));
   }
 
   private static final Object re_ram(Object tac) throws ExitException {
@@ -97,13 +99,13 @@ public final class Tanks {
   private static final Object re_win_leaf(Object tac, Object tab, Object edg, Object lug)
     throws ExitException {
     Cell c = Cell.require(tac);
-    return re_win_rig(c.tail, tab, lug);
+    return re_win_rig(c.tail, tab, edg, lug);
   }
   
   private static final Object re_win_palm(Object tac, Object tab, Object edg, Object lug)
     throws ExitException {
     if ( Atom.isYes(re_win_fit(tac, tab, edg)) ) {
-      return re_win_rig(re_ram(tac), tab, lug);
+      return re_win_rig(re_ram(tac), tab, edg, lug);
     }
     else {
       Cell c = Cell.require(tac);
@@ -111,13 +113,13 @@ public final class Tanks {
       Qual qua = Qual.require(bub.head);
       
       if ( Atom.isZero(bub.tail) ) {
-        return re_win_rig(qua.q, tab, lug);
+        return re_win_rig(qua.q, tab, edg, lug);
       }
       Cell res = Cell.require(bub.tail);
       if ( Atom.isZero(res.tail) ) {
         Object bat = HoonMath.add(2L, tab),
                gul = re_win_buc(res.head, tab, edg, lug);
-        return re_win_rig(qua.q, bat, gul);
+        return re_win_rig(qua.q, bat, edg, gul);
       }
       else {
         Object lyn = HoonMath.mul(2L,  Lists.lent(res)),
@@ -142,8 +144,37 @@ public final class Tanks {
     return re_win_buc(cat, bat, edg, gul);
   }
 
-  private static final Object re_win_rig(Object hom, Object tab, Object lug) {
-    return new Cell(Tapes.runt(tab, SPACE, hom), lug);
+  private static final Object
+    re_win_rig_in(Object hom, Object tab, Object edg, Object lug, Cell mut)
+      throws ExitException {
+    if ( Atom.isZero(hom) ) {
+      return new Cell(Tapes.runt(HoonMath.sub(tab, 2L), ACE,
+        new Trel(BAS, FAS,
+          Tapes.runt(HoonMath.sub(edg, tab), ACE,
+            Lists.make(BAS, FAS))).toNoun()), lug);
+    }
+    else {
+      mut = Tapes.trim(HoonMath.sub(edg, tab), hom);
+      return new Cell(Tapes.runt(tab, ACE, mut.head),
+        re_win_rig_in(mut.tail, tab, edg, lug, mut));
+    }
+  }
+
+  private static final Object re_win_rig(Object hom, Object tab, Object edg, Object lug)
+    throws ExitException {
+    if ( 1 != Atom.compare(Lists.lent(hom), HoonMath.sub(edg, tab)) ) {
+      return new Cell(Tapes.runt(tab, ACE, hom), lug);
+    }
+    else {
+      tab = HoonMath.add(tab, 2L);
+      edg = HoonMath.sub(edg, 2L);
+      Cell mut = Tapes.trim(HoonMath.sub(edg, tab), hom);
+      return new Cell(
+        Tapes.runt(HoonMath.sub(tab, 2L), ACE,
+          new Trel(BAS, FAS,
+            Lists.weld(mut.head, Lists.make(BAS, FAS))).toNoun()),
+        re_win_rig_in(mut.tail, tab, edg, lug, mut));
+    }
   }
 
   private static final Object re_win_rose(Object tac, Object tab, Object edg, Object lug)
@@ -153,7 +184,7 @@ public final class Tanks {
     Trel tre = Trel.require(bub.head);
     
     if ( Atom.isYes(re_win_fit(tac, tab, edg)) ) {
-      return re_win_rig(re_ram(tac), tab, lug);
+      return re_win_rig(re_ram(tac), tab, edg, lug);
     }
     else {
       Object gul = re_win_rose_lug(tre.r, tab, edg, bub.tail, lug);
@@ -174,7 +205,7 @@ public final class Tanks {
         return lug;
       }
       else {
-        return re_win_rig(r, tab, lug);
+        return re_win_rig(r, tab, edg, lug);
       }
     }
     else {
@@ -191,7 +222,7 @@ public final class Tanks {
       throws ExitException {
 
     if ( Atom.isZero(lug) ) {
-      return re_win_rig(hom, tab, lug);
+      return re_win_rig(hom, tab, edg, lug);
     }
 
     Cell c = Cell.require(lug);
@@ -199,12 +230,12 @@ public final class Tanks {
            wug = HoonMath.increment(HoonMath.add(tab, lin));
 
     if ( Atom.isNo(re_win_wig_mir(c.head, wug)) ) {
-      return re_win_rig(hom, tab, lug);
+      return re_win_rig(hom, tab, edg, lug);
     }
     else {
-      Object sin = new Cell(SPACE, Lists.slag(wug, c.head)),
+      Object sin = new Cell(ACE, Lists.slag(wug, c.head)),
              moh = Lists.weld(hom,  sin),
-             dex = Tapes.runt(tab, SPACE, moh);
+             dex = Tapes.runt(tab, ACE, moh);
       return new Cell(dex, c.tail);
     }
   }

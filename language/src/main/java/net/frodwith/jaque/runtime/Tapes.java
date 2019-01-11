@@ -1,5 +1,7 @@
 package net.frodwith.jaque.runtime;
 
+import java.util.ArrayDeque;
+
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.exception.ExitException;
 
@@ -13,6 +15,28 @@ public final class Tapes {
     }
 
     return list;
+  }
+
+  public static Cell trim(Object count, Object tape) throws ExitException {
+    Lists.Iterator i = new Lists.Iterator(tape);
+    Atom.CountDown down = new Atom.CountDown(count);
+    ArrayDeque<Object> stack = new ArrayDeque<>();
+
+    while ( !down.isZero() ) {
+      if ( !i.hasNext() ) {
+        break;
+      }
+      else {
+        stack.push(i.next());
+        down.next();
+      }
+    }
+
+    Object a = 0L;
+    while ( !stack.isEmpty() ) {
+      a = new Cell(stack.pop(), a);
+    }
+    return new Cell(a, i.rest());
   }
 
   public static String toString(Object tape) throws ExitException {

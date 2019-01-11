@@ -39,6 +39,10 @@ public final class Lists {
       noun = c.tail;
       return c.head;
     }
+
+    public Object rest() {
+      return noun;
+    }
   }
 
   public static Object make(Object... nouns) {
