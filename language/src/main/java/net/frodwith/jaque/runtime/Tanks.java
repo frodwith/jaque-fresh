@@ -249,7 +249,7 @@ public final class Tanks {
       return Atom.YES;
     }
     Cell c = Cell.require(mir);
-    if ( isSpace(c.head) ) {
+    if ( !isSpace(c.head) ) {
       return Atom.NO;
     }
     return re_win_wig_mir(c.tail, HoonMath.dec(wug));
