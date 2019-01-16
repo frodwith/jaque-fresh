@@ -1,5 +1,39 @@
 Test all the new Slog stuff
   Tank tests (wash at least one example of each kind, some should line break)
+    -- there is now a new type of tank, plum. i have no java code yet for
+       dealing with it, and it's complicated. also, debatably, having a java
+       printer isn't even the right thing to do.
+
+       I could leave in all the new runtime code on the off chance that it'll
+       be useful (nice that it has tests now).
+
+       The slog hint could call a handler registered via like
+       NockLanguage.setSlogHandler(). We just pass the priority-tank pairs along
+       to that like it's no big thing.
+
+       So I'm basically proposing: no java tank printer, punt to a registered
+       handler. The strategy from outside will be to queue up tanks that we
+       don't have a way to wash until we do have a way to wash them, and then
+       print them. EDIT: I think the alternative is better.
+
+  --  alternatively: a new HoonLanguage, that is given a pill as its "prelude".
+    - when we get a tank in nock, we ask hoon to wash it.
+    - if that fails, we try with Tanks.java (which for now will just be
+      leaf/rose/palm).
+    - if that fails (usually because we got an unrecognized tank, like plum),
+      we'll jam and base-64 encode the tank and log it. the data will still
+      all be there in the log, just not washed. If you need to see that data
+      later, you can scrape it out of the log and use a tank washer that knows
+      how to wash it.
+    - looks forward to mook with a similar idea, and other runtime code that
+      wants to call hoon functions (slaw/slay etc)
+    - implementation plan, then:
+      - finish testing palm
+      - implement above flow with nonexistant language
+      - finish stack hints etc.
+      - boot a pill by implementing HoonLanguage
+      - use HoonLanguage for the "command line hoon interpreter"
+
   Slog hint test with mock logger
 
 Stack Hints
@@ -18,6 +52,8 @@ Stack Hints
   tank). And then maybe die, depending on what mode they're in. Look ma, no
   Context!
 
+Test Stack Hints
+
 Step through some nock in a debugger
 
 Command line nock interpreter (with native-image)
@@ -30,5 +66,7 @@ Boot a ride pill
 Command line hoon interpreter (with native-image)
 
 Potentially, we could have an edit message.
+
+Rename runtime/Atom to runtime/Atoms for consistency
 
 kind of map that is one-thing-then-a-hashmap, for use in Registration

@@ -8,8 +8,13 @@ import net.frodwith.jaque.runtime.Lists;
 import net.frodwith.jaque.runtime.Tapes;
 import net.frodwith.jaque.exception.ExitException;
 
-/* I am truly, truly sorry about the naming in this file. The names come from
- * hoon.hoon. You know who to blame. */
+/* Support for washing leaf/rose/palm tanks. Other kinds (plums, future kinds)
+ * will, for now, throw an ExitException. In the future, it may be updated to
+ * support plums, etc., but +wash from HoonLanguage should be preferred if
+ * available. Use this code only under duress (for example, while booting an
+ * ivory pill for HoonLanguage).
+ *
+ * p.s. I am truly, truly sorry about the naming in this file. */
 
 public final class Tanks {
   private static final long ACE = ' ',
