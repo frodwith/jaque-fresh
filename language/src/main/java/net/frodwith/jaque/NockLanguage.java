@@ -124,13 +124,15 @@ public final class NockLanguage extends TruffleLanguage<NockContext> {
     frame.setObject(SUBJECT_SLOT, subject);
   }
 
+  public static boolean isNoun(Object o) {
+    return o instanceof Cell || o instanceof BigAtom || o instanceof Long;
+  }
+
   @Override
   public boolean isObjectOfLanguage(Object o) {
-    return o instanceof NockFunction
+    return isNoun(o)
+      || o instanceof NockFunction
       || o instanceof CellMeta
-      || o instanceof Cell
-      || o instanceof BigAtom
-      || o instanceof Long;
   }
 
   @Override
