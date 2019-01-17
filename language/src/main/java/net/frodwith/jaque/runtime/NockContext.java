@@ -80,4 +80,38 @@ public final class NockContext {
   public void recordMemo(Object subject, Cell formula, Object product) {
     memoCache.put(new Cell(subject, formula), product);
   }
+
+  public Object pullArm(Axis arm, Object core) throws ExitException {
+    Object subject = core;
+    NockFunction function = Cell.require(core).getMeta(this).getArm(arm);
+
+    while ( true ) {
+      try {
+        return function.callTarget.call(subject);
+      }
+      catch ( NockControlFlowException e ) {
+        subject = e.call.subject;
+        function = e.call.function;
+      }
+    }
+  }
+
+  public Object slamGate(Object gate, Object... arguments) throws ExitException {
+    if ( 0 != arguments.length ) {
+      gate = Axis.SAMPLE.edit(gate, NockLanguage.fromArguments(arguments));
+    }
+    return pullArm(Axis.HEAD, gate);
+  }
+
+  public Object slamHoon(String hoon, Object... arguments) throws ExitException {
+    try {
+      Source src = Source
+        .newBuilder(HoonLanguage.ID, hoon, "<slamHoon>")
+        .build();
+      return slamGate(env.parse(src).call(), arguments);
+    }
+    catch (IOException e) {
+      throw new ExitException();
+    }
+  }
 }
