@@ -27,6 +27,10 @@ import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 
 import net.frodwith.jaque.jet.JetTree;
 import net.frodwith.jaque.jet.RootCore;
+import net.frodwith.jaque.jet.ChildCore;
+import net.frodwith.jaque.dashboard.BatteryHash;
+import net.frodwith.jaque.jet.JetArm;
+import net.frodwith.jaque.jet.JetHook;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.CellMeta;
 import net.frodwith.jaque.data.BigAtom;
@@ -35,6 +39,7 @@ import net.frodwith.jaque.data.SourceMappedNoun;
 import net.frodwith.jaque.parser.CustomParser;
 import net.frodwith.jaque.parser.FormulaParser;
 import net.frodwith.jaque.runtime.NockContext;
+import net.frodwith.jaque.runtime.HoonContext;
 import net.frodwith.jaque.exception.ExitException;
 import net.frodwith.jaque.dashboard.ColdRegistration;
 
@@ -45,17 +50,18 @@ public final class HoonLanguage extends TruffleLanguage<HoonContext> {
   public static final String ID = "hoon";
   public static final String MIME_TYPE = "application/x-hoon";
   private static final OptionDescriptors OPTION_DESCRIPTORS;
+  private static final JetTree k141 =
+    new JetTree(
+      new RootCore[] {
+        new RootCore("k141", 141L,
+          new BatteryHash[0],
+          new JetArm[0],
+          new JetHook[0],
+          new ChildCore[0])});
+
+  private Object kernel;
 
   static {
-    NockLanguage.installJetTree("hoon", 
-      new JetTree(
-        new RootCore[] {
-          new RootCore("k141", 141L,
-            new BatteryHash[0],
-            new JetArm[0],
-            new JetHook[0],
-            new ChildCore[0])}));
-
     List<OptionDescriptor> options = new ArrayList<>();
     HoonOptions.describe(options);
     OPTION_DESCRIPTORS = OptionDescriptors.create(options);
@@ -72,7 +78,7 @@ public final class HoonLanguage extends TruffleLanguage<HoonContext> {
 
   @Override
   protected HoonContext createContext(Env env) {
-    return new HoonContext(this, env);
+    return new HoonContext(this, env, k141);
   }
 
   @Override
@@ -81,15 +87,19 @@ public final class HoonLanguage extends TruffleLanguage<HoonContext> {
   }
 
   @Override
-  protected CallTarget parse(ParsingRequest request) throws ExitException {
-    if ( !request.getArgumentNames().isEmpty() ) {
-      // TODO: gate wrapper with typeless kick (do once below works)
-      throw new UnsupportedOperationException("TODO");
+  protected CallTarget parse(ParsingRequest request) throws Exception {
+    if ( null == kernel ) {
+      throw new Exception("hoon kernel not loaded");
     }
-    HoonContext context = getCurrentContext(HoonLanguage.class);
-    Object product = context.wish(request.source.getCharacters().toString());
-    RootNode rootNode = RootNode.createConstantNode(product);
-    return Truffle.getRuntime().createCallTarget(rootNode);
+    else if ( !request.getArgumentNames().isEmpty() ) {
+      throw new UnsupportedOperationException("can't type check arguments");
+    }
+    else {
+      HoonContext context = getCurrentContext(HoonLanguage.class);
+      Object trap = context.wish("|.\n" + request.getSource().getCharacters().toString());
+      RootNode rootNode = TrapRootNode.create(new FormulaParser(this), trap);
+      return Truffle.getRuntime().createCallTarget(rootNode);
+    }
   }
 
   @Override

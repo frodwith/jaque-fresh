@@ -132,11 +132,12 @@ public final class NockLanguage extends TruffleLanguage<NockContext> {
   public boolean isObjectOfLanguage(Object o) {
     return isNoun(o)
       || o instanceof NockFunction
-      || o instanceof CellMeta
+      || o instanceof CellMeta;
   }
 
   @Override
   protected NockContext createContext(Env env) {
+    // here we examine env for config, options, or static fields.
     return new NockContext(this, env);
   }
 

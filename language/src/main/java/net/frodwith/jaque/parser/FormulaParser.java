@@ -18,7 +18,7 @@ import net.frodwith.jaque.nodes.*;
 import net.frodwith.jaque.exception.ExitException;
 
 public final class FormulaParser {
-  private final NockLanguage language;
+  public final NockLanguage language;
 
   public FormulaParser(NockLanguage language) {
     this.language = language;
@@ -319,28 +319,14 @@ public final class FormulaParser {
     return parseExpr(formula, Axis.IDENTITY, true);
   }
   
-  public RootCallTarget
-    cellTarget(Cell formula) throws ExitException {
-    Supplier<SourceMappedNoun> sourceSupplier = () -> {
-      try {
-        return SourceMappedNoun.fromCell(formula);
-      }
-      catch ( ExitException e ) {
-        throw new RuntimeException("NockFunction.fromCell:supplier", e);
-      }
-    };
+  public RootCallTarget cellTarget(Cell formula) throws ExitException {
     return Truffle.getRuntime()
-      .createCallTarget(new NockRootNode(language, NockLanguage.DESCRIPTOR, 
-        sourceSupplier, parse(formula)));
+      .createCallTarget(CellRootNode.create(this, formula));
   }
 
   public RootCallTarget
     mappedTarget(SourceMappedNoun mapped) throws ExitException {
-    Supplier<SourceMappedNoun> sourceSupplier = () -> {
-      return mapped;
-    };
     return Truffle.getRuntime()
-      .createCallTarget(new NockRootNode(language, NockLanguage.DESCRIPTOR,
-        sourceSupplier, parse(mapped.noun)));
+      .createCallTarget(SourceRootNode.create(this, mapped));
   }
 }

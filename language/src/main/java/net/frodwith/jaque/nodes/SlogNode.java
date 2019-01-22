@@ -15,6 +15,7 @@ import net.frodwith.jaque.runtime.Atom;
 import net.frodwith.jaque.runtime.Tanks;
 import net.frodwith.jaque.runtime.Lists;
 import net.frodwith.jaque.runtime.Tapes;
+import net.frodwith.jaque.runtime.HoonSerial;
 import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.exception.ExitException;
 

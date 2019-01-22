@@ -1,5 +1,6 @@
 package net.frodwith.jaque.runtime;
 
+import java.io.IOException;
 import java.util.function.Function;
 import java.util.Map;
 import java.util.HashMap;
@@ -8,6 +9,7 @@ import org.graalvm.options.OptionValues;
 import org.graalvm.options.OptionKey;
 import org.graalvm.options.OptionType;
 
+import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.TruffleLanguage.Env;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
@@ -16,15 +18,18 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
 import net.frodwith.jaque.NockLanguage;
+import net.frodwith.jaque.HoonLanguage;
 import net.frodwith.jaque.NockOptions;
 import net.frodwith.jaque.jet.JetTree;
 import net.frodwith.jaque.jet.RootCore;
-import net.frodwith.jaque.data.BigAtom;
+import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.AxisMap;
+import net.frodwith.jaque.data.BigAtom;
 import net.frodwith.jaque.data.NockFunction;
 import net.frodwith.jaque.parser.FormulaParser;
 import net.frodwith.jaque.exception.ExitException;
+import net.frodwith.jaque.exception.NockControlFlowException;
 import net.frodwith.jaque.dashboard.Location;
 import net.frodwith.jaque.dashboard.Registration;
 import net.frodwith.jaque.dashboard.Dashboard;
@@ -34,14 +39,20 @@ import net.frodwith.jaque.dashboard.ColdRegistration;
 public final class NockContext {
   private final Env env;
   private final NockLanguage language;
-  private final FormulaParser parser;
   private final Map<Cell,NockFunction> functions;
   private final Cache<Cell,Object> memoCache;
+
+  public final FormulaParser parser;
   public final Dashboard dashboard;
   public final boolean fast, hash;
 
   public NockContext(NockLanguage language, Env env) {
     OptionValues values = env.getOptions();
+
+
+    // todo: check env.config first!
+    // general pattern: override options with config arguments?
+    // i.e. fast, hash, history, jets
 
     JetTree tree =
       language.getJetTree(values.get(NockOptions.JET_TREE));
@@ -81,10 +92,9 @@ public final class NockContext {
     memoCache.put(new Cell(subject, formula), product);
   }
 
-  public Object pullArm(Axis arm, Object core) throws ExitException {
-    Object subject = core;
-    NockFunction function = Cell.require(core).getMeta(this).getArm(arm);
 
+  /* "nodeless" dispatch... maybe a bad idea. */
+  public static Object dispatch(NockFunction function, Object subject) {
     while ( true ) {
       try {
         return function.callTarget.call(subject);
@@ -96,22 +106,28 @@ public final class NockContext {
     }
   }
 
-  public Object slamGate(Object gate, Object... arguments) throws ExitException {
+  public Object pullArm(Axis arm, Object core) throws ExitException {
+    NockFunction function = Cell.require(core)
+      .getMeta(this)
+      .getObject()
+      .getArm(arm, this);
+
+    return dispatch(function, core);
+  }
+
+  public Object slamGate(Object gate, Object... arguments)
+    throws ExitException {
     if ( 0 != arguments.length ) {
       gate = Axis.SAMPLE.edit(gate, NockLanguage.fromArguments(arguments));
     }
     return pullArm(Axis.HEAD, gate);
   }
 
-  public Object slamHoon(String hoon, Object... arguments) throws ExitException {
-    try {
-      Source src = Source
-        .newBuilder(HoonLanguage.ID, hoon, "<slamHoon>")
-        .build();
-      return slamGate(env.parse(src).call(), arguments);
-    }
-    catch (IOException e) {
-      throw new ExitException();
-    }
+  public Object slamHoon(String hoon, Object... arguments)
+    throws ExitException, IOException {
+    Source src = Source
+      .newBuilder(HoonLanguage.ID, hoon, "<slamHoon>")
+      .build();
+    return slamGate(env.parse(src).call(), arguments);
   }
 }

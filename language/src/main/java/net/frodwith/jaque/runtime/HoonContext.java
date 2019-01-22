@@ -1,6 +1,7 @@
 package net.frodwith.jaque.runtime;
 
 import java.util.function.Function;
+import java.util.concurrent.ExecutionException;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -8,11 +9,13 @@ import org.graalvm.options.OptionValues;
 import org.graalvm.options.OptionKey;
 import org.graalvm.options.OptionType;
 
+import com.oracle.truffle.api.TruffleContext;
 import com.oracle.truffle.api.TruffleLanguage.Env;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 
-import com.google.common.cache.Cache;
+import com.google.common.cache.LoadingCache;
+import com.google.common.cache.CacheLoader;
 import com.google.common.cache.CacheBuilder;
 
 import net.frodwith.jaque.HoonLanguage;
@@ -21,6 +24,7 @@ import net.frodwith.jaque.jet.JetTree;
 import net.frodwith.jaque.jet.RootCore;
 import net.frodwith.jaque.data.BigAtom;
 import net.frodwith.jaque.data.Cell;
+import net.frodwith.jaque.data.CellMeta;
 import net.frodwith.jaque.data.AxisMap;
 import net.frodwith.jaque.data.NockFunction;
 import net.frodwith.jaque.parser.FormulaParser;
@@ -38,16 +42,14 @@ public final class HoonContext {
   private final TruffleContext innerContext;
   private Object wishGate;
 
-  public HoonContext(HoonLanguage hoon, Env env) {
-    OptionValues values = env.getOptions();
-
+  public HoonContext(HoonLanguage hoon, Env env, JetTree jets) {
     this.hoon = hoon;
     this.env = env;
     this.innerContext = env.newContextBuilder()
-      .option("nock.jets", "hoon")
+      .config("nock.jets", jets)
       .build();
     this.wishes = CacheBuilder.newBuilder()
-      .maximumSize(values.get(HoonOptions.WISH_CACHE_SIZE))
+      .maximumSize(64)
       .build(new CacheLoader<String,Object>() {
         public Object load(String hoonSrc) {
           return makeWish(hoonSrc);
@@ -69,8 +71,13 @@ public final class HoonContext {
     }
   }
 
-  public Object wish(String hoonSrc) {
-    return wishes.get(hoonSrc);
+  public Object wish(String hoonSrc) throws ExitException {
+    try {
+      return wishes.get(hoonSrc);
+    }
+    catch ( ExecutionException e ) {
+      throw new ExitException("execution exception in wish");
+    }
   }
 
   public CellMeta cellMeta(Cell c) {
