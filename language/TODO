@@ -1,3 +1,7 @@
+Things seem to be getting away from me... I was thinking of a Locator instance
+that each Battery could have... but isn't that just Registration? Essentially...
+sigh. brain won't brain.
+
 Test all the new Slog stuff
   Tank tests (wash at least one example of each kind, some should line break)
     -- there is now a new type of tank, plum. i have no java code yet for
@@ -53,6 +57,9 @@ Stack Hints
   Context!
 
 Test Stack Hints
+
+Registration Sites could be better. Dispatch site with assumptions so we can go
+back to blankness?
 
 Step through some nock in a debugger
 

@@ -137,8 +137,13 @@ public final class NockLanguage extends TruffleLanguage<NockContext> {
 
   @Override
   protected NockContext createContext(Env env) {
-    // here we examine env for config, options, or static fields.
-    return new NockContext(this, env);
+    Map<Cell,ColdRegistration> cold;
+    JetTree jets;
+    int memoSize = env.config("nock.memo"
+    boolean fast, hash; 
+    OptionValues values = env.getOptions();
+
+    return new NockContext(this, env, memoSize, fast, hash, jets, cold);
   }
 
   @Override
@@ -162,12 +167,9 @@ public final class NockLanguage extends TruffleLanguage<NockContext> {
 
   @Override
   public Object findMetaObject(NockContext context, Object o) {
-    if ( o instanceof Cell ) {
-      return ((Cell) o).getMeta(context);
-    }
-    else {
-      return null;
-    }
+    return ( o instanceof Cell )
+      ? context.cellMeta((Cell) o)
+      : null;
   }
 
   @TruffleBoundary

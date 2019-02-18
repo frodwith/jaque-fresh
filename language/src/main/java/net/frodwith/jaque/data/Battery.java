@@ -13,27 +13,68 @@ import net.frodwith.jaque.dashboard.Registration;
 // should not store an assumption because it persists across registrations.
 public final class Battery {
   public final Cell noun;
-  public final Registration hot;
-  public Registration cold;
+  private Dashboard dashboard;
+  private Registration hot;
+  private Registration cold;
   private BatteryHash hash;
 
-  public Battery(Cell noun, BatteryHash hash,
-                 Registration cold, Registration hot) {
+  private Battery(Cell noun) {
     this.noun = noun;
-    this.cold = cold;
-    this.hash = hash; // may be null
-    this.hot  = hot;
   }
 
-  public BatteryHash cachedHash() {
-    return hash;
+  public boolean hasHash() {
+    return null != hash;
   }
 
   public BatteryHash getHash() {
-    if ( null == hash ) {
+    return hash;
+  }
+
+  public BatteryHash forceHash() {
+    if ( !hasHash() ) {
       hash = BatteryHash.hash(noun);
     }
     return hash;
+  }
+
+  private void setDashboard(Dashboard dashboard) {
+    if ( this.dashboard != dashboard ) {
+      this.dashboard = dashboard;
+      hot = null;
+      cold = null;
+    }
+  }
+
+  public Registration getCold(Dashboard dashboard) {
+    setDashboard(dashboard);
+    if ( null == cold ) {
+      cold = dashboard.coldRegistration(noun);
+    }
+    return cold;
+  }
+
+  public Registration getHot(Dashboard dashboard) {
+    setDashboard(dashboard);
+    if ( null == hot ) {
+      hot = dashboard.hotRegistration(forceHash());
+    }
+    return hot;
+  }
+
+  public Location locate(Cell core, Dashboard dashboard) {
+    Location loc;
+    if ( null != cold ) {
+      loc = cold.locate(core, dashboard);
+    }
+    if ( null == loc ) {
+      if ( null != hot ) {
+        if ( null != (loc = hot.locate(core, dashboard)) ) {
+          loc.register(dashboard.freeze(this));
+          dashboard.invalidate();
+        }
+      }
+    }
+    return loc;
   }
 
   public NockFunction getArm(FragmentNode fragmentNode, NockContext context)
@@ -46,5 +87,13 @@ public final class Battery {
     throws ExitException {
     return Cell.require(axis.fragment(noun))
            .getMeta(context).getFunction();
+  }
+
+
+  public boolean isRegistered() {
+    return (null != b.cold) || (null != b.hot);
+  }
+
+  public boolean forDashboard(Dashboard dashboard) {
   }
 }

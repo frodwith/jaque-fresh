@@ -5,6 +5,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import net.frodwith.jaque.NockLanguage;
 import net.frodwith.jaque.parser.FormulaParser;
 import net.frodwith.jaque.data.SourceMappedNoun;
+import net.frodwith.jaque.exception.ExitException;
 
 public final class SourceRootNode extends NockRootNode {
   @Child private NockExpressionNode bodyNode;

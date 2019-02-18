@@ -45,9 +45,11 @@ public final class HoonContext {
   public HoonContext(HoonLanguage hoon, Env env, JetTree jets) {
     this.hoon = hoon;
     this.env = env;
+
     this.innerContext = env.newContextBuilder()
       .config("nock.jets", jets)
       .build();
+
     this.wishes = CacheBuilder.newBuilder()
       .maximumSize(64)
       .build(new CacheLoader<String,Object>() {

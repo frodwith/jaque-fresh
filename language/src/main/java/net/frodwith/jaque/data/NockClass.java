@@ -20,6 +20,10 @@ public abstract class NockClass {
     this.valid = stable;
   }
 
+  public final boolean isValid(Dashboard dashboard) {
+    return valid.isValid() && battery.forDashboard(dashboard);
+  }
+
   public abstract boolean locatedAt(Location location);
 
   public abstract NockFunction getArm(Axis axis, NockContext context)

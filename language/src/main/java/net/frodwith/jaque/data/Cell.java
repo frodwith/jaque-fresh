@@ -26,12 +26,12 @@ import net.frodwith.jaque.exception.ExitException;
 public final class Cell implements TruffleObject, Serializable {
   // head and tail are not final because we set them during unifying equals
   public Object head, tail;
-  private Object meta;
+  private transient Object info;
   
   public Cell(Object head, Object tail) {
     this.head = head;
     this.tail = tail;
-    this.meta = null;
+    this.info = null;
   }
 
   public static Cell require(Object o) throws ExitException {
@@ -44,72 +44,41 @@ public final class Cell implements TruffleObject, Serializable {
     }
   }
 
-  public int mug() {
-    int mug;
-    if ( null == meta ) {
-      meta = mug = Mug.calculate(this);
-    }
-    else if ( meta instanceof Integer ) {
-      mug = (int) meta;
-    }
-    else {
-      mug = ((CellMeta)meta).mug();
-    }
-    return mug;
-  }
-
-  @Override
-  public int hashCode() {
-    return mug();
-  }
-
-  public void unifyMeta(Cell other) {
-    Object om = other.meta;
-    if ( null == meta ) {
-      if ( null != om ) {
-        meta = om;
+  public void unifyInfo(Cell other) {
+    Object oi = other.info;
+    if ( null == info ) {
+      if ( null != oi ) {
+        info = oi;
       }
     }
-    else if ( null == om ) {
-      if ( null != meta ) {
-        other.meta = meta;
+    else if ( null == oi ) {
+      if ( null != info ) {
+        other.info = info;
       }
     }
-    else if ( meta instanceof Integer ) {
-      if ( !(om instanceof Integer) ) {
-        ((CellMeta)om).setMug((int) meta);
-        meta = om;
+    else if ( info instanceof Integer ) {
+      if ( !(oi instanceof Integer) ) {
+        ((CellInfo)oi).setMug((int) info);
+        info = oi;
       }
     }
-    else if ( om instanceof Integer ) {
-      if ( !(meta instanceof Integer) ) {
-        ((CellMeta)meta).setMug((int) om);
-        other.meta = meta;
+    else if ( oi instanceof Integer ) {
+      if ( !(info instanceof Integer) ) {
+        ((CellInfo)info).setMug((int) oi);
+        other.info = info;
       }
     }
     else {
-      CellMeta mine = (CellMeta) meta;
-      CellMeta theirs = (CellMeta) om;
+      CellInfo mine = (CellInfo) info;
+      CellInfo theirs = (CellInfo) oi;
       mine.unify(theirs);
-      other.meta = mine;
-    }
-  }
-
-  public int cachedMug() {
-    if ( null == meta ) {
-      return 0;
-    }
-    else if ( meta instanceof Integer ) {
-      return (int) meta;
-    }
-    else {
-      return ((CellMeta)meta).cachedMug();
+      other.info = mine;
     }
   }
 
   public void unifyHeads(Cell other) {
     if ( head instanceof Cell ) {
-      ((Cell)head).unifyMeta((Cell)other.head);
+      ((Cell)head).unifyInfo((Cell)other.head);
     }
     else if ( head instanceof BigAtom ) {
       ((BigAtom)other.head).words = ((BigAtom)head).words;
@@ -119,7 +88,7 @@ public final class Cell implements TruffleObject, Serializable {
 
   public void unifyTails(Cell other) {
     if ( tail instanceof Cell ) {
-      ((Cell)tail).unifyMeta((Cell)other.tail);
+      ((Cell)tail).unifyInfo((Cell)other.tail);
     }
     else if ( tail instanceof BigAtom ) {
       ((BigAtom)other.tail).words = ((BigAtom)tail).words;
@@ -128,49 +97,86 @@ public final class Cell implements TruffleObject, Serializable {
   }
 
   public static boolean unequalMugs(Cell a, Cell b) {
-    int am, bm;
-    if ( 0 == (am = a.cachedMug()) ) {
-      return false;
-    }
-    if ( 0 == (bm = b.cachedMug()) ) {
-      return false;
-    }
-    return am != bm;
+    return a.hasMug() && b.hasMug() && a.getMug() != b.getMug();
   }
 
-  public CellMeta getMeta(NockContext context) {
-    CellMeta cm;
-    if ( null == this.meta ) {
-      cm = new CellMeta(context, this, 0);
-      this.meta = cm;
-    }
-    else if ( meta instanceof Integer ) {
-      cm = new CellMeta(context, this, (int) meta);
-      this.meta = cm;
+  private boolean hasInfo() {
+    return info instanceof CellInfo;
+  }
+
+  // Only call this if you know hasInfo() is true.
+  private CellInfo getInfo() {
+    return (CellInfo) info;
+  }
+
+  private CellInfo forceInfo() {
+    if ( hasInfo() ) {
+      return getInfo();
     }
     else {
-      cm = (CellMeta) meta;
-      /* it is possible that the same cell will be run in different contexts. If
-       * two threads with different contexts are running on the same shared
-       * cell, there is potential for unproductive clobbering. */
-      if ( !cm.forContext(context) ) {
-        cm = new CellMeta(context, this, cm.cachedMug());
-        this.meta = cm;
-      }
+      CellInfo ci = new CellInfo((int) info);
+      info = ci;
+      return ci;
     }
-    return cm;
   }
 
-  public boolean knownAt(Location location) {
-    // XX pass me a context, i need to check if they match
-    return (meta instanceof CellMeta) && ((CellMeta)meta).knownAt(location);
+  public boolean knownAt(Dashboard dashboard, Location location) {
+    return hasInfo() && getInfo().knownAt(dashboard, location);
   }
 
   public void copyObject(Cell from, Axis written) {
-    if ( null != from.meta && from.meta instanceof CellMeta ) {
-      CellMeta fromMeta = (CellMeta) from.meta;
-      fromMeta.writeObject(this, written);
+    if ( from.hasInfo() ) {
+      from.getInfo().writeObject(this, written);
+    } 
+  }
+
+  public boolean hasMug() {
+    return hasInfo()
+      ? getInfo().hasMug()
+      : 0 != ((int) info);
+  }
+
+  public boolean hasFunction() {
+    return hasInfo() && getInfo().hasFunction();
+  }
+
+  public boolean hasObject() {
+    return hasInfo() && getInfo().hasObject();
+  }
+
+  public boolean hasBattery() {
+    return hasInfo() && getInfo().hasBattery();
+  }
+
+  public int getMug() {
+    if ( hasInfo() ) {
+      return getInfo().getMug();
     }
+    else {
+      int i = (int) info;
+      if ( 0 == i ) {
+        i = Mug.calculate(this);
+        info = i;
+      }
+      return i;
+    }
+  }
+
+  public NockFunction getFunction(FormulaParser parser) {
+    return forceInfo().getFunction(parser, this);
+  }
+
+  public NockObject getObject(Dashboard dashboard) {
+    return forceInfo().getObject(dashboard, this);
+  }
+
+  public Battery getBattery(Dashboard dashboard) {
+    return forceInfo().getBattery(dashboard, this);
+  }
+
+  @Override
+  public int hashCode() {
+    return getMug();
   }
 
   @Override
@@ -178,11 +184,12 @@ public final class Cell implements TruffleObject, Serializable {
     return (o instanceof Cell) && Equality.equals(this, (Cell) o);
   }
 
+  @Override
   public ForeignAccess getForeignAccess() {
     return CellMessageResolutionForeign.ACCESS;
   }
 
-/* for debugging */
+  /* for debugging */
   public String pretty() {
     StringWriter w = new StringWriter();
     try {

@@ -12,7 +12,7 @@ import net.frodwith.jaque.exception.ExitException;
 // cached) fine check tells us if another object can share our class.
 public final class NockObject {
   public final Cell noun;
-  public final NockClass klass;
+  private final NockClass klass;
   private FineCheck fine;
 
   private NockObject(NockClass klass, Cell noun, FineCheck fine) {
@@ -51,5 +51,9 @@ public final class NockObject {
     getArm(Axis axis, FragmentNode fragmentNode, NockContext context)
       throws ExitException {
     return klass.getArm(axis, fragmentNode, context);
+  }
+
+  public boolean isValid(Dashboard dashboard) {
+    return klass.isValid(dashboard);
   }
 }

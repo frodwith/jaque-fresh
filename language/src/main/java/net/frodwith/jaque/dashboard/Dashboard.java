@@ -30,9 +30,12 @@ import net.frodwith.jaque.data.AxisMap;
 import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.exception.ExitException;
 
+// Encapsulates all the information necessary to locate cores. Because this is
+// inherently stateful with the current jet registration mechanisms, you should
+// only share these objectse if you want the shared state.
+
 public final class Dashboard {
-  private final NockContext context;
-  private final CyclicAssumption stable = new CyclicAssumption("dashboard");
+  private final CyclicAssumption stable;
   private final Map<Cell,ColdRegistration> cold;
   private final Map<BatteryHash,Registration> hot;
   private final Map<Location,AxisMap<NockFunction>> drivers;
@@ -40,15 +43,14 @@ public final class Dashboard {
   private final static TruffleLogger LOG =
     TruffleLogger.getLogger(NockLanguage.ID, Dashboard.class);
 
-  public Dashboard(NockContext context,
-                   Map<Cell,ColdRegistration> cold,
+  public Dashboard(Map<Cell,ColdRegistration> cold,
                    Map<BatteryHash,Registration> hot,
                    Map<Location,AxisMap<NockFunction>> drivers) {
-    this.hot       = hot;
-    this.cold      = cold;
-    this.drivers   = drivers;
-    this.context   = context;
+    this.cold = cold;
+    this.hot = hot;
+    this.drivers = drivers;
     this.batteries = CacheBuilder.newBuilder().softValues().build();
+    this.stable = new CyclicAssumption("dashboard");
   }
 
   private AxisMap getDrivers(Location loc) {
@@ -58,38 +60,20 @@ public final class Dashboard {
 
   // these class objects could in principle be cached in some way, but they are
   // not expensive and the sharing they enable is primarily useful for edit
-  public NockClass getClass(Cell core) throws ExitException {
-    Battery  b = getBattery(Cell.require(core.head));
-    Location loc = null;
-
-    if ( null != b.cold ) {
-      loc = b.cold.locate(core, context);
-    }
-
-    if ( null == loc ) {
-      if ( null != b.hot ) {
-        if ( null != (loc = b.hot.locate(core, context)) ) {
-          loc.register(freeze(b));
-          invalidate();
-        }
-      }
-    }
+  private NockClass createClass(Cell core, boolean hashBatteries) throws ExitException {
+    Battery  b = getBattery(Cell.require(core.head), hashBatteries);
+    Location loc = b.locate(core);
 
     Assumption a = stable.getAssumption();
-
-    if ( null != loc ) {
-      return new LocatedClass(b, a, loc, getDrivers(loc));
-    }
-    else if ( (null == b.cold) && (null == b.hot) ) {
-      return new UnregisteredClass(b, a);
-    }
-    else {
-      return new RegisteredClass(b, a);
-    }
+    return (null != loc)
+      ? new LocatedClass(b, a, loc, getDrivers(loc))
+      : b.isRegistered()
+      ? new RegisteredClass(b, a)
+      : new UnregisteredClass(b, a);
   }
 
-  public NockObject getObject(Cell core) throws ExitException {
-    return new NockObject(getClass(core), core);
+  public NockObject createObject(Cell core) throws ExitException {
+    return new NockObject(createClass(core), core);
   }
 
   @TruffleBoundary
@@ -106,21 +90,19 @@ public final class Dashboard {
     Registration r, hr;
     ColdRegistration cr = cold.get(noun);
     BatteryHash h;
-    if ( null == cr ) {
-      h = context.hash ? BatteryHash.hash(noun) : null;
-      r = null;
-    }
-    else {
-      h = context.hash ? cr.getHash() : cr.cachedHash();
+    if ( null != cr ) {
+      h = cr.getHash();
       r = cr.registration;
     }
-    hr = context.hash ? hot.get(h) : null;
+    if ( null != h ) {
+      hr = hot.get(h);
+    }
     return new Battery(noun, h, r, hr);
   }
 
-  private Registration freeze(Battery battery) {
+  public Registration freeze(Battery battery) {
     if ( null == battery.cold ) {
-      Registration r = new Registration(context);
+      Registration r = new Registration();
       ColdRegistration cr =
         new ColdRegistration(r, battery.noun, battery.cachedHash());
       battery.cold = r;
@@ -131,7 +113,7 @@ public final class Dashboard {
 
   private Registration getRegistration(Cell core) throws ExitException {
     // call through meta so caching sticks to the cell
-    return freeze(Cell.require(core.head).getMeta(context).getBattery());
+    return freeze(Cell.require(core.head).getMeta(this).getBattery());
   }
 
   private void invalidate() {
@@ -139,7 +121,8 @@ public final class Dashboard {
   }
 
   // unconditional (will not short-circuit)
-  public void register(Cell core, FastClue clue) throws ExitException {
+  public void register(Cell core, FastClue clue, boolean hashBatteries) 
+    throws ExitException {
     Location loc;
     if ( clue.toParent.isCrash() ) {
       RootLocation root = new RootLocation(clue.name, clue.hooks, core.tail);
@@ -167,7 +150,7 @@ public final class Dashboard {
     invalidate();
 
     Assumption a = stable.getAssumption();
-    Battery    b = getBattery(Cell.require(core.head));
+    Battery    b = getBattery(Cell.require(core.head), hashBatteries);
     LocatedClass klass = new LocatedClass(b, a, loc, getDrivers(loc));
     NockObject object  = new NockObject(klass, core);
     core.getMeta(context).setObject(object);

@@ -8,6 +8,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import net.frodwith.jaque.NockLanguage;
 import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.data.SourceMappedNoun;
+import net.frodwith.jaque.exception.ExitException;
 
 @NodeInfo(language = "nock")
 public abstract class NockRootNode extends RootNode {

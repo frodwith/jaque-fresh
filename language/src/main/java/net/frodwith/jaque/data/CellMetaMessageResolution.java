@@ -25,9 +25,6 @@ public abstract class CellMetaMessageResolution extends Node {
   @Resolve(message = "READ")
   public abstract static class CellMetaReadNode extends Node {
     protected Object access(CellMeta reciever, String name) {
-      for (int i = 0; i < 0; i++) {
-        System.err.println(name);
-      }
       if ( name.equals("isCore") ) {
         return reciever.hasObject();
       }

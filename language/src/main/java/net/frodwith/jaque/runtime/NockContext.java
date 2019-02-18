@@ -46,33 +46,29 @@ public final class NockContext {
   public final Dashboard dashboard;
   public final boolean fast, hash;
 
-  public NockContext(NockLanguage language, Env env) {
-    OptionValues values = env.getOptions();
-
-
-    // todo: check env.config first!
-    // general pattern: override options with config arguments?
-    // i.e. fast, hash, history, jets
-
-    JetTree tree =
-      language.getJetTree(values.get(NockOptions.JET_TREE));
-    Map<Cell,ColdRegistration> cold =
-      language.findHistory(values.get(NockOptions.COLD_HISTORY));
+  public NockContext(NockLanguage language, Env env, 
+    FormulaParser parser,
+    int memoSize, boolean fast, boolean hash,
+    JetTree jets, Map<Cell,ColdRegistration> cold) {
 
     Map<BatteryHash,Registration> hot = new HashMap<>();
     Map<Location,AxisMap<NockFunction>> drivers = new HashMap<>();
-    tree.addToMaps(language, this, hot, drivers);
+    jets.addToMaps(language, this, hot, drivers);
 
     this.env       = env;
     this.language  = language;
-    this.fast      = values.get(NockOptions.FAST);
-    this.hash      = values.get(NockOptions.HASH);
-    this.parser    = new FormulaParser(language);
+    this.fast      = fast;
+    this.hash      = hash;
+    this.parser    = parser;
     this.functions = new HashMap<>();
     this.dashboard = new Dashboard(this, cold, hot, drivers);
     this.memoCache = CacheBuilder.newBuilder()
-      .maximumSize(values.get(NockOptions.MEMO_SIZE))
+      .maximumSize(memoSize)
       .build();
+  }
+
+  public CellMeta cellMeta(Cell cell) {
+    return new CellMeta(dashboard, parser, cell);
   }
 
   public NockFunction lookupFunction(Cell formula) throws ExitException {

@@ -28,7 +28,7 @@ public final class Registration {
   private final Map<Object,Location> roots;
   private final ArrayList<Parents> parents;
 
-  public Registration(NockContext context) {
+  public Registration() {
     this.roots = new HashMap<>();
     this.parents = new ArrayList<>();
   }
