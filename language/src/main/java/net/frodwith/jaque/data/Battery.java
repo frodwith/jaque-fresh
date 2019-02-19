@@ -38,13 +38,13 @@ public final class Battery {
 
   public NockFunction getArm(FragmentNode fragmentNode, NockContext context)
     throws ExitException {
-    return Cell.require(fragmentNode.executeFragment(noun))
-           .getMeta().getFunction(context);
+    Cell formula = Cell.require(fragmentNode.executeFragment(noun));
+    return formula.getMeta().getFunction(context, formula);
   }
 
   public NockFunction getArm(Axis axis, NockContext context)
     throws ExitException {
-    return Cell.require(axis.fragment(noun))
-           .getMeta().getFunction(context);
+    Cell formula = Cell.require(axis.fragment(noun));
+    return formula.getMeta().getFunction(context, formula);
   }
 }

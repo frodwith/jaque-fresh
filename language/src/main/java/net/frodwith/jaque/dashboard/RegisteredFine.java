@@ -15,7 +15,7 @@ public final class RegisteredFine extends UnlocatedFine {
   @Override
   public boolean extraChecks(Cell core, NockContext context) {
     try {
-      return core.getMeta().getObject(context).klass
+      return core.getMeta().getObject(context, core).klass
         instanceof RegisteredClass;
     }
     catch ( ExitException e ) {

@@ -30,11 +30,12 @@ public final class DynamicChildLocation extends Location {
   public FineCheck buildFine(Cell core, NockContext context) {
     try {
       Cell battery = Cell.require(core.head);
-      FineCheck parentFine = Cell.require(toParent.fragment(core))
-        .getMeta().getObject(context).getFine(context);
+      Cell parentCore = Cell.require(toParent.fragment(core));
+      FineCheck parentFine = parentCore.getMeta()
+        .getObject(context, parentCore).getFine(context);
       LocatedFine fine = (LocatedFine) parentFine;
       LocatedClass klass = (LocatedClass)
-        core.getMeta().getObject(context).klass;
+        core.getMeta().getObject(context, core).klass;
       return fine.addStep(new FineStep(battery, toParent, klass));
     }
     catch ( ExitException | ClassCastException e ) {

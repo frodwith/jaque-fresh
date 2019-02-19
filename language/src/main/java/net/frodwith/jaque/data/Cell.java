@@ -53,7 +53,7 @@ public final class Cell implements TruffleObject, Serializable {
       mug = (int) meta;
     }
     else {
-      mug = ((CellMeta)meta).mug();
+      mug = ((CellMeta)meta).mug(this);
     }
     return mug;
   }
@@ -141,11 +141,11 @@ public final class Cell implements TruffleObject, Serializable {
   public CellMeta getMeta() {
     CellMeta cm;
     if ( null == this.meta ) {
-      cm = new CellMeta(this, 0);
+      cm = new CellMeta(0);
       this.meta = cm;
     }
     else if ( meta instanceof Integer ) {
-      cm = new CellMeta(this, (int) meta);
+      cm = new CellMeta((int) meta);
       this.meta = cm;
     }
     else {

@@ -15,7 +15,7 @@ public abstract class StaticLocation extends Location {
 
   public final LocatedFine buildFine(Cell core, NockContext context)
     throws ExitException {
-    return new StaticFine(core, core.getMeta().getObject(context));
+    return new StaticFine(core, core.getMeta().getObject(context, core));
   }
 
   public final boolean copyableEdit(Axis axis) {

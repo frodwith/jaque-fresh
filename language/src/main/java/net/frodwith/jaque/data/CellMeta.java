@@ -15,21 +15,19 @@ import net.frodwith.jaque.exception.ExitException;
 
 public final class CellMeta {
   private int mug;
-  private  Cell cell;
 
   private NockFunction function;
   private NockObject object;
   private Battery battery;
 
-  public CellMeta(Cell cell, int mug) {
-    this.cell      = cell;
+  public CellMeta(int mug) {
     this.mug       = mug;
     this.battery   = null;
     this.object    = null;
     this.function  = null;
   }
 
-  public NockObject getObject(NockContext context) throws ExitException {
+  public NockObject getObject(NockContext context, Cell cell) throws ExitException {
     if ( !hasObject() ) {
       object = context.dashboard.getObject(cell);
     }
@@ -67,21 +65,21 @@ public final class CellMeta {
     return hasObject() && object.klass.locatedAt(location);
   }
 
-  public Battery getBattery(NockContext context) {
+  public Battery getBattery(NockContext context, Cell cell) {
     if ( null == battery ) {
       battery = context.dashboard.getBattery(cell);
     }
     return battery;
   }
 
-  public NockFunction getFunction(NockContext context) throws ExitException {
+  public NockFunction getFunction(NockContext context, Cell cell) throws ExitException {
     if ( null == function ) {
       function = context.lookupFunction(cell);
     }
     return function;
   }
 
-  public int mug() {
+  public int mug(Cell cell) {
     if ( 0 == mug ) {
       mug = Mug.calculate(cell);
     }
@@ -97,7 +95,6 @@ public final class CellMeta {
   }
 
   public void unify(CellMeta other) {
-    other.cell = cell;
     boolean mine = false, his = false;
 
     // mugs
