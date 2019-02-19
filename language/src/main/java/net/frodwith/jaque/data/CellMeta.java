@@ -16,14 +16,12 @@ import net.frodwith.jaque.exception.ExitException;
 public final class CellMeta {
   private int mug;
   public  Cell cell;
-  public NockContext context;
 
   private NockFunction function;
   private NockObject object;
   private Battery battery;
 
-  public CellMeta(NockContext context, Cell cell, int mug) {
-    this.context   = context;
+  public CellMeta(Cell cell, int mug) {
     this.cell      = cell;
     this.mug       = mug;
     this.battery   = null;
@@ -31,12 +29,7 @@ public final class CellMeta {
     this.function  = null;
   }
 
-  public boolean forContext(NockContext context) {
-    // Could also check that the contexts are compatible in some way.
-    return context == this.context;
-  }
-
-  public NockObject getObject() throws ExitException {
+  public NockObject getObject(NockContext context) throws ExitException {
     if ( !hasObject() ) {
       object = context.dashboard.getObject(cell);
     }
@@ -66,7 +59,7 @@ public final class CellMeta {
 
   public void writeObject(Cell edited, Axis written) {
     if ( hasObject() && object.klass.copyableEdit(written) ) {
-      edited.getMeta(context).object = object.like(edited);
+      edited.getMeta().object = object.like(edited);
     }
   }
 
@@ -74,14 +67,14 @@ public final class CellMeta {
     return hasObject() && object.klass.locatedAt(location);
   }
 
-  public Battery getBattery() {
+  public Battery getBattery(NockContext context) {
     if ( null == battery ) {
       battery = context.dashboard.getBattery(cell);
     }
     return battery;
   }
 
-  public NockFunction getFunction() throws ExitException {
+  public NockFunction getFunction(NockContext context) throws ExitException {
     if ( null == function ) {
       function = context.lookupFunction(cell);
     }
@@ -143,15 +136,6 @@ public final class CellMeta {
     else {
       other.object = object;
       mine = true;
-    }
-
-    if ( !other.forContext(context) ) {
-      if ( mine && !his ) {
-        other.context = context;
-      }
-      else if ( his && !mine ) {
-        context = other.context;
-      }
     }
   }
 }

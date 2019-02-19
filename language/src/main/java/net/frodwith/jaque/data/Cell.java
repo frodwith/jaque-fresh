@@ -138,31 +138,24 @@ public final class Cell implements TruffleObject, Serializable {
     return am != bm;
   }
 
-  public CellMeta getMeta(NockContext context) {
+  public CellMeta getMeta() {
     CellMeta cm;
     if ( null == this.meta ) {
-      cm = new CellMeta(context, this, 0);
+      cm = new CellMeta(this, 0);
       this.meta = cm;
     }
     else if ( meta instanceof Integer ) {
-      cm = new CellMeta(context, this, (int) meta);
+      cm = new CellMeta(this, (int) meta);
       this.meta = cm;
     }
     else {
       cm = (CellMeta) meta;
-      /* it is possible that the same cell will be run in different contexts. If
-       * two threads with different contexts are running on the same shared
-       * cell, there is potential for unproductive clobbering. */
-      if ( !cm.forContext(context) ) {
-        cm = new CellMeta(context, this, cm.cachedMug());
-        this.meta = cm;
-      }
     }
     return cm;
   }
 
   public FIXMEMetaObject getFIXMEMetaObject(NockContext context) {
-    return new FIXMEMetaObject(context, getMeta(context));
+    return new FIXMEMetaObject(context, getMeta());
   }
 
   public boolean knownAt(Location location) {

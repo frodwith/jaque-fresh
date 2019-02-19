@@ -101,7 +101,8 @@ public abstract class PullNode extends NockCallLookupNode {
 
   protected NockObject getObject(Cell core) {
     try {
-      return core.getMeta(getContext()).getObject();
+      NockContext context = getContext();
+      return core.getMeta().getObject(context);
     }
     catch ( ExitException e ) {
       throw new NockException("core not object", e, this);

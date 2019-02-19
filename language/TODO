@@ -1,3 +1,5 @@
+delete NockContext field from CellMeta
+
 Test all the new Slog stuff
   Tank tests (wash at least one example of each kind, some should line break)
     -- there is now a new type of tank, plum. i have no java code yet for

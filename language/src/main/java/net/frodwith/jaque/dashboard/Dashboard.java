@@ -131,7 +131,7 @@ public final class Dashboard {
 
   private Registration getRegistration(Cell core) throws ExitException {
     // call through meta so caching sticks to the cell
-    return freeze(Cell.require(core.head).getMeta(context).getBattery());
+    return freeze(Cell.require(core.head).getMeta().getBattery(context));
   }
 
   private void invalidate() {
@@ -148,7 +148,7 @@ public final class Dashboard {
     }
     else {
       Cell parentCore = Cell.require(clue.toParent.fragment(core));
-      NockClass parentClass = parentCore.getMeta(context).getObject().klass;
+      NockClass parentClass = parentCore.getMeta().getObject(context).klass;
       if ( !(parentClass instanceof LocatedClass) ) {
         LOG.warning("trying to register " + clue.name +
             " with unlocated parent.");
@@ -170,6 +170,6 @@ public final class Dashboard {
     Battery    b = getBattery(Cell.require(core.head));
     LocatedClass klass = new LocatedClass(b, a, loc, getDrivers(loc));
     NockObject object  = new NockObject(klass, core);
-    core.getMeta(context).setObject(object);
+    core.getMeta().setObject(object);
   }
 }

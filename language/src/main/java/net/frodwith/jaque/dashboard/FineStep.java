@@ -33,6 +33,6 @@ public final class FineStep {
   }
 
   public void save(Cell core, NockContext context) {
-    core.getMeta(context).setObject(new NockObject(klass, core));
+    core.getMeta().setObject(new NockObject(klass, core));
   }
 }

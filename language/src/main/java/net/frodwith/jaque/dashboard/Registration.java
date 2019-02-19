@@ -76,7 +76,7 @@ L0: for ( i = 0; i < len; ++i ) {
       else {
         for ( Parents p : parents ) {
           Object at = p.axis.fragment(core);
-          NockClass parent = Cell.require(at).getMeta(context).getObject().klass;
+          NockClass parent = Cell.require(at).getMeta().getObject(context).klass;
           if ( parent instanceof LocatedClass ) {
             Location found = p.map.get(((LocatedClass) parent).location);
             if ( null != found ) {

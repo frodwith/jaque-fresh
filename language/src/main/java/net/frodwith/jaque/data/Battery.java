@@ -39,12 +39,12 @@ public final class Battery {
   public NockFunction getArm(FragmentNode fragmentNode, NockContext context)
     throws ExitException {
     return Cell.require(fragmentNode.executeFragment(noun))
-           .getMeta(context).getFunction();
+           .getMeta().getFunction(context);
   }
 
   public NockFunction getArm(Axis axis, NockContext context)
     throws ExitException {
     return Cell.require(axis.fragment(noun))
-           .getMeta(context).getFunction();
+           .getMeta().getFunction(context);
   }
 }

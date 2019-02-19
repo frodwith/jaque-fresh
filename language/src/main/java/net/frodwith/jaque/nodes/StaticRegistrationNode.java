@@ -35,7 +35,7 @@ public final class StaticRegistrationNode extends RegistrationNode {
         NockContext context = contextReference.get();
         NockObject object;
         try {
-          object = this.core.getMeta(context).getObject();
+          object = this.core.getMeta().getObject(context);
           replacement = new FineRegistrationNode(
               this.clue, object.getFine(context),
               contextReference);

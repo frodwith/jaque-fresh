@@ -19,7 +19,7 @@ public final class StaticFine extends LocatedFine {
   @Override
   public boolean check(Cell core, NockContext context) {
     if ( Equality.equals(core, staticNoun) ) {
-      core.getMeta(context).setObject(object);
+      core.getMeta().setObject(object);
       return true;
     }
     else {
