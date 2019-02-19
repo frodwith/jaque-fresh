@@ -155,7 +155,7 @@ public final class Cell implements TruffleObject, Serializable {
   }
 
   public FIXMEMetaObject getFIXMEMetaObject(NockContext context) {
-    return new FIXMEMetaObject(context, getMeta());
+    return new FIXMEMetaObject(context, this);
   }
 
   public boolean knownAt(Location location) {

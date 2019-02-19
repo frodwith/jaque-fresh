@@ -15,7 +15,7 @@ import net.frodwith.jaque.exception.ExitException;
 
 public final class CellMeta {
   private int mug;
-  public  Cell cell;
+  private  Cell cell;
 
   private NockFunction function;
   private NockObject object;
