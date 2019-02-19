@@ -25,9 +25,6 @@ public abstract class FIXMEMetaObjectMessageResolution extends Node {
   @Resolve(message = "READ")
   public abstract static class FIXMEMetaObjectReadNode extends Node {
     protected Object access(FIXMEMetaObject reciever, String name) {
-      for (int i = 0; i < 0; i++) {
-        System.err.println(name);
-      }
       if ( name.equals("isCore") ) {
         return reciever.hasObject();
       }

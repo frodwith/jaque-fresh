@@ -4,8 +4,6 @@ import java.util.function.Supplier;
 
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
-import com.oracle.truffle.api.interop.TruffleObject;
-import com.oracle.truffle.api.interop.ForeignAccess;
 import com.oracle.truffle.api.TruffleLanguage.ContextReference;
 
 import net.frodwith.jaque.runtime.Mug;
@@ -15,7 +13,7 @@ import net.frodwith.jaque.dashboard.Dashboard;
 import net.frodwith.jaque.dashboard.Location;
 import net.frodwith.jaque.exception.ExitException;
 
-public final class CellMeta implements TruffleObject {
+public final class CellMeta {
   private int mug;
   public  Cell cell;
   public NockContext context;
@@ -155,9 +153,5 @@ public final class CellMeta implements TruffleObject {
         context = other.context;
       }
     }
-  }
-
-  public ForeignAccess getForeignAccess() {
-    return CellMetaMessageResolutionForeign.ACCESS;
   }
 }
