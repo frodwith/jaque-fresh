@@ -161,6 +161,10 @@ public final class Cell implements TruffleObject, Serializable {
     return cm;
   }
 
+  public FIXMEMetaObject getFIXMEMetaObject(NockContext context) {
+    return new FIXMEMetaObject(context, getMeta(context));
+  }
+
   public boolean knownAt(Location location) {
     // XX pass me a context, i need to check if they match
     return (meta instanceof CellMeta) && ((CellMeta)meta).knownAt(location);

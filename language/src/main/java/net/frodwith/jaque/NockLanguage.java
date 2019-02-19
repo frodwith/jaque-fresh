@@ -160,7 +160,7 @@ public final class NockLanguage extends TruffleLanguage<NockContext> {
   @Override
   public Object findMetaObject(NockContext context, Object o) {
     if ( o instanceof Cell ) {
-      return ((Cell) o).getMeta(context);
+      return ((Cell) o).getFIXMEMetaObject(context);
     }
     else {
       return null;
