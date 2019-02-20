@@ -17,6 +17,7 @@ import com.google.common.cache.CacheBuilder;
 
 import net.frodwith.jaque.NockLanguage;
 import net.frodwith.jaque.NockOptions;
+import net.frodwith.jaque.FormulaCompiler;
 import net.frodwith.jaque.jet.JetTree;
 import net.frodwith.jaque.jet.RootCore;
 import net.frodwith.jaque.data.BigAtom;
@@ -25,13 +26,14 @@ import net.frodwith.jaque.data.AxisMap;
 import net.frodwith.jaque.data.NockFunction;
 import net.frodwith.jaque.parser.FormulaParser;
 import net.frodwith.jaque.exception.ExitException;
+
 import net.frodwith.jaque.dashboard.Location;
 import net.frodwith.jaque.dashboard.Registration;
 import net.frodwith.jaque.dashboard.Dashboard;
 import net.frodwith.jaque.dashboard.BatteryHash;
 import net.frodwith.jaque.dashboard.ColdRegistration;
 
-public final class NockContext {
+public final class NockContext implements FormulaCompiler {
   private final Env env;
   private final NockLanguage language;
   private final FormulaParser parser;
@@ -64,7 +66,7 @@ public final class NockContext {
       .build();
   }
 
-  public NockFunction lookupFunction(Cell formula) throws ExitException {
+  public NockFunction compile(Cell formula) throws ExitException {
     NockFunction f = functions.get(formula);
     if ( null == f ) {
       f = new NockFunction(parser.cellTarget(formula));

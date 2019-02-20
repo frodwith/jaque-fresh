@@ -6,6 +6,7 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.TruffleLanguage.ContextReference;
 
+import net.frodwith.jaque.FormulaCompiler;
 import net.frodwith.jaque.runtime.Mug;
 import net.frodwith.jaque.runtime.NockContext;
 
@@ -72,9 +73,10 @@ public final class CellMeta {
     return battery;
   }
 
-  public NockFunction getFunction(NockContext context, Cell cell) throws ExitException {
+  public NockFunction getFunction(FormulaCompiler compiler, Cell cell)
+    throws ExitException {
     if ( null == function ) {
-      function = context.lookupFunction(cell);
+      function = compiler.compile(cell);
     }
     return function;
   }
