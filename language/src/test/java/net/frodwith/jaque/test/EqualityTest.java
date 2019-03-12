@@ -58,7 +58,7 @@ public class EqualityTest {
     assertNotEquals("!=mug", a.cachedMug(), b.cachedMug());
     assertTrue(Equality.equals(a, b));
     assertEquals("=words", a.words, b.words);
-    assertEquals("=mug", a.getMug(), b.getMug());
+    assertEquals("=mug", a.cachedMug(), b.cachedMug());
   }
 
   @Test
