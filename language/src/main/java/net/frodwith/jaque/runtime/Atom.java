@@ -414,15 +414,15 @@ public final class Atom {
     return vol;
   }
 
-  public static byte[] wordsToBytes(int[] wor, int bel) {
-    return wordsToBytes(wor, bel, LITTLE_ENDIAN);
+  public static byte[] wordsToBytes(int[] words, int byteLength) {
+    return wordsToBytes(words, byteLength, LITTLE_ENDIAN);
   }
 
   public static byte[] toByteArray(Object atom, boolean endian) {
     if ( (atom instanceof Long) && (0L == (long)atom) ) {
       return new byte[1];
     }
-    return wordsToBytes(words(atom), HoonMath.met((byte)3, atom), endian);
+    return wordsToBytes(words(atom), HoonMath.met((byte) 3, atom), endian);
   }
 
   public static Object fromBigInteger(BigInteger big) {

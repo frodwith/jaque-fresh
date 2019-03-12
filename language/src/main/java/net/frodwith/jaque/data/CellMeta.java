@@ -1,5 +1,6 @@
 package net.frodwith.jaque.data;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import com.oracle.truffle.api.CompilerDirectives;
@@ -8,6 +9,7 @@ import com.oracle.truffle.api.TruffleLanguage.ContextReference;
 
 import net.frodwith.jaque.FormulaCompiler;
 import net.frodwith.jaque.runtime.Mug;
+import net.frodwith.jaque.runtime.GrainSilo;
 import net.frodwith.jaque.runtime.NockContext;
 
 import net.frodwith.jaque.dashboard.Dashboard;
@@ -20,12 +22,28 @@ public final class CellMeta {
   private NockFunction function;
   private NockObject object;
   private Battery battery;
+  private Optional<CellGrain> grain;
 
   public CellMeta(int mug) {
     this.mug       = mug;
+    // TODO: use optional for all three of these
     this.battery   = null;
     this.object    = null;
     this.function  = null;
+    this.grain     = Optional.empty();
+  }
+
+  public boolean inSilo(GrainSilo silo) {
+    return grain.isPresent() && grain.get().inSilo(silo);
+  }
+
+  public void setSilo(GrainSilo silo) {
+    if ( grain.isPresent() ) {
+      grain.get().setSilo(silo);
+    }
+    else {
+      grain = Optional.of(new CellGrain(silo));
+    }
   }
 
   public NockObject getObject(NockContext context, Cell cell) throws ExitException {

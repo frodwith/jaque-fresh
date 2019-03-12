@@ -55,10 +55,10 @@ public class EqualityTest {
 
     a.hashCode();
     assertNotEquals("!=words", a.words, b.words);
-    assertNotEquals("!=mug", a.mug, b.mug);
+    assertNotEquals("!=mug", a.cachedMug(), b.cachedMug());
     assertTrue(Equality.equals(a, b));
     assertEquals("=words", a.words, b.words);
-    assertEquals("=mug", a.mug, b.mug);
+    assertEquals("=mug", a.getMug(), b.getMug());
   }
 
   @Test

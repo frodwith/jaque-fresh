@@ -121,12 +121,11 @@ public final class Equality {
   }
 
   public static boolean equals(BigAtom a, BigAtom b) {
-    if ( (0 != a.mug) && (0 != b.mug) && (a.mug != b.mug) ) {
+    if ( a.unequalMugs(b) ) {
       return false;
     }
     else if ( Arrays.equals(a.words, b.words) ) {
-      a.words = b.words;
-      a.mug = b.mug = ( 0 != a.mug ) ? a.mug : b.mug;
+      a.unify(b);
       return true;
     }
     else {

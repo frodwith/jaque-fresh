@@ -18,9 +18,9 @@ public class MugTest {
   @Test
   public void testBigAtom() {
     BigAtom a = new BigAtom(new int[] { 0xdeadbeef, 0xbeefdead, 0xfeedbeef });
-    assertEquals(0, a.mug);
+    assertEquals(0, a.cachedMug());
     assertEquals(0x36d5e123, Mug.get(a));
-    assertNotEquals(0, a.mug);
+    assertNotEquals(0, a.cachedMug());
   }
 
   @Test

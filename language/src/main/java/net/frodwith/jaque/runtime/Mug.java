@@ -13,10 +13,7 @@ public final class Mug {
   }
   
   public static int get(BigAtom a) {
-    if ( 0 == a.mug ) {
-      a.mug = words(FNV_START_WORDS, a.words.length, a.words);
-    }
-    return a.mug;
+    return a.hashCode();
   }
 
   public static int get(long l) {
@@ -88,6 +85,10 @@ public final class Mug {
         ++b;
       }
     }
+  }
+
+  public static int words(int[] words) {
+    return words(FNV_START_WORDS, words.length, words);
   }
 
   private static int words(int off, int nwd, int[] wod) {

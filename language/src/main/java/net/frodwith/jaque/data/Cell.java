@@ -9,6 +9,7 @@ import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.interop.ForeignAccess;
 
 import net.frodwith.jaque.runtime.Mug;
+import net.frodwith.jaque.runtime.GrainSilo;
 import net.frodwith.jaque.runtime.Equality;
 import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.dashboard.Location;
@@ -152,6 +153,14 @@ public final class Cell implements TruffleObject, Serializable {
       cm = (CellMeta) meta;
     }
     return cm;
+  }
+
+  public void setSilo(GrainSilo silo) {
+    getMeta().setSilo(silo);
+  }
+
+  public boolean inSilo(GrainSilo silo) {
+    return ( meta instanceof CellMeta ) && ((CellMeta) meta).inSilo(silo);
   }
 
   public FIXMEMetaObject getFIXMEMetaObject(NockContext context) {
