@@ -41,6 +41,7 @@ public final class NockContext implements FormulaCompiler {
   private final Cache<Cell,Object> memoCache;
   public final Dashboard dashboard;
   public final boolean fast, hash;
+  public final GrainSilo silo;
 
   public NockContext(NockLanguage language, Env env) {
     OptionValues values = env.getOptions();
@@ -56,6 +57,7 @@ public final class NockContext implements FormulaCompiler {
 
     this.env       = env;
     this.language  = language;
+    this.silo      = new GrainSilo(); // FIXME receive from environment
     this.fast      = values.get(NockOptions.FAST);
     this.hash      = values.get(NockOptions.HASH);
     this.parser    = new FormulaParser(language);

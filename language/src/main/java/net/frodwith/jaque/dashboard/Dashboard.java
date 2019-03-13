@@ -56,10 +56,14 @@ public final class Dashboard {
     return (null == drive) ? AxisMap.EMPTY : drive;
   }
 
+  public Cell canonicalizeBattery(Cell core) throws ExitException {
+    return context.silo.getGrain(Cell.require(core.head));
+  }
+
   // these class objects could in principle be cached in some way, but they are
   // not expensive and the sharing they enable is primarily useful for edit
   public NockClass getClass(Cell core) throws ExitException {
-    Battery  b = getBattery(Cell.require(core.head));
+    Battery    b = getBattery(canonicalizeBattery(core));
     Location loc = null;
 
     if ( null != b.cold ) {
@@ -93,6 +97,7 @@ public final class Dashboard {
   }
 
   @TruffleBoundary
+  // battery should already be grained
   public Battery getBattery(Cell battery) {
     try {
       return batteries.get(battery, () -> makeBattery(battery));
@@ -131,8 +136,8 @@ public final class Dashboard {
 
   private Registration getRegistration(Cell core) throws ExitException {
     // call through meta so caching sticks to the cell
-    Cell bc = Cell.require(core.head);
-    return freeze(bc.getMeta().getBattery(context, bc));
+    Cell battery = canonicalizeBattery(core);
+    return freeze(battery.getMeta().getBattery(context, battery));
   }
 
   private void invalidate() {
@@ -168,7 +173,7 @@ public final class Dashboard {
     invalidate();
 
     Assumption a = stable.getAssumption();
-    Battery    b = getBattery(Cell.require(core.head));
+    Battery    b = getBattery(canonicalizeBattery(core));
     LocatedClass klass = new LocatedClass(b, a, loc, getDrivers(loc));
     NockObject object  = new NockObject(klass, core);
     core.getMeta().setObject(object);
