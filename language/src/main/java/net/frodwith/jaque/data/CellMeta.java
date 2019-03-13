@@ -21,13 +21,11 @@ public final class CellMeta {
 
   private NockFunction function;
   private NockObject object;
-  private Battery battery;
   private Optional<CellGrain> grain;
 
   public CellMeta(int mug) {
     this.mug       = mug;
     // TODO: use optional for all three of these
-    this.battery   = null;
     this.object    = null;
     this.function  = null;
     this.grain     = Optional.empty();
@@ -85,10 +83,8 @@ public final class CellMeta {
   }
 
   public Battery getBattery(NockContext context, Cell cell) {
-    if ( null == battery ) {
-      battery = context.dashboard.getBattery(cell);
-    }
-    return battery;
+    assert(grain.isPresent()); // all batteries MUST be grained
+    return grain.get().getBattery(context.dashboard, cell);
   }
 
   public NockFunction getFunction(FormulaCompiler compiler, Cell cell)
@@ -115,6 +111,8 @@ public final class CellMeta {
   }
 
   public void unify(CellMeta other) {
+    // FIXME: revisit this whole procedure, in particular need to think about
+    // how grains unify
     boolean mine = false, his = false;
 
     // mugs
@@ -123,16 +121,6 @@ public final class CellMeta {
     }
     else if ( 0 == other.mug ) {
       other.mug = mug;
-    }
-
-    // batteries
-    if ( null == battery ) {
-      battery = other.battery;
-      his = true;
-    }
-    else if ( null == other.battery ) {
-      other.battery = battery;
-      mine = true;
     }
 
     // functions
