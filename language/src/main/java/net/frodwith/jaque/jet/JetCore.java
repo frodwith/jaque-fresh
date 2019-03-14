@@ -7,6 +7,8 @@ import java.util.ArrayList;
 
 import com.oracle.truffle.api.TruffleLanguage.ContextReference;
 
+import com.google.common.hash.HashCode;
+
 import net.frodwith.jaque.NockLanguage;
 import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.data.Axis;
@@ -19,7 +21,7 @@ import net.frodwith.jaque.dashboard.Registration;
 
 public abstract class JetCore {
   public final String name;
-  public final BatteryHash[] hashes;
+  public final HashCode[] hashes;
   public final JetArm[] arms;
   public final JetHook[] hooks;
   public final ChildCore[] children;
@@ -28,7 +30,7 @@ public abstract class JetCore {
                                           Map<String,Hook> hooks);
 
   protected JetCore(String name,
-                    BatteryHash[] hashes,
+                    HashCode[] hashes,
                     JetArm[] arms,
                     JetHook[] hooks,
                     ChildCore[] children) {
@@ -42,7 +44,7 @@ public abstract class JetCore {
   public final void addToMaps(Location parent,
                               NockLanguage language,
                               NockContext context,
-                              Map<BatteryHash,Registration> hot,
+                              Map<HashCode,Registration> hot,
                               Map<Location,AxisMap<NockFunction>> driver) {
     Map<String,Hook> hookMap = new HashMap<>();
     for ( JetHook h : hooks ) {
@@ -52,7 +54,7 @@ public abstract class JetCore {
     Registration r = new Registration(context);
     Location loc = getLocation(parent, hookMap);
     loc.register(r);
-    for ( BatteryHash h : hashes ) {
+    for ( HashCode h : hashes ) {
       hot.put(h, r);
     }
 

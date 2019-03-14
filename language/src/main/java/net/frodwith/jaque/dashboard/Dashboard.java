@@ -2,9 +2,11 @@ package net.frodwith.jaque.dashboard;
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 import com.google.common.hash.Hashing;
+import com.google.common.hash.HashCode;
 import com.google.common.cache.LoadingCache;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -18,6 +20,7 @@ import com.oracle.truffle.api.TruffleLanguage.ContextReference;
 import net.frodwith.jaque.NockLanguage;
 import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.data.Cell;
+import net.frodwith.jaque.data.CellGrain;
 import net.frodwith.jaque.data.FastClue;
 import net.frodwith.jaque.data.NockObject;
 import net.frodwith.jaque.data.NockClass;
@@ -27,117 +30,89 @@ import net.frodwith.jaque.data.LocatedClass;
 import net.frodwith.jaque.data.NockFunction;
 import net.frodwith.jaque.data.Battery;
 import net.frodwith.jaque.data.AxisMap;
+import net.frodwith.jaque.runtime.GrainSilo;
 import net.frodwith.jaque.runtime.NockContext;
+import net.frodwith.jaque.runtime.StrongCellGrainKey;
 import net.frodwith.jaque.exception.ExitException;
 
 public final class Dashboard {
-  private final NockContext context;
+  public final NockContext context;
+  private final GrainSilo silo;
+  private final boolean hashDiscovery;
   private final CyclicAssumption stable = new CyclicAssumption("dashboard");
-  private final Map<Cell,ColdRegistration> cold;
-  private final Map<BatteryHash,Registration> hot;
+  private final Map<StrongCellGrainKey,Registration> cold;
+  private final Map<HashCode,Registration> hot;
   private final Map<Location,AxisMap<NockFunction>> drivers;
-  private final Cache<Cell,Battery> batteries;
   private final static TruffleLogger LOG =
     TruffleLogger.getLogger(NockLanguage.ID, Dashboard.class);
 
   public Dashboard(NockContext context,
-                   Map<Cell,ColdRegistration> cold,
-                   Map<BatteryHash,Registration> hot,
-                   Map<Location,AxisMap<NockFunction>> drivers) {
-    this.hot       = hot;
-    this.cold      = cold;
-    this.drivers   = drivers;
-    this.context   = context;
-    this.batteries = CacheBuilder.newBuilder().softValues().build();
+                   GrainSilo silo,
+                   Map<StrongCellGrainKey,Registration> cold,
+                   Map<HashCode,Registration> hot,
+                   Map<Location,AxisMap<NockFunction>> drivers,
+                   boolean hashDiscovery) {
+    this.hot     = hot;
+    this.cold    = cold;
+    this.drivers = drivers;
+    this.context = context;
+    this.silo    = silo;
+    this.hashDiscovery = hashDiscovery;
   }
 
-  private AxisMap getDrivers(Location loc) {
+  public AxisMap getDrivers(Location loc) {
     AxisMap<NockFunction> drive = drivers.get(loc);
     return (null == drive) ? AxisMap.EMPTY : drive;
   }
 
-  public Cell canonicalizeBattery(Cell core) throws ExitException {
-    return context.silo.getGrain(Cell.require(core.head));
+  private Cell canonicalizeBattery(Cell core) throws ExitException {
+    return silo.getCellGrain(Cell.require(core.head));
   }
 
   // these class objects could in principle be cached in some way, but they are
   // not expensive and the sharing they enable is primarily useful for edit
   public NockClass getClass(Cell core) throws ExitException {
-    Battery    b = getBattery(canonicalizeBattery(core));
-    Location loc = null;
-
-    if ( null != b.cold ) {
-      loc = b.cold.locate(core, context);
-    }
-
-    if ( null == loc ) {
-      if ( null != b.hot ) {
-        if ( null != (loc = b.hot.locate(core, context)) ) {
-          loc.register(freeze(b));
-          invalidate();
-        }
-      }
-    }
-
-    Assumption a = stable.getAssumption();
-
-    if ( null != loc ) {
-      return new LocatedClass(b, a, loc, getDrivers(loc));
-    }
-    else if ( (null == b.cold) && (null == b.hot) ) {
-      return new UnregisteredClass(b, a);
-    }
-    else {
-      return new RegisteredClass(b, a);
-    }
+    Cell battery = canonicalizeBattery(core);
+    return battery.getMeta()
+      .getGrain()
+      .getBattery(this, battery)
+      .getClass(core, battery);
   }
 
   public NockObject getObject(Cell core) throws ExitException {
     return new NockObject(getClass(core), core);
   }
 
-  @TruffleBoundary
-  // battery should already be grained
-  public Battery getBattery(Cell battery) {
-    try {
-      return batteries.get(battery, () -> makeBattery(battery));
-    }
-    catch ( ExecutionException e ) {
-      throw new AssertionError();
-    }
+  public Optional<Registration> findHot(CellGrain grain, Cell cell) {
+    return hashDiscovery
+      ? Optional.ofNullable(hot.get(grain.getStrongHash(cell)))
+      : Optional.empty();
   }
 
-  private Battery makeBattery(Cell noun) {
-    Registration r, hr;
-    ColdRegistration cr = cold.get(noun);
-    BatteryHash h;
-    if ( null == cr ) {
-      h = context.hash ? BatteryHash.hash(noun) : null;
-      r = null;
-    }
-    else {
-      h = context.hash ? cr.getHash() : cr.cachedHash();
-      r = cr.registration;
-    }
-    hr = context.hash ? hot.get(h) : null;
-    return new Battery(noun, h, r, hr);
+  public Battery createBattery(Cell cell) {
+    Optional<Optional<Registration>> knownUnknowns = hashDiscovery
+      ? Optional.empty()
+      : Optional.of(Optional.empty());
+
+    Optional<Registration> r = 
+      Optional.ofNullable(cold.get(new StrongCellGrainKey(cell)));
+
+    return new Battery(this, r, knownUnknowns);
   }
 
-  private Registration freeze(Battery battery) {
-    if ( null == battery.cold ) {
-      Registration r = new Registration(context);
-      ColdRegistration cr =
-        new ColdRegistration(r, battery.noun, battery.cachedHash());
-      battery.cold = r;
-      cold.put(battery.noun, cr);
-    }
-    return battery.cold;
+  public Registration createCold(Cell battery) {
+    Registration r = new Registration(context);
+    cold.put(new StrongCellGrainKey(battery), r);
+    return r;
   }
 
-  private Registration getRegistration(Cell core) throws ExitException {
+  private Registration getCold(Cell core) throws ExitException {
     // call through meta so caching sticks to the cell
     Cell battery = canonicalizeBattery(core);
-    return freeze(battery.getMeta().getBattery(context, battery));
+    return battery.getMeta()
+      .getGrain()
+      .getBattery(this, battery)
+      .getCold(battery);
   }
 
   private void invalidate() {
@@ -149,7 +124,7 @@ public final class Dashboard {
     Location loc;
     if ( clue.toParent.isCrash() ) {
       RootLocation root = new RootLocation(clue.name, clue.hooks, core.tail);
-      getRegistration(core).registerRoot(core.tail, root);
+      getCold(core).registerRoot(core.tail, root);
       loc = root;
     }
     else {
@@ -166,16 +141,21 @@ public final class Dashboard {
         ? new StaticChildLocation(clue.name, clue.hooks, 
             (StaticLocation) parent)
         : new DynamicChildLocation(clue.name, clue.hooks, parent, clue.toParent);
-      getRegistration(core).registerChild(clue.toParent, child, parent);
+      getCold(core).registerChild(clue.toParent, child, parent);
       loc = child;
     }
     loc.audit(clue);
     invalidate();
 
-    Assumption a = stable.getAssumption();
-    Battery    b = getBattery(canonicalizeBattery(core));
+    Assumption a = getStableAssumption();
+    Cell battery = canonicalizeBattery(core);
+    Battery    b = battery.getMeta().getGrain().getBattery(this, battery);
     LocatedClass klass = new LocatedClass(b, a, loc, getDrivers(loc));
     NockObject object  = new NockObject(klass, core);
     core.getMeta().setObject(object);
+  }
+
+  public Assumption getStableAssumption() {
+    return stable.getAssumption();
   }
 }

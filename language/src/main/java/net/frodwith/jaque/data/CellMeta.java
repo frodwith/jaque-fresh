@@ -73,7 +73,8 @@ public final class CellMeta {
   }
 
   public void writeObject(Cell edited, Axis written) {
-    if ( hasObject() && object.klass.copyableEdit(written) ) {
+    if ( hasObject() &&
+        object.klass.copyableEdit((Cell) edited.head, written) ) {
       edited.getMeta().object = object.like(edited);
     }
   }
@@ -82,9 +83,10 @@ public final class CellMeta {
     return hasObject() && object.klass.locatedAt(location);
   }
 
-  public Battery getBattery(NockContext context, Cell cell) {
-    assert(grain.isPresent()); // all batteries MUST be grained
-    return grain.get().getBattery(context.dashboard, cell);
+  // don't call unless you know you have a grain.
+  public CellGrain getGrain() {
+    assert(grain.isPresent());
+    return grain.get();
   }
 
   public NockFunction getFunction(FormulaCompiler compiler, Cell cell)

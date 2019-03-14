@@ -12,6 +12,7 @@ import com.oracle.truffle.api.TruffleLanguage.Env;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 
+import com.google.common.hash.HashCode;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
@@ -41,28 +42,35 @@ public final class NockContext implements FormulaCompiler {
   private final Cache<Cell,Object> memoCache;
   public final Dashboard dashboard;
   public final boolean fast, hash;
-  public final GrainSilo silo;
 
   public NockContext(NockLanguage language, Env env) {
     OptionValues values = env.getOptions();
 
     JetTree tree =
       language.getJetTree(values.get(NockOptions.JET_TREE));
-    Map<Cell,ColdRegistration> cold =
+
+    Map<Cell,Registration> coldHistory =
       language.findHistory(values.get(NockOptions.COLD_HISTORY));
 
-    Map<BatteryHash,Registration> hot = new HashMap<>();
+    GrainSilo silo = new GrainSilo(); // FIXME: get from env, but also dashboard
+
+    Map<StrongCellGrainKey,Registration> cold = new HashMap<>();
+    for ( Map.Entry<Cell,Registration> e : coldHistory.entrySet() ) {
+      Cell grain = silo.getCellGrain(e.getKey());
+      cold.put(new StrongCellGrainKey(grain), e.getValue());
+    }
+
+    Map<HashCode,Registration> hot = new HashMap<>();
     Map<Location,AxisMap<NockFunction>> drivers = new HashMap<>();
     tree.addToMaps(language, this, hot, drivers);
 
     this.env       = env;
     this.language  = language;
-    this.silo      = new GrainSilo(); // FIXME receive from environment
     this.fast      = values.get(NockOptions.FAST);
     this.hash      = values.get(NockOptions.HASH);
     this.parser    = new FormulaParser(language);
     this.functions = new HashMap<>();
-    this.dashboard = new Dashboard(this, cold, hot, drivers);
+    this.dashboard = new Dashboard(this, silo, cold, hot, drivers, hash);
     this.memoCache = CacheBuilder.newBuilder()
       .maximumSize(values.get(NockOptions.MEMO_SIZE))
       .build();

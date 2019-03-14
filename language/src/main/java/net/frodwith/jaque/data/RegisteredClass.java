@@ -11,23 +11,12 @@ import net.frodwith.jaque.dashboard.Registration;
 import net.frodwith.jaque.dashboard.RegisteredFine;
 
 public final class RegisteredClass extends UnlocatedClass {
-  public final Registration cold, hot;
-  
   public RegisteredClass(Battery battery, Assumption stable) {
     super(battery, stable);
-    this.cold = battery.cold;
-    this.hot  = battery.hot;
   }
 
   @Override
   public final FineCheck getFine(Cell core, NockContext context) {
     return new RegisteredFine(core);
-  }
-
-  @Override
-  public final boolean copyableEdit(Axis written) {
-    return written.inTail() &&
-      cold.copyableEdit(written) &&
-      hot.copyableEdit(written);
   }
 }

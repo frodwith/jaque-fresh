@@ -36,7 +36,6 @@ import net.frodwith.jaque.parser.CustomParser;
 import net.frodwith.jaque.parser.FormulaParser;
 import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.exception.ExitException;
-import net.frodwith.jaque.dashboard.ColdRegistration;
 
 @TruffleLanguage.Registration(id = NockLanguage.ID, 
                               name = "nock",
@@ -49,7 +48,7 @@ public final class NockLanguage extends TruffleLanguage<NockContext> {
 
   private static final Map<String,JetTree> installedJets =
     new HashMap<>();
-  private static final Map<String,Map<Cell,ColdRegistration>> histories =
+  private static final Map<String,Map<Cell,net.frodwith.jaque.dashboard.Registration>> histories =
     new HashMap<>();
 
   public static final FrameDescriptor DESCRIPTOR;
@@ -89,7 +88,7 @@ public final class NockLanguage extends TruffleLanguage<NockContext> {
 
 
   public static void registerHistory(String name, 
-      Map<Cell,ColdRegistration> history) {
+      Map<Cell,net.frodwith.jaque.dashboard.Registration> history) {
     if ( name.equals("") ) {
       throw new IllegalArgumentException("Empty history name");
     }
@@ -99,9 +98,9 @@ public final class NockLanguage extends TruffleLanguage<NockContext> {
     histories.put(name, history);
   }
 
-  public static Map<Cell,ColdRegistration> findHistory(String name) {
+  public static Map<Cell,net.frodwith.jaque.dashboard.Registration> findHistory(String name) {
     if ( !name.equals("") ) {
-      Map<Cell,ColdRegistration> m = histories.get(name);
+      Map<Cell,net.frodwith.jaque.dashboard.Registration> m = histories.get(name);
       // XX: need to copy this so it's not shared between contexts
       if ( null != m ) {
         return m;

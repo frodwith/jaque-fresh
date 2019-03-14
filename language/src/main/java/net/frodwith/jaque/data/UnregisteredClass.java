@@ -20,9 +20,4 @@ public final class UnregisteredClass extends UnlocatedClass {
     throws ExitException {
     return new UnregisteredFine(Cell.require(core.head));
   }
-
-  @Override
-  public final boolean copyableEdit(Axis written) {
-    return written.inTail();
-  }
 }

@@ -2,6 +2,8 @@ package net.frodwith.jaque.jet;
 
 import java.util.Map;
 
+import com.google.common.hash.HashCode;
+
 import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.dashboard.Hook;
 import net.frodwith.jaque.dashboard.Location;
@@ -15,7 +17,7 @@ public final class ChildCore extends JetCore {
 
   public ChildCore(String name,
                    Axis toParent,
-                   BatteryHash[] hashes,
+                   HashCode[] hashes,
                    JetArm[] arms,
                    JetHook[] hooks,
                    ChildCore[] children) {

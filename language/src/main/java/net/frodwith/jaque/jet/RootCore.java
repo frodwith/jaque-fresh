@@ -2,6 +2,8 @@ package net.frodwith.jaque.jet;
 
 import java.util.Map;
 
+import com.google.common.hash.HashCode;
+
 import net.frodwith.jaque.NockLanguage;
 import net.frodwith.jaque.data.AxisMap;
 import net.frodwith.jaque.data.NockFunction;
@@ -17,7 +19,7 @@ public final class RootCore extends JetCore {
 
   public RootCore(String name,
                   Object payload,
-                  BatteryHash[] hashes,
+                  HashCode[] hashes,
                   JetArm[] arms,
                   JetHook[] hooks,
                   ChildCore[] children) {

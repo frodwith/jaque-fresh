@@ -18,6 +18,8 @@ import org.graalvm.polyglot.Context;
 
 import com.oracle.truffle.api.TruffleLanguage.ContextReference;
 
+import com.google.common.hash.HashCode;
+
 import net.frodwith.jaque.jet.RootCore;
 import net.frodwith.jaque.jet.ChildCore;
 import net.frodwith.jaque.jet.JetArm;
@@ -98,7 +100,7 @@ public class MemoTest {
          BiFunction<ContextReference<NockContext>, Axis, SubjectNode> bf) {
     return new ChildCore(name,
         Axis.CONTEXT,
-        new BatteryHash[0],
+        new HashCode[0],
         new JetArm[] { new AxisArm(Axis.HEAD, bf) },
         new JetHook[0],
         new ChildCore[0]);
@@ -109,13 +111,13 @@ public class MemoTest {
     NockLanguage.installJetTree("memo",
       new JetTree(new RootCore[] {
         new RootCore("kern", 42L,
-          new BatteryHash[0],
+          new HashCode[0],
           new JetArm[0],
           new JetHook[0],
           new ChildCore[] {
             new ChildCore("one",
               Axis.TAIL,
-              new BatteryHash[0],
+              new HashCode[0],
               new JetArm[0],
               new JetHook[0],
               new ChildCore[] {
@@ -126,7 +128,7 @@ public class MemoTest {
                                       new SlotNode(Axis.get(13L)))),
                 new ChildCore("two",
                   Axis.TAIL,
-                  new BatteryHash[0],
+                  new HashCode[0],
                   new JetArm[0],
                   new JetHook[0],
                   new ChildCore[] {

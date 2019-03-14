@@ -2,6 +2,7 @@ package net.frodwith.jaque.dashboard;
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.ArrayList;
 import java.util.function.Supplier;
 
@@ -67,11 +68,11 @@ L0: for ( i = 0; i < len; ++i ) {
   }
 
   @TruffleBoundary
-  public Location locate(Cell core, NockContext context) {
+  public Optional<Location> locate(Cell core, NockContext context) {
     try {
       Location root = roots.get(core.tail);
       if ( root != null ) {
-        return root;
+        return Optional.of(root);
       }
       else {
         for ( Parents p : parents ) {
@@ -80,15 +81,15 @@ L0: for ( i = 0; i < len; ++i ) {
           if ( parent instanceof LocatedClass ) {
             Location found = p.map.get(((LocatedClass) parent).location);
             if ( null != found ) {
-              return found;
+              return Optional.of(found);
             }
           }
         }
-        return null;
+        return Optional.empty();
       }
     }
     catch ( ExitException e ) {
-      return null;
+      return Optional.empty();
     }
   }
 

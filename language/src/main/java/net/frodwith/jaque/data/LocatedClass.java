@@ -24,17 +24,17 @@ public final class LocatedClass extends NockClass {
 
   @Override
   public final NockFunction
-    getArm(Axis axis, FragmentNode fragment, NockContext context)
+    getArm(Axis axis, FragmentNode fragment, Cell batteryCell, NockContext context)
       throws ExitException {
     NockFunction f = drivers.get(axis);
-    return ( null != f ) ? f : battery.getArm(fragment, context);
+    return ( null != f ) ? f : battery.getArm(fragment, batteryCell, context);
   }
 
   @Override
   public final NockFunction
-    getArm(Axis axis, NockContext context) throws ExitException {
+    getArm(Axis axis, Cell batteryCell, NockContext context) throws ExitException {
     NockFunction f = drivers.get(axis);
-    return ( null != f ) ? f : battery.getArm(axis.mas(), context);
+    return ( null != f ) ? f : battery.getArm(axis.mas(), batteryCell, context);
   }
   
   @Override
@@ -44,7 +44,7 @@ public final class LocatedClass extends NockClass {
   }
 
   @Override
-  public final boolean copyableEdit(Axis written) {
+  public final boolean copyableEdit(Cell battery, Axis written) {
     return location.copyableEdit(written);
   }
 

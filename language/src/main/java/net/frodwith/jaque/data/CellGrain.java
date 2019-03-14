@@ -39,9 +39,20 @@ public final class CellGrain {
   }
 
   public Battery getBattery(Dashboard dashboard, Cell cell) {
-    if ( !battery.isPresent() ) {
-      battery = Optional.of(dashboard.getBattery(cell));
+    Battery got = null;
+
+    if ( battery.isPresent() ) {
+      got = battery.get();
+      if ( !got.isValid(dashboard) ) {
+        got = null;
+      }
     }
-    return battery.get();
+
+    if ( null == got ) {
+      got = dashboard.createBattery(cell);
+      battery = Optional.of(got);
+    }
+
+    return got;
   }
 }

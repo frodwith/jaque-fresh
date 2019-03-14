@@ -8,6 +8,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
+import com.google.common.hash.HashCode;
+
 import net.frodwith.jaque.NockLanguage;
 import net.frodwith.jaque.data.AxisMap;
 import net.frodwith.jaque.data.NockFunction;
@@ -25,7 +27,7 @@ public final class JetTree {
 
   public void addToMaps(NockLanguage language,
                         NockContext context,
-                        Map<BatteryHash,Registration> hot,
+                        Map<HashCode,Registration> hot,
                         Map<Location, AxisMap<NockFunction>> driver) {
     for ( RootCore r : roots ) {
       r.addToMaps(null, language, context, hot, driver);

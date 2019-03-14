@@ -26,8 +26,8 @@ public final class BatteryHash {
     return new BatteryHash(hc.asBytes());
   }
 
-  public static BatteryHash read(String hexDigits) {
-    return new BatteryHash(hex.decode(hexDigits));
+  public static HashCode read(String hexDigits) {
+    return HashCode.fromBytes(hex.decode(hexDigits));
   }
 
   @Override

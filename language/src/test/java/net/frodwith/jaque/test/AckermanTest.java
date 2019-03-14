@@ -13,6 +13,8 @@ import org.graalvm.polyglot.Value;
 import org.graalvm.polyglot.Source;
 import org.graalvm.polyglot.Context;
 
+import com.google.common.hash.HashCode;
+
 import net.frodwith.jaque.jet.RootCore;
 import net.frodwith.jaque.jet.ChildCore;
 import net.frodwith.jaque.jet.JetArm;
@@ -89,13 +91,13 @@ public class AckermanTest {
       new JetTree(new RootCore[] {
         new RootCore("kack",
           Cords.fromString("kack"),
-          new BatteryHash[] { BatteryHash.read(KACK_HASH) },
+          new HashCode[] { BatteryHash.read(KACK_HASH) },
           new JetArm[0],
           new JetHook[0],
           new ChildCore[] {
             new ChildCore("dec",
               Axis.CONTEXT,
-              new BatteryHash[] { BatteryHash.read(DEC_HASH) },
+              new HashCode[] { BatteryHash.read(DEC_HASH) },
               new JetArm[] {
                 new AxisArm(Axis.HEAD, (ref, axis) ->
                     MockDecNodeGen.create(new SlotNode(Axis.SAMPLE)))

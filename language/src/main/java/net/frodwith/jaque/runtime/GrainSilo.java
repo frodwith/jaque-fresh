@@ -15,7 +15,7 @@ public final class GrainSilo {
     this.cells = Interners.newWeakInterner();
   }
 
-  public Cell getGrain(Cell cell) {
+  public Cell getCellGrain(Cell cell) {
     if ( !cell.inSilo(this) ) {
       cell = cells.intern(cell);
       cell.setSilo(this);
@@ -23,7 +23,7 @@ public final class GrainSilo {
     return cell;
   }
 
-  public BigAtom getGrain(BigAtom atom) {
+  public BigAtom getAtomGrain(BigAtom atom) {
     if ( !atom.inSilo(this) ) {
       atom = atoms.intern(atom);
       atom.setSilo(this);
@@ -31,10 +31,10 @@ public final class GrainSilo {
     return atom;
   }
 
-  public Object getGrain(Object noun) {
+  public Object getNounGrain(Object noun) {
     return ( noun instanceof Long ) ? noun
       : ( noun instanceof BigAtom )
-      ? getGrain((BigAtom) noun)
-      : getGrain((Cell) noun);
+      ? getAtomGrain((BigAtom) noun)
+      : getCellGrain((Cell) noun);
   }
 }

@@ -16,19 +16,24 @@ public abstract class UnlocatedClass extends NockClass {
 
   @Override
   public final NockFunction 
-    getArm(Axis axis, FragmentNode fragment, NockContext context)
+    getArm(Axis axis, FragmentNode fragment, Cell batteryCell, NockContext context)
       throws ExitException {
-    return battery.getArm(fragment, context);
+    return battery.getArm(fragment, batteryCell, context);
   }
 
   @Override
   public final NockFunction 
-    getArm(Axis axis, NockContext context) throws ExitException {
-    return battery.getArm(axis.mas(), context);
+    getArm(Axis axis, Cell batteryCell, NockContext context) throws ExitException {
+    return battery.getArm(axis.mas(), batteryCell, context);
   }
 
   @Override
   public final boolean locatedAt(Location location) {
     return false;
+  }
+
+  @Override
+  public final boolean copyableEdit(Cell batteryCell, Axis written) {
+    return battery.copyableEdit(batteryCell, written);
   }
 }

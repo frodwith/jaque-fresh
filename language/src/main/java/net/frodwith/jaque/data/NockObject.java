@@ -44,12 +44,12 @@ public final class NockObject {
 
   public NockFunction getArm(Axis arm, NockContext context)
     throws ExitException {
-    return klass.getArm(arm, context);
+    return klass.getArm(arm, Cell.require(noun.head), context);
   }
 
   public NockFunction
     getArm(Axis axis, FragmentNode fragmentNode, NockContext context)
       throws ExitException {
-    return klass.getArm(axis, fragmentNode, context);
+    return klass.getArm(axis, fragmentNode, Cell.require(noun.head), context);
   }
 }
