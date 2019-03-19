@@ -32,21 +32,21 @@ public final class FIXMEMetaObject implements TruffleObject {
   }
 
   public NockFunction getFunction() throws ExitException {
-    return meta().getFunction(context, cell);
+    return meta().getFunction(context.dashboard, cell);
   }
 
   public NockFunction getArm(Axis axis) throws ExitException {
-    return meta().getObject(context, cell).getArm(axis, context);
+    return meta().getObject(context, cell).getArm(axis, context.dashboard);
   }
 
   public NockCall getCall(Axis axis) throws ExitException {
     NockFunction arm;
     if ( axis.inHead() ) {
-      arm = meta().getObject(context, cell).getArm(axis, context);
+      arm = meta().getObject(context, cell).getArm(axis, context.dashboard);
     }
     else {
       Cell formula = Cell.require(axis.fragment(cell));
-      arm = formula.getMeta().getFunction(context, formula);
+      arm = formula.getMeta().getFunction(context.dashboard, formula);
     }
     return new NockCall(arm, cell);
   }

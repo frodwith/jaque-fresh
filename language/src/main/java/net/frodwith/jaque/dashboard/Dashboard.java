@@ -3,6 +3,7 @@ package net.frodwith.jaque.dashboard;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.concurrent.ExecutionException;
 
 import com.google.common.hash.Hashing;
@@ -12,12 +13,15 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
 import com.oracle.truffle.api.Assumption;
+import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.TruffleLogger;
+import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.utilities.CyclicAssumption;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.TruffleLanguage.ContextReference;
 
 import net.frodwith.jaque.NockLanguage;
+
 import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.CellGrain;
@@ -30,6 +34,9 @@ import net.frodwith.jaque.data.LocatedClass;
 import net.frodwith.jaque.data.NockFunction;
 import net.frodwith.jaque.data.Battery;
 import net.frodwith.jaque.data.AxisMap;
+import net.frodwith.jaque.data.SourceMappedNoun;
+import net.frodwith.jaque.parser.FormulaParser;
+import net.frodwith.jaque.nodes.NockRootNode;
 import net.frodwith.jaque.runtime.GrainSilo;
 import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.runtime.StrongCellGrainKey;
@@ -37,6 +44,8 @@ import net.frodwith.jaque.exception.ExitException;
 
 public final class Dashboard {
   public final NockContext context;
+  public final FormulaParser parser;
+  private final NockLanguage language;
   private final GrainSilo silo;
   private final boolean hashDiscovery;
   private final CyclicAssumption stable = new CyclicAssumption("dashboard");
@@ -47,6 +56,7 @@ public final class Dashboard {
     TruffleLogger.getLogger(NockLanguage.ID, Dashboard.class);
 
   public Dashboard(NockContext context,
+                   NockLanguage language,
                    GrainSilo silo,
                    Map<StrongCellGrainKey,Registration> cold,
                    Map<HashCode,Registration> hot,
@@ -58,6 +68,8 @@ public final class Dashboard {
     this.context = context;
     this.silo    = silo;
     this.hashDiscovery = hashDiscovery;
+    this.language = language;
+    this.parser = new FormulaParser(language, this);
   }
 
   public AxisMap getDrivers(Location loc) {
@@ -77,6 +89,21 @@ public final class Dashboard {
       .getGrain()
       .getBattery(this, battery)
       .getClass(core, battery);
+  }
+
+  public NockFunction compileFormula(Cell formula) throws ExitException {
+    Supplier<SourceMappedNoun> sup = () -> {
+      try {
+        return SourceMappedNoun.fromCell(formula);
+      }
+      catch ( ExitException e ) {
+        throw new RuntimeException("NockFunction.fromCell:supplier", e);
+      }
+    };
+    NockRootNode nockRoot = new NockRootNode(language,
+        NockLanguage.DESCRIPTOR, sup, parser.parse(formula));
+    RootCallTarget t = Truffle.getRuntime().createCallTarget(nockRoot);
+    return new NockFunction(t, this);
   }
 
   public NockObject getObject(Cell core) throws ExitException {

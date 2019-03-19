@@ -32,6 +32,7 @@ import net.frodwith.jaque.exception.ExitException;
 @NodeFields({
   @NodeField(name="armAxis", type=Axis.class),
   @NodeField(name="contextReference", type=ContextReference.class),
+  @NodeField(name="dashboard", type=Dashboard.class),
 })
 public abstract class PullNode extends NockCallLookupNode {
   public static final int INLINE_CACHE_SIZE = 2;
@@ -39,6 +40,7 @@ public abstract class PullNode extends NockCallLookupNode {
   
   public abstract Axis getArmAxis();
   protected abstract ContextReference<NockContext> getContextReference();
+  protected abstract Dashboard getDashboard();
 
   @Specialization(limit = "1",
                   guards = {
@@ -92,7 +94,7 @@ public abstract class PullNode extends NockCallLookupNode {
 
   protected NockFunction getArm(NockObject object) {
     try {
-      return object.getArm(getArmAxis(), getFragmentNode(), getContext());
+      return object.getArm(getArmAxis(), getFragmentNode(), getDashboard());
     }
     catch ( ExitException e ) {
       throw new NockException("fail to fetch arm from battery", e, this);

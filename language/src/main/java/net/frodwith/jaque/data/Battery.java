@@ -89,16 +89,17 @@ public final class Battery {
     }
   }
 
-  public NockFunction getArm(FragmentNode fragmentNode, Cell battery, NockContext context)
-    throws ExitException {
+  public NockFunction 
+    getArm(FragmentNode fragmentNode, Cell battery, Dashboard dashboard) 
+      throws ExitException {
     Cell formula = Cell.require(fragmentNode.executeFragment(battery));
-    return formula.getMeta().getFunction(context, formula);
+    return formula.getMeta().getFunction(dashboard, formula);
   }
 
-  public NockFunction getArm(Axis axis, Cell battery, NockContext context)
+  public NockFunction getArm(Axis axis, Cell battery, Dashboard dashboard)
     throws ExitException {
     Cell formula = Cell.require(axis.fragment(battery));
-    return formula.getMeta().getFunction(context, formula);
+    return formula.getMeta().getFunction(dashboard, formula);
   }
 
   public boolean copyableEdit(Cell battery, Axis written) {

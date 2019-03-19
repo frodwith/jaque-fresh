@@ -8,6 +8,7 @@ import net.frodwith.jaque.nodes.FragmentNode;
 import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.exception.ExitException;
 import net.frodwith.jaque.dashboard.Location;
+import net.frodwith.jaque.dashboard.Dashboard;
 
 public abstract class UnlocatedClass extends NockClass {
   protected UnlocatedClass(Battery battery, Assumption stable) {
@@ -15,16 +16,16 @@ public abstract class UnlocatedClass extends NockClass {
   }
 
   @Override
-  public final NockFunction 
-    getArm(Axis axis, FragmentNode fragment, Cell batteryCell, NockContext context)
+  public final NockFunction getArm(Axis axis,
+      FragmentNode fragment, Cell batteryCell, Dashboard dashboard)
       throws ExitException {
-    return battery.getArm(fragment, batteryCell, context);
+    return battery.getArm(fragment, batteryCell, dashboard);
   }
 
   @Override
   public final NockFunction 
-    getArm(Axis axis, Cell batteryCell, NockContext context) throws ExitException {
-    return battery.getArm(axis.mas(), batteryCell, context);
+    getArm(Axis axis, Cell batteryCell, Dashboard dashboard) throws ExitException {
+    return battery.getArm(axis.mas(), batteryCell, dashboard);
   }
 
   @Override

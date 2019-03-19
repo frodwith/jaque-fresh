@@ -22,11 +22,12 @@ public abstract class NockClass {
 
   public abstract boolean locatedAt(Location location);
 
-  public abstract NockFunction getArm(Axis axis, Cell batteryCell, NockContext context)
-      throws ExitException;
+  public abstract NockFunction getArm(Axis axis, 
+      Cell batteryCell, Dashboard dashboard) throws ExitException;
 
   public abstract NockFunction 
-    getArm(Axis axis, FragmentNode fragment, Cell batteryCell, NockContext context)
+    getArm(Axis axis, FragmentNode fragment,
+        Cell batteryCell, Dashboard dashboard)
       throws ExitException;
 
   public abstract FineCheck getFine(Cell core, NockContext context)

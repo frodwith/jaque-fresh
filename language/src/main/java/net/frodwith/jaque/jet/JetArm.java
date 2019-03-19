@@ -1,6 +1,6 @@
 package net.frodwith.jaque.jet;
 
-import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import java.util.Map;
 import java.lang.reflect.Method;
@@ -21,19 +21,19 @@ import net.frodwith.jaque.nodes.SubjectNode;
 import net.frodwith.jaque.runtime.NockContext;
 
 public abstract class JetArm {
-  public BiFunction<ContextReference<NockContext>, Axis, SubjectNode> factory;
+  public Function<JetContext, SubjectNode> factory;
 
-  protected JetArm(
-    BiFunction<ContextReference<NockContext>, Axis, SubjectNode> factory) {
+  protected JetArm(Function<JetContext, SubjectNode> factory) {
     this.factory = factory;
   }
 
   public abstract Axis getAxis(Map<String,Hook> hooks);
 
-  public final NockFunction getFunction(NockLanguage language, Axis axis) {
-    SubjectNode node = factory.apply(language.getContextReference(), axis);
-    JetRootNode root = new JetRootNode(language, NockLanguage.DESCRIPTOR, node);
+  public final NockFunction getFunction(JetContext jetContext) {
+    SubjectNode node = factory.apply(jetContext);
+    JetRootNode root = 
+      new JetRootNode(jetContext.language, NockLanguage.DESCRIPTOR, node);
     RootCallTarget target = Truffle.getRuntime().createCallTarget(root);
-    return new NockFunction(target);
+    return new NockFunction(target, jetContext.dashboard);
   }
 }

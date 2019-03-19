@@ -1,0 +1,53 @@
+STEP 1:
+  functions should come from the dashboard * check!
+
+currently we have a NockObject class that holds a reference to a NockClass
+object. Once upon a time it also held a reference to a core, but that sort of
+model is going away. It also cached a fine check, but our NockClass objects are
+not shared enough for them to have different fine checks - they are only
+constructed from a battery/location lookup, with writes outside of the location
+tree (i.e. not affecting fine checks) resulting in copying/sharing. Therefore,
+we will replace the current scheme with a single class, CoreClass:
+
+CoreClass(assumption, dashboard):
+  - assumption
+  - dashboard
+  - lazyFine
+  - getArm(core, ...) (abstract)
+  - getFine(core, ...) (cache in lazyFine, fallback to buildFine)
+  - copyableEdit(axis) (abstract)
+  - isValid(Dashboard)
+    dashboard == dashboard && assumption.isValid()
+  LocatedCore(...,location,drivers)
+    location
+    drivers
+    - getArm(): look in drivers, then cell formula
+    - buildFine(): LocatedFine
+    - copyableEdit() : defer to location
+  UnlocatedCore:
+    - getArm(): just look at cell
+    RegisteredCore:
+      - buildFine(): RegisteredFine ( try to locate by registry )
+      - copyableEdit: defer to Registry (it knows which locations are regd)
+    UnregisteredCore:
+      - buildFine(): UnregisteredFine ( check battery )
+      - copyableEdit(): inTail
+
+CALLTARGETS
+  we want to have a call target per formula/dashboard. why? the specializations
+  in call sites are going to make use of dashboard objects (CoreClass, etc). if
+  you don't make the targets per-dashboard, they have to check that they're on
+  the right dashboard to use those dashboard objects.
+
+  Nodes which need to make use of a dashboard should therefore store a final
+  dashboard reference, eliminating some getContext() calls.
+
+  We finally have a reason for NockFunction to exist! it can store a dashboard
+  :)
+  
+  In some places we mean to say "CallTarget" then (for instance, in drivers)
+  instead of NockFunction.
+
+JETS
+  currently the protocol allows jet nodes to hang onto a context; we need to
+  change that to be a dashboard.

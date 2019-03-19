@@ -1,7 +1,7 @@
 package net.frodwith.jaque.jet;
 
 import java.util.Map;
-import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import com.oracle.truffle.api.dsl.NodeFactory;
 import com.oracle.truffle.api.TruffleLanguage.ContextReference;
@@ -17,8 +17,7 @@ import net.frodwith.jaque.runtime.NockContext;
 public final class NameArm extends JetArm {
   private final String name;
 
-  public NameArm(String name,
-    BiFunction<ContextReference<NockContext>, Axis, SubjectNode> factory) {
+  public NameArm(String name, Function<JetContext, SubjectNode> factory) {
     super(factory);
     this.name = name;
   }

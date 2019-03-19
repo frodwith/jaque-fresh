@@ -12,16 +12,19 @@ import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.Trel;
 import net.frodwith.jaque.data.Motes;
 import net.frodwith.jaque.data.BigAtom;
-import net.frodwith.jaque.runtime.Atom;
 import net.frodwith.jaque.data.SourceMappedNoun;
+import net.frodwith.jaque.dashboard.Dashboard;
+import net.frodwith.jaque.runtime.Atom;
 import net.frodwith.jaque.nodes.*;
 import net.frodwith.jaque.exception.ExitException;
 
 public final class FormulaParser {
   private final NockLanguage language;
+  private final Dashboard dashboard;
 
-  public FormulaParser(NockLanguage language) {
+  public FormulaParser(NockLanguage language, Dashboard dashboard) {
     this.language = language;
+    this.dashboard = dashboard;
   }
 
   private NockExpressionNode
@@ -59,7 +62,7 @@ public final class FormulaParser {
     NockExpressionNode subject = parseExpr(args.head, axis.peg(6), false);
     NockExpressionNode formula = parseExpr(args.tail, axis.peg(7), false);
     NockFunctionLookupNode lookup =
-      NockFunctionLookupNodeGen.create(formula, language.getContextReference());
+      NockFunctionLookupNodeGen.create(formula, dashboard);
     NockEvalNode eval = new NockEvalNode(lookup, subject);
 
     return tail
@@ -134,7 +137,7 @@ public final class FormulaParser {
 
     if ( armAxis.inHead() ) {
       NockCallLookupNode pull = PullNodeGen.create(coreNode,
-          armAxis, language.getContextReference());
+          armAxis, language.getContextReference(), dashboard);
 
       return tail
         ? new NockTailCallNode(pull)
@@ -149,8 +152,8 @@ public final class FormulaParser {
       NockExpressionNode formula = parseSlot(armAxis);
       formula.setAxisInFormula(axis.peg(6));
 
-      NockFunctionLookupNode lookup = NockFunctionLookupNodeGen.create(formula,
-          language.getContextReference());
+      NockFunctionLookupNode lookup = 
+        NockFunctionLookupNodeGen.create(formula, dashboard);
 
       NockCallLookupNode eval = new NockEvalNode(lookup, subject);
       NockExpressionNode call = tail
@@ -319,6 +322,7 @@ public final class FormulaParser {
     return parseExpr(formula, Axis.IDENTITY, true);
   }
   
+  /*
   public RootCallTarget
     cellTarget(Cell formula) throws ExitException {
     Supplier<SourceMappedNoun> sourceSupplier = () -> {
@@ -343,4 +347,5 @@ public final class FormulaParser {
       .createCallTarget(new NockRootNode(language, NockLanguage.DESCRIPTOR,
         sourceSupplier, parse(mapped.noun)));
   }
+  */
 }

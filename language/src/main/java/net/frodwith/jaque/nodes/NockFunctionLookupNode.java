@@ -12,14 +12,15 @@ import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.NockFunction;
 import net.frodwith.jaque.runtime.NockContext;
+import net.frodwith.jaque.dashboard.Dashboard;
 import net.frodwith.jaque.exception.NockException;
 import net.frodwith.jaque.exception.ExitException;
 
 @NodeChild(value="cellNode", type=NockExpressionNode.class)
-@NodeField(name="contextReference", type=ContextReference.class)
+@NodeField(name="dashboard", type=Dashboard.class)
 public abstract class NockFunctionLookupNode extends NockNode {
   public static final int INLINE_CACHE_SIZE = 2;
-  protected abstract ContextReference<NockContext> getContextReference();
+  protected abstract Dashboard getDashboard();
   public abstract NockFunction executeLookup(VirtualFrame frame);
 
   @Specialization(limit = "INLINE_CACHE_SIZE",
@@ -38,8 +39,7 @@ public abstract class NockFunctionLookupNode extends NockNode {
   @TruffleBoundary
   protected NockFunction lookup(Cell formula) {
     try {
-      NockContext context = getContextReference().get();
-      return formula.getMeta().getFunction(context, formula);
+      return formula.getMeta().getFunction(getDashboard(), formula);
     }
     catch (ExitException e) {
       throw new NockException("bad formula", e, this);

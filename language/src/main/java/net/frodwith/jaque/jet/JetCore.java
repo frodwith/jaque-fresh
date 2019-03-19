@@ -18,6 +18,7 @@ import net.frodwith.jaque.dashboard.Hook;
 import net.frodwith.jaque.dashboard.Location;
 import net.frodwith.jaque.dashboard.BatteryHash;
 import net.frodwith.jaque.dashboard.Registration;
+import net.frodwith.jaque.dashboard.Dashboard;
 
 public abstract class JetCore {
   public final String name;
@@ -43,6 +44,7 @@ public abstract class JetCore {
 
   public final void addToMaps(Location parent,
                               NockLanguage language,
+                              Dashboard dashboard,
                               NockContext context,
                               Map<HashCode,Registration> hot,
                               Map<Location,AxisMap<NockFunction>> driver) {
@@ -61,12 +63,13 @@ public abstract class JetCore {
     AxisMap functions = AxisMap.EMPTY;
     for ( JetArm arm : arms ) {
       Axis ax = arm.getAxis(hookMap);
-      functions = functions.insert(ax, arm.getFunction(language, ax));
+      JetContext jetContext = new JetContext(ax, dashboard, language);
+      functions = functions.insert(ax, arm.getFunction(jetContext));
     }
     driver.put(loc, functions);
 
     for ( ChildCore child : children ) {
-      child.addToMaps(loc, language, context, hot, driver);
+      child.addToMaps(loc, language, dashboard, context, hot, driver);
     }
   }
 }

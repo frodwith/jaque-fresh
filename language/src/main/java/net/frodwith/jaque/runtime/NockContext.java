@@ -34,7 +34,7 @@ import net.frodwith.jaque.dashboard.Dashboard;
 import net.frodwith.jaque.dashboard.BatteryHash;
 import net.frodwith.jaque.dashboard.ColdRegistration;
 
-public final class NockContext implements FormulaCompiler {
+public final class NockContext {
   private final Env env;
   private final NockLanguage language;
   private final FormulaParser parser;
@@ -62,27 +62,19 @@ public final class NockContext implements FormulaCompiler {
 
     Map<HashCode,Registration> hot = new HashMap<>();
     Map<Location,AxisMap<NockFunction>> drivers = new HashMap<>();
-    tree.addToMaps(language, this, hot, drivers);
 
     this.env       = env;
     this.language  = language;
     this.fast      = values.get(NockOptions.FAST);
     this.hash      = values.get(NockOptions.HASH);
-    this.parser    = new FormulaParser(language);
+    this.dashboard = new Dashboard(this, language, silo, cold, hot, drivers, hash);
+    this.parser    = new FormulaParser(language, dashboard);
     this.functions = new HashMap<>();
-    this.dashboard = new Dashboard(this, silo, cold, hot, drivers, hash);
     this.memoCache = CacheBuilder.newBuilder()
       .maximumSize(values.get(NockOptions.MEMO_SIZE))
       .build();
-  }
 
-  public NockFunction compile(Cell formula) throws ExitException {
-    NockFunction f = functions.get(formula);
-    if ( null == f ) {
-      f = new NockFunction(parser.cellTarget(formula));
-      functions.put(formula, f);
-    }
-    return f;
+    tree.addToMaps(language, dashboard, this, hot, drivers);
   }
 
   public Object lookupMemo(Object subject, Cell formula) {

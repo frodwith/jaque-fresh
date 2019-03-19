@@ -1,6 +1,6 @@
 package net.frodwith.jaque.test;
 
-import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import org.junit.Test;
 import org.junit.After;
@@ -26,6 +26,7 @@ import net.frodwith.jaque.jet.JetArm;
 import net.frodwith.jaque.jet.AxisArm;
 import net.frodwith.jaque.jet.JetHook;
 import net.frodwith.jaque.jet.JetTree;
+import net.frodwith.jaque.jet.JetContext;
 
 import net.frodwith.jaque.NockLanguage;
 import net.frodwith.jaque.data.Axis;
@@ -96,12 +97,11 @@ public class MemoTest {
 
   private Context context;
 
-  private static ChildCore gate(String name,
-         BiFunction<ContextReference<NockContext>, Axis, SubjectNode> bf) {
+  private static ChildCore gate(String name, Function<JetContext, SubjectNode> factory) {
     return new ChildCore(name,
         Axis.CONTEXT,
         new HashCode[0],
-        new JetArm[] { new AxisArm(Axis.HEAD, bf) },
+        new JetArm[] { new AxisArm(Axis.HEAD, factory) },
         new JetHook[0],
         new ChildCore[0]);
   }
@@ -121,9 +121,9 @@ public class MemoTest {
               new JetArm[0],
               new JetHook[0],
               new ChildCore[] {
-                gate("dec", (ref, axis) ->
+                gate("dec", (jc) ->
                     DecNodeGen.create(new SlotNode(Axis.SAMPLE))),
-                gate("add", (ref, axis) ->
+                gate("add", (jc) ->
                     AddNodeGen.create(new SlotNode(Axis.get(12L)),
                                       new SlotNode(Axis.get(13L)))),
                 new ChildCore("two",
@@ -132,8 +132,8 @@ public class MemoTest {
                   new JetArm[0],
                   new JetHook[0],
                   new ChildCore[] {
-                    gate("fib", (ref, axis) ->
-                      new CountNockNode(ref, axis, "fib"))})})})}));
+                    gate("fib", (jc) ->
+                      new CountNockNode(jc.dashboard, jc.axis, "fib"))})})})}));
   }
 
   @Before

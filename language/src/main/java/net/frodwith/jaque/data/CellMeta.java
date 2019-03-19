@@ -19,7 +19,7 @@ import net.frodwith.jaque.exception.ExitException;
 public final class CellMeta {
   private int mug;
 
-  private NockFunction function;
+  private Optional<NockFunction> function;
   private NockObject object;
   private Optional<CellGrain> grain;
 
@@ -27,7 +27,7 @@ public final class CellMeta {
     this.mug       = mug;
     // TODO: use optional for all three of these
     this.object    = null;
-    this.function  = null;
+    this.function  = Optional.empty();
     this.grain     = Optional.empty();
   }
 
@@ -85,16 +85,22 @@ public final class CellMeta {
 
   // don't call unless you know you have a grain.
   public CellGrain getGrain() {
-    assert(grain.isPresent());
     return grain.get();
   }
 
-  public NockFunction getFunction(FormulaCompiler compiler, Cell cell)
+  public NockFunction getFunction(Dashboard dashboard, Cell cell)
     throws ExitException {
-    if ( null == function ) {
-      function = compiler.compile(cell);
+    boolean have = function.isPresent();
+    NockFunction f = null;
+    if ( have ) {
+      f = function.get();
+      have = f.ofDashboard(dashboard);
     }
-    return function;
+    if ( !have ) {
+      f = dashboard.compileFormula(cell);
+      function = Optional.of(f);
+    }
+    return f;
   }
 
   public int mug(Cell cell) {

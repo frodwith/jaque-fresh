@@ -32,9 +32,11 @@ import net.frodwith.jaque.data.CellMeta;
 import net.frodwith.jaque.data.BigAtom;
 import net.frodwith.jaque.data.NockFunction;
 import net.frodwith.jaque.data.SourceMappedNoun;
+import net.frodwith.jaque.nodes.NockRootNode;
 import net.frodwith.jaque.parser.CustomParser;
 import net.frodwith.jaque.parser.FormulaParser;
 import net.frodwith.jaque.runtime.NockContext;
+import net.frodwith.jaque.dashboard.Dashboard;
 import net.frodwith.jaque.exception.ExitException;
 
 @TruffleLanguage.Registration(id = NockLanguage.ID, 
@@ -43,8 +45,6 @@ import net.frodwith.jaque.exception.ExitException;
 public final class NockLanguage extends TruffleLanguage<NockContext> {
   public static final String ID = "nock";
   public static final String MIME_TYPE = "application/x-nock";
-
-  private final FormulaParser formulaParser = new FormulaParser(this);
 
   private static final Map<String,JetTree> installedJets =
     new HashMap<>();
@@ -150,10 +150,13 @@ public final class NockLanguage extends TruffleLanguage<NockContext> {
     }
     SourceSection whole     = source.createSection(0, source.getLength());
     SourceMappedNoun mapped = CustomParser.parse(whole);
-    RootCallTarget target   = formulaParser.mappedTarget(mapped);
-    NockFunction function   = new NockFunction(target);
-    RootNode rootNode       = RootNode.createConstantNode(function);
-    return Truffle.getRuntime().createCallTarget(rootNode);
+    Dashboard dashboard = getContextReference().get().dashboard;
+    RootNode nockRoot = new NockRootNode(this, DESCRIPTOR, () -> mapped,
+        dashboard.parser.parse(Cell.require(mapped.noun)));
+    RootCallTarget target = Truffle.getRuntime().createCallTarget(nockRoot);
+    NockFunction function = new NockFunction(target, dashboard);
+    return Truffle.getRuntime()
+      .createCallTarget(RootNode.createConstantNode(function));
   }
 
   @Override

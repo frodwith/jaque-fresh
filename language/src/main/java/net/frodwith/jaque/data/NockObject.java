@@ -42,14 +42,14 @@ public final class NockObject {
     return new NockObject(klass, core, fine);
   }
 
-  public NockFunction getArm(Axis arm, NockContext context)
+  public NockFunction getArm(Axis arm, Dashboard dashboard)
     throws ExitException {
-    return klass.getArm(arm, Cell.require(noun.head), context);
+    return klass.getArm(arm, Cell.require(noun.head), dashboard);
   }
 
   public NockFunction
-    getArm(Axis axis, FragmentNode fragmentNode, NockContext context)
+    getArm(Axis axis, FragmentNode fragmentNode, Dashboard dashboard)
       throws ExitException {
-    return klass.getArm(axis, fragmentNode, Cell.require(noun.head), context);
+    return klass.getArm(axis, fragmentNode, Cell.require(noun.head), dashboard);
   }
 }
