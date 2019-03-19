@@ -52,6 +52,7 @@ public final class Dashboard {
   private final Map<StrongCellGrainKey,Registration> cold;
   private final Map<HashCode,Registration> hot;
   private final Map<Location,AxisMap<NockFunction>> drivers;
+  private final Cache<Cell,NockFunction> functions;
   private final static TruffleLogger LOG =
     TruffleLogger.getLogger(NockLanguage.ID, Dashboard.class);
 
@@ -61,6 +62,7 @@ public final class Dashboard {
                    Map<StrongCellGrainKey,Registration> cold,
                    Map<HashCode,Registration> hot,
                    Map<Location,AxisMap<NockFunction>> drivers,
+                   int functionCacheSize,
                    boolean hashDiscovery) {
     this.hot     = hot;
     this.cold    = cold;
@@ -70,6 +72,8 @@ public final class Dashboard {
     this.hashDiscovery = hashDiscovery;
     this.language = language;
     this.parser = new FormulaParser(language, this);
+    this.functions = CacheBuilder.newBuilder()
+      .maximumSize(functionCacheSize).build();
   }
 
   public AxisMap getDrivers(Location loc) {
@@ -92,18 +96,23 @@ public final class Dashboard {
   }
 
   public NockFunction compileFormula(Cell formula) throws ExitException {
-    Supplier<SourceMappedNoun> sup = () -> {
-      try {
-        return SourceMappedNoun.fromCell(formula);
-      }
-      catch ( ExitException e ) {
-        throw new RuntimeException("NockFunction.fromCell:supplier", e);
-      }
-    };
-    NockRootNode nockRoot = new NockRootNode(language,
-        NockLanguage.DESCRIPTOR, sup, parser.parse(formula));
-    RootCallTarget t = Truffle.getRuntime().createCallTarget(nockRoot);
-    return new NockFunction(t, this);
+    NockFunction f = functions.getIfPresent(formula);
+    if ( null == f ) {
+      Supplier<SourceMappedNoun> sup = () -> {
+        try {
+          return SourceMappedNoun.fromCell(formula);
+        }
+        catch ( ExitException e ) {
+          throw new RuntimeException("NockFunction.fromCell:supplier", e);
+        }
+      };
+      NockRootNode nockRoot = new NockRootNode(language,
+          NockLanguage.DESCRIPTOR, sup, parser.parse(formula));
+      RootCallTarget t = Truffle.getRuntime().createCallTarget(nockRoot);
+      f = new NockFunction(t, this);
+      functions.put(formula, f);
+    }
+    return f;
   }
 
   public NockObject getObject(Cell core) throws ExitException {

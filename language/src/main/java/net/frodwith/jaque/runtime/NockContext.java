@@ -67,7 +67,8 @@ public final class NockContext {
     this.language  = language;
     this.fast      = values.get(NockOptions.FAST);
     this.hash      = values.get(NockOptions.HASH);
-    this.dashboard = new Dashboard(this, language, silo, cold, hot, drivers, hash);
+    this.dashboard = new Dashboard(this, language, silo, cold, hot, drivers,
+        1024, hash);
     this.parser    = new FormulaParser(language, dashboard);
     this.functions = new HashMap<>();
     this.memoCache = CacheBuilder.newBuilder()
