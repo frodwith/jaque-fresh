@@ -2,7 +2,6 @@ package net.frodwith.jaque.dashboard;
 
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.Axis;
-import net.frodwith.jaque.data.NockObject;
 import net.frodwith.jaque.data.LocatedClass;
 
 import net.frodwith.jaque.runtime.Equality;
@@ -21,7 +20,7 @@ public final class FineStep {
   }
 
   public boolean whole(Cell core) {
-    return core.knownAt(klass.location);
+    return klass.known(core);
   }
 
   public boolean part(Cell core) {
@@ -32,7 +31,7 @@ public final class FineStep {
     return Cell.require(toParent.fragment(core));
   }
 
-  public void save(Cell core, NockContext context) {
-    core.getMeta().setObject(new NockObject(klass, core));
+  public void save(Cell core) {
+    core.getMeta().setClass(klass);
   }
 }

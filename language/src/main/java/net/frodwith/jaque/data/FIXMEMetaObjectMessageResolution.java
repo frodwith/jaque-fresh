@@ -26,7 +26,7 @@ public abstract class FIXMEMetaObjectMessageResolution extends Node {
   public abstract static class FIXMEMetaObjectReadNode extends Node {
     protected Object access(FIXMEMetaObject reciever, String name) {
       if ( name.equals("isCore") ) {
-        return reciever.hasObject();
+        return reciever.hasClass();
       }
       else {
         throw UnknownIdentifierException.raise(name);

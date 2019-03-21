@@ -68,7 +68,7 @@ L0: for ( i = 0; i < len; ++i ) {
   }
 
   @TruffleBoundary
-  public Optional<Location> locate(Cell core, NockContext context) {
+  public Optional<Location> locate(Cell core, Dashboard dashboard) {
     try {
       Location root = roots.get(core.tail);
       if ( root != null ) {
@@ -77,9 +77,10 @@ L0: for ( i = 0; i < len; ++i ) {
       else {
         for ( Parents p : parents ) {
           Cell parentCore = Cell.require(p.axis.fragment(core));
-          NockClass parent = parentCore.getMeta().getObject(context, parentCore).klass;
-          if ( parent instanceof LocatedClass ) {
-            Location found = p.map.get(((LocatedClass) parent).location);
+          NockClass parentClass = 
+            parentCore.getMeta().getClass(parentCore, dashboard);
+          if ( parentClass instanceof LocatedClass ) {
+            Location found = p.map.get(((LocatedClass) parentClass).location);
             if ( null != found ) {
               return Optional.of(found);
             }

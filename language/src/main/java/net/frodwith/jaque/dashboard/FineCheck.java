@@ -6,6 +6,6 @@ import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.runtime.NockContext;
 
 public abstract class FineCheck {
-  public abstract boolean check(Cell core, NockContext context);
+  public abstract boolean check(Cell core, Dashboard dashboard);
 }
 

@@ -26,7 +26,6 @@ import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.CellGrain;
 import net.frodwith.jaque.data.FastClue;
-import net.frodwith.jaque.data.NockObject;
 import net.frodwith.jaque.data.NockClass;
 import net.frodwith.jaque.data.RegisteredClass;
 import net.frodwith.jaque.data.UnregisteredClass;
@@ -95,6 +94,12 @@ public final class Dashboard {
       .getClass(core, battery);
   }
 
+  public LocatedClass locatedClass(Cell battery, Location location) {
+    return new LocatedClass(
+      battery.getMeta().getGrain().getBattery(this, battery),
+      stable.getAssumption(), location, getDrivers(location));
+  }
+
   public NockFunction compileFormula(Cell formula) throws ExitException {
     NockFunction f = functions.getIfPresent(formula);
     if ( null == f ) {
@@ -113,10 +118,6 @@ public final class Dashboard {
       functions.put(formula, f);
     }
     return f;
-  }
-
-  public NockObject getObject(Cell core) throws ExitException {
-    return new NockObject(getClass(core), core);
   }
 
   public Optional<Registration> findHot(CellGrain grain, Cell cell) {
@@ -165,7 +166,7 @@ public final class Dashboard {
     }
     else {
       Cell parentCore = Cell.require(clue.toParent.fragment(core));
-      NockClass parentClass = parentCore.getMeta().getObject(context, parentCore).klass;
+      NockClass parentClass = parentCore.getMeta().getClass(parentCore, this);
       if ( !(parentClass instanceof LocatedClass) ) {
         LOG.warning("trying to register " + clue.name +
             " with unlocated parent.");
@@ -183,12 +184,10 @@ public final class Dashboard {
     loc.audit(clue);
     invalidate();
 
-    Assumption a = getStableAssumption();
     Cell battery = canonicalizeBattery(core);
-    Battery    b = battery.getMeta().getGrain().getBattery(this, battery);
-    LocatedClass klass = new LocatedClass(b, a, loc, getDrivers(loc));
-    NockObject object  = new NockObject(klass, core);
-    core.getMeta().setObject(object);
+    Battery b = battery.getMeta().getGrain().getBattery(this, battery);
+    Assumption a = getStableAssumption();
+    core.getMeta().setClass(new LocatedClass(b, a, loc, getDrivers(loc)));
   }
 
   public Assumption getStableAssumption() {

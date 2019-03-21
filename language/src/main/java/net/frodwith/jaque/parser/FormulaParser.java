@@ -136,8 +136,8 @@ public final class FormulaParser {
     NockExpressionNode coreNode = parseExpr(args.tail, coreAxis, false);
 
     if ( armAxis.inHead() ) {
-      NockCallLookupNode pull = PullNodeGen.create(coreNode,
-          armAxis, language.getContextReference(), dashboard);
+      NockCallLookupNode pull =
+        PullNodeGen.create(coreNode, armAxis, dashboard);
 
       return tail
         ? new NockTailCallNode(pull)
@@ -252,7 +252,7 @@ public final class FormulaParser {
               : new EditTailNode(chain);
       }
 
-      return new NockEditNode(large, chain, editAxis);
+      return new NockEditNode(large, chain, editAxis, dashboard);
     }
   }
 

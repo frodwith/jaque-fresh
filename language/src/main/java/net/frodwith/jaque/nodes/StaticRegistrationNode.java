@@ -6,8 +6,8 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLanguage.ContextReference;
 
 import net.frodwith.jaque.data.Cell;
-import net.frodwith.jaque.data.NockObject;
 import net.frodwith.jaque.data.FastClue;
+import net.frodwith.jaque.data.NockClass;
 import net.frodwith.jaque.runtime.Equality;
 import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.dashboard.Dashboard;
@@ -32,12 +32,12 @@ public final class StaticRegistrationNode extends RegistrationNode {
         return;
       }
       else {
-        NockContext context = contextReference.get();
-        NockObject object;
+        Dashboard dash = contextReference.get().dashboard;
+        NockClass klass;
         try {
-          object = this.core.getMeta().getObject(context, this.core);
+          klass = this.core.getMeta().getClass(this.core, dash);
           replacement = new FineRegistrationNode(
-              this.clue, object.getFine(context),
+              this.clue, klass.getFine(this.core),
               contextReference);
         }
         catch ( ExitException e ) {

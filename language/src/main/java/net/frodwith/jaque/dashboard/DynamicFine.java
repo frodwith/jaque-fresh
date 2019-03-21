@@ -29,7 +29,7 @@ public final class DynamicFine extends LocatedFine {
 
   @ExplodeLoop
   @Override
-  public boolean check(Cell core, NockContext context) {
+  public boolean check(Cell core, Dashboard dashboard) {
     final Cell[] cores = new Cell[steps.length];
     try {
       int i;
@@ -48,12 +48,12 @@ public final class DynamicFine extends LocatedFine {
         }
       }
 
-      if ( !root.check(core, context) ) {
+      if ( !root.check(core, dashboard) ) {
         return false;
       }
 
       for ( i = 0; i < steps.length; ++i ) {
-        steps[i].save(cores[i], context);
+        steps[i].save(cores[i]);
       }
 
       return true;

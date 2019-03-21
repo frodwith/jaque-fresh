@@ -1,5 +1,6 @@
 package net.frodwith.jaque.data;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import com.oracle.truffle.api.Assumption;
@@ -22,35 +23,27 @@ public final class LocatedClass extends NockClass {
     this.drivers = drivers;
   }
 
-  @Override
-  public final NockFunction
-    getArm(Axis axis, FragmentNode fragment, 
-           Cell batteryCell, Dashboard dashboard)
-      throws ExitException {
-    NockFunction f = drivers.get(axis);
-    return ( null != f ) ? f : battery.getArm(fragment, batteryCell, dashboard);
+  public boolean known(Cell core) {
+    return core.knownAt(location, battery.dashboard);
   }
 
   @Override
-  public final NockFunction
-    getArm(Axis axis, Cell batteryCell, Dashboard dashboard) throws ExitException {
-    NockFunction f = drivers.get(axis);
-    return ( null != f ) ? f : battery.getArm(axis.mas(), batteryCell, dashboard);
-  }
-  
-  @Override
-  public final FineCheck getFine(Cell core, NockContext context)
-    throws ExitException {
-    return location.buildFine(core, context);
+  protected FineCheck buildFine(Cell core) throws ExitException {
+    return location.buildFine(core, battery.dashboard);
   }
 
   @Override
-  public final boolean copyableEdit(Cell battery, Axis written) {
+  public boolean copyableEdit(Axis written, Cell battery) {
     return location.copyableEdit(written);
   }
 
   @Override
-  public final boolean locatedAt(Location location) {
+  public boolean locatedAt(Location location) {
     return this.location.equals(location);
+  }
+
+  @Override
+  public Optional<NockFunction> getDriver(Axis axis) {
+    return Optional.ofNullable(drivers.get(axis));
   }
 }

@@ -19,7 +19,7 @@ import net.frodwith.jaque.dashboard.Registration;
 // registered - there is only one per noun value in a silo.
 
 public final class Battery {
-  private Dashboard dashboard;
+  public final Dashboard dashboard;
 
   private Optional<Optional<Registration>> hot;
   private Optional<Registration> cold;
@@ -44,7 +44,7 @@ public final class Battery {
     }
   }
 
-  public boolean isValid(Dashboard dashboard) {
+  public boolean ofDashboard(Dashboard dashboard) {
     return dashboard == this.dashboard;
   }
 
@@ -59,14 +59,14 @@ public final class Battery {
     }
   }
 
-  private Optional<Location> locate(Cell core, Cell battery) {
+  public Optional<Location> locate(Cell core, Cell battery) {
     Optional<Location> location = Optional.empty();
     if ( cold.isPresent() ) {
-      location = cold.get().locate(core, dashboard.context);
+      location = cold.get().locate(core, dashboard);
     }
     Optional<Registration> hot = getHot(battery);
     if ( !location.isPresent() && hot.isPresent() ) {
-      location = hot.get().locate(core, dashboard.context);
+      location = hot.get().locate(core, dashboard);
       if ( location.isPresent() ) {
         location.get().register(getCold(battery));
       }
@@ -89,21 +89,19 @@ public final class Battery {
     }
   }
 
-  public NockFunction 
-    getArm(FragmentNode fragmentNode, Cell battery, Dashboard dashboard) 
+  public NockFunction getArm(Cell battery, FragmentNode fragmentNode)
       throws ExitException {
     Cell formula = Cell.require(fragmentNode.executeFragment(battery));
-    return formula.getMeta().getFunction(dashboard, formula);
+    return formula.getMeta().getFunction(formula, dashboard);
   }
 
-  public NockFunction getArm(Axis axis, Cell battery, Dashboard dashboard)
-    throws ExitException {
+  public NockFunction getArm(Cell battery, Axis axis) throws ExitException {
     Cell formula = Cell.require(axis.fragment(battery));
-    return formula.getMeta().getFunction(dashboard, formula);
+    return formula.getMeta().getFunction(formula, dashboard);
   }
 
-  public boolean copyableEdit(Cell battery, Axis written) {
-    if ( written.inHead() && 
+  public boolean copyableEdit(Axis written, Cell battery) {
+    if ( written.inTail() && 
         ( !cold.isPresent() || cold.get().copyableEdit(written) ) ) {
       Optional<Registration> hot = getHot(battery);
       return !hot.isPresent() || hot.get().copyableEdit(written);

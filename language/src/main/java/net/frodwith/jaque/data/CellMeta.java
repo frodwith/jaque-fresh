@@ -20,13 +20,12 @@ public final class CellMeta {
   private int mug;
 
   private Optional<NockFunction> function;
-  private NockObject object;
+  private Optional<NockClass> klass;
   private Optional<CellGrain> grain;
 
   public CellMeta(int mug) {
     this.mug       = mug;
-    // TODO: use optional for all three of these
-    this.object    = null;
+    this.klass     = Optional.empty();
     this.function  = Optional.empty();
     this.grain     = Optional.empty();
   }
@@ -44,43 +43,44 @@ public final class CellMeta {
     }
   }
 
-  public NockObject getObject(NockContext context, Cell cell) throws ExitException {
-    if ( !hasObject() ) {
-      object = context.dashboard.getObject(cell);
-    }
-    return object;
-  }
-
-  public void setObject(NockObject object) {
-    this.object = object;
-  }
-
-  public boolean hasObject() {
-    if ( null == object ) {
-      return false;
-    }
-    else if ( object.klass.valid.isValid() ) {
-      return true;
+  public NockClass getClass(Cell core, Dashboard dashboard) throws ExitException {
+    if ( hasClass(dashboard) ) {
+      return klass.get();
     }
     else {
-      this.object = null;
-      return false;
+      NockClass k = dashboard.getClass(core);
+      klass = Optional.of(k);
+      return k;
     }
   }
 
-  public NockObject cachedObject() {
-    return hasObject() ? object : null;
+  public void setClass(NockClass klass) {
+    this.klass = Optional.of(klass);
   }
 
-  public void writeObject(Cell edited, Axis written) {
-    if ( hasObject() &&
-        object.klass.copyableEdit((Cell) edited.head, written) ) {
-      edited.getMeta().object = object.like(edited);
+  public boolean hasClass(Dashboard dashboard) {
+    return klass.isPresent() && klass.get().ofDashboard(dashboard);
+  }
+
+  public Optional<NockClass> cachedClass(Dashboard dashboard) {
+    return hasClass(dashboard) ? klass : Optional.empty();
+  }
+
+  public void copyOnWrite(Cell core, Cell mutant, Axis written, Dashboard dashboard) {
+    if ( hasClass(dashboard) ) {
+      NockClass c = klass.get();
+      try {
+        if ( c.copyableEdit(written, Cell.require(core.head)) ) {
+          mutant.getMeta().setClass(c);
+        }
+      }
+      catch ( ExitException e) {
+      }
     }
   }
 
-  public boolean knownAt(Location location) {
-    return hasObject() && object.klass.locatedAt(location);
+  public boolean knownAt(Location location, Dashboard dashboard) {
+    return hasClass(dashboard) && klass.get().locatedAt(location);
   }
 
   // don't call unless you know you have a grain.
@@ -88,7 +88,7 @@ public final class CellMeta {
     return grain.get();
   }
 
-  public NockFunction getFunction(Dashboard dashboard, Cell cell)
+  public NockFunction getFunction(Cell cell, Dashboard dashboard)
     throws ExitException {
     boolean have = function.isPresent();
     NockFunction f = null;
@@ -121,6 +121,8 @@ public final class CellMeta {
   public void unify(CellMeta other) {
     // FIXME: revisit this whole procedure, in particular need to think about
     // how grains unify
+
+    // Double TODO-ado!
     boolean mine = false, his = false;
 
     // mugs
@@ -141,6 +143,7 @@ public final class CellMeta {
       mine = true;
     }
 
+    /* TRIPLE Todo-ado!
     // objects
     if ( null == object ) {
       object = other.object;
@@ -150,5 +153,6 @@ public final class CellMeta {
       other.object = object;
       mine = true;
     }
+    */
   }
 }

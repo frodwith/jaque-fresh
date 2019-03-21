@@ -27,16 +27,18 @@ public final class DynamicChildLocation extends Location {
   }
 
   @Override
-  public FineCheck buildFine(Cell core, NockContext context) {
+  public FineCheck buildFine(Cell core, Dashboard dashboard) {
     try {
       Cell battery = Cell.require(core.head);
+      LocatedClass klass = (LocatedClass)
+        core.getMeta().getClass(core, dashboard);
+
       Cell parentCore = Cell.require(toParent.fragment(core));
       FineCheck parentFine = parentCore.getMeta()
-        .getObject(context, parentCore).getFine(context);
-      LocatedFine fine = (LocatedFine) parentFine;
-      LocatedClass klass = (LocatedClass)
-        core.getMeta().getObject(context, core).klass;
-      return fine.addStep(new FineStep(battery, toParent, klass));
+        .getClass(parentCore, dashboard).getFine(parentCore);
+
+      return ((LocatedFine) parentFine)
+        .addStep(new FineStep(battery, toParent, klass));
     }
     catch ( ExitException | ClassCastException e ) {
       // If you only pass me cores you know are located here, this will

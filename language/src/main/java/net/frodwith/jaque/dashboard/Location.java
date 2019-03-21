@@ -23,7 +23,7 @@ public abstract class Location {
     this.hooks = hooks;
   }
 
-  public abstract FineCheck buildFine(Cell core, NockContext context)
+  public abstract FineCheck buildFine(Cell core, Dashboard dashboard)
     throws ExitException;
 
   public abstract void register(Registration registration);

@@ -23,30 +23,26 @@ public final class FIXMEMetaObject implements TruffleObject {
     return FIXMEMetaObjectMessageResolutionForeign.ACCESS;
   }
 
-  public boolean hasObject() {
-    return meta().hasObject();
-  }
-
-  public NockObject getObject() throws ExitException {
-    return meta().getObject(context, cell);
+  public boolean hasClass() {
+    return meta().hasClass(context.dashboard);
   }
 
   public NockFunction getFunction() throws ExitException {
-    return meta().getFunction(context.dashboard, cell);
+    return meta().getFunction(cell, context.dashboard);
   }
 
   public NockFunction getArm(Axis axis) throws ExitException {
-    return meta().getObject(context, cell).getArm(axis, context.dashboard);
+    return meta().getClass(cell, context.dashboard).getArm(cell, axis);
   }
 
   public NockCall getCall(Axis axis) throws ExitException {
     NockFunction arm;
     if ( axis.inHead() ) {
-      arm = meta().getObject(context, cell).getArm(axis, context.dashboard);
+      arm = meta().getClass(cell, context.dashboard).getArm(cell, axis);
     }
     else {
       Cell formula = Cell.require(axis.fragment(cell));
-      arm = formula.getMeta().getFunction(context.dashboard, formula);
+      arm = formula.getMeta().getFunction(formula, context.dashboard);
     }
     return new NockCall(arm, cell);
   }

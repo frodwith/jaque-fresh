@@ -11,7 +11,7 @@ public final class UnregisteredFine extends UnlocatedFine {
   }
 
   @Override
-  public boolean extraChecks(Cell core, NockContext context) {
+  public boolean extraChecks(Cell core, Dashboard dashboard) {
     return true;
   }
 }

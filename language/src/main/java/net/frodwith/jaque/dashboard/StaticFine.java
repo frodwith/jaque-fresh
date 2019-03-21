@@ -1,25 +1,33 @@
 package net.frodwith.jaque.dashboard;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import net.frodwith.jaque.data.Cell;
-import net.frodwith.jaque.data.NockObject;
+import net.frodwith.jaque.data.CellMeta;
+import net.frodwith.jaque.data.NockClass;
+import net.frodwith.jaque.data.LocatedClass;
 import net.frodwith.jaque.runtime.Equality;
 import net.frodwith.jaque.runtime.NockContext;
 
 public final class StaticFine extends LocatedFine {
   private final Cell staticNoun;
-  private final NockObject object;
+  private final LocatedClass klass;
 
-  public StaticFine(Cell staticNoun, NockObject object) {
+  public StaticFine(Cell staticNoun, LocatedClass klass) {
     this.staticNoun = staticNoun;
-    this.object = object;
+    this.klass = klass;
   }
 
   @Override
-  public boolean check(Cell core, NockContext context) {
-    if ( Equality.equals(core, staticNoun) ) {
-      core.getMeta().setObject(object);
+  public boolean check(Cell core, Dashboard dashboard) {
+    CellMeta meta = core.getMeta();
+    Optional<NockClass> cachedClass = meta.cachedClass(dashboard);
+    if ( cachedClass.isPresent() ) {
+      return cachedClass.get().locatedAt(klass.location);
+    }
+    else if ( Equality.equals(core, staticNoun) ) {
+      meta.setClass(klass);
       return true;
     }
     else {

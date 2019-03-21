@@ -16,8 +16,7 @@ public final class UnregisteredClass extends UnlocatedClass {
   }
 
   @Override
-  public final FineCheck getFine(Cell core, NockContext context)
-    throws ExitException {
+  public FineCheck buildFine(Cell core) throws ExitException {
     return new UnregisteredFine(Cell.require(core.head));
   }
 }

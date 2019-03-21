@@ -14,9 +14,9 @@ public abstract class UnlocatedFine extends FineCheck {
     this.battery = battery;
   }
 
-  protected abstract boolean extraChecks(Cell core, NockContext context);
+  protected abstract boolean extraChecks(Cell core, Dashboard dashboard);
 
-  public final boolean check(Cell core, NockContext context) {
-    return Equality.equals(core.head, battery) && extraChecks(core, context);
+  public final boolean check(Cell core, Dashboard dashboard) {
+    return Equality.equals(core.head, battery) && extraChecks(core, dashboard);
   }
 }

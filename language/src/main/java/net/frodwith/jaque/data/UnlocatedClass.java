@@ -1,5 +1,6 @@
 package net.frodwith.jaque.data;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import com.oracle.truffle.api.Assumption;
@@ -11,21 +12,11 @@ import net.frodwith.jaque.dashboard.Location;
 import net.frodwith.jaque.dashboard.Dashboard;
 
 public abstract class UnlocatedClass extends NockClass {
+  protected final Battery battery;
+
   protected UnlocatedClass(Battery battery, Assumption stable) {
     super(battery, stable);
-  }
-
-  @Override
-  public final NockFunction getArm(Axis axis,
-      FragmentNode fragment, Cell batteryCell, Dashboard dashboard)
-      throws ExitException {
-    return battery.getArm(fragment, batteryCell, dashboard);
-  }
-
-  @Override
-  public final NockFunction 
-    getArm(Axis axis, Cell batteryCell, Dashboard dashboard) throws ExitException {
-    return battery.getArm(axis.mas(), batteryCell, dashboard);
+    this.battery = battery;
   }
 
   @Override
@@ -34,7 +25,12 @@ public abstract class UnlocatedClass extends NockClass {
   }
 
   @Override
-  public final boolean copyableEdit(Cell batteryCell, Axis written) {
-    return battery.copyableEdit(batteryCell, written);
+  public final boolean copyableEdit(Axis written, Cell batteryCell) {
+    return battery.copyableEdit(written, batteryCell);
+  }
+
+  @Override
+  public Optional<NockFunction> getDriver(Axis axis) {
+    return Optional.empty();
   }
 }

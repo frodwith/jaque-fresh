@@ -43,7 +43,7 @@ public final class CellGrain {
 
     if ( battery.isPresent() ) {
       got = battery.get();
-      if ( !got.isValid(dashboard) ) {
+      if ( !got.ofDashboard(dashboard) ) {
         got = null;
       }
     }

@@ -13,6 +13,7 @@ import net.frodwith.jaque.runtime.GrainSilo;
 import net.frodwith.jaque.runtime.Equality;
 import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.dashboard.Location;
+import net.frodwith.jaque.dashboard.Dashboard;
 import net.frodwith.jaque.printer.MappedNounPrinter;
 
 import net.frodwith.jaque.exception.ExitException;
@@ -167,16 +168,16 @@ public final class Cell implements TruffleObject, Serializable {
     return new FIXMEMetaObject(context, this);
   }
 
-  public boolean knownAt(Location location) {
-    // XX pass me a context, i need to check if they match
-    return (meta instanceof CellMeta) && ((CellMeta)meta).knownAt(location);
+  public void copyObject(Cell from, Axis written, Dashboard dashboard) {
+    if ( from.meta instanceof CellMeta ) {
+      CellMeta fromMeta = (CellMeta) from.meta;
+      fromMeta.copyOnWrite(this, from, written, dashboard);
+    }
   }
 
-  public void copyObject(Cell from, Axis written) {
-    if ( null != from.meta && from.meta instanceof CellMeta ) {
-      CellMeta fromMeta = (CellMeta) from.meta;
-      fromMeta.writeObject(this, written);
-    }
+  public boolean knownAt(Location location, Dashboard dashboard) {
+    return (meta instanceof CellMeta)
+      && ((CellMeta)meta).knownAt(location, dashboard);
   }
 
   @Override

@@ -1,25 +1,41 @@
 package net.frodwith.jaque.dashboard;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import net.frodwith.jaque.data.Cell;
+import net.frodwith.jaque.data.CellMeta;
+import net.frodwith.jaque.data.NockClass;
+import net.frodwith.jaque.data.UnlocatedClass;
 import net.frodwith.jaque.data.RegisteredClass;
 import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.exception.ExitException;
 
 public final class RegisteredFine extends UnlocatedFine {
-  public RegisteredFine(Cell battery) {
+  private final RegisteredClass klass;
+
+  public RegisteredFine(Cell battery, RegisteredClass klass) {
     super(battery);
+    this.klass = klass;
   }
 
   @Override
-  public boolean extraChecks(Cell core, NockContext context) {
-    try {
-      return core.getMeta().getObject(context, core).klass
-        instanceof RegisteredClass;
+  public boolean extraChecks(Cell core, Dashboard dashboard) {
+    CellMeta meta = core.getMeta();
+    Optional<NockClass> cachedClass = meta.cachedClass(dashboard);
+    if ( cachedClass.isPresent() ) {
+      return cachedClass.get() instanceof UnlocatedClass;
     }
-    catch ( ExitException e ) {
-      return false;
+    else {
+      Optional<Location> location = klass.locate(core, battery);
+      if ( !location.isPresent() ) {
+        meta.setClass(klass);
+        return true;
+      }
+      else {
+        meta.setClass(dashboard.locatedClass(battery, location.get()));
+        return false;
+      }
     }
   }
 }

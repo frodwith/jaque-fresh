@@ -6,6 +6,7 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
 import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.data.Cell;
+import net.frodwith.jaque.dashboard.Dashboard;
 import net.frodwith.jaque.exception.ExitException;
 import net.frodwith.jaque.exception.NockException;
 
@@ -13,13 +14,16 @@ public final class NockEditNode extends NockExpressionNode {
   private @Child NockExpressionNode largeNode;
   private @Child EditPartNode editNode;
   private final Axis editAxis;
+  private final Dashboard dashboard;
 
   public NockEditNode(NockExpressionNode largeNode,
                       EditPartNode editNode,
-                      Axis editAxis) {
+                      Axis editAxis,
+                      Dashboard dashboard) {
     this.largeNode = largeNode;
     this.editNode = editNode;
     this.editAxis = editAxis;
+    this.dashboard = dashboard;
   }
 
   @Override
@@ -40,7 +44,7 @@ public final class NockEditNode extends NockExpressionNode {
       CompilerDirectives.transferToInterpreter();
       throw new AssertionError();
     }
-    pc.copyObject(large, editAxis);
+    pc.copyObject(large, editAxis, dashboard);
     return pc;
   }
 
