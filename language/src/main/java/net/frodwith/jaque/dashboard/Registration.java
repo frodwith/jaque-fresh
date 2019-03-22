@@ -11,10 +11,7 @@ import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 
 import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.data.Cell;
-import net.frodwith.jaque.data.NockClass;
-import net.frodwith.jaque.data.LocatedClass;
 import net.frodwith.jaque.runtime.Atom;
-import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.exception.ExitException;
 
 // One canonical persistent object per REGISTERED battery.  These objects are
@@ -29,7 +26,7 @@ public final class Registration {
   private final Map<Object,Location> roots;
   private final ArrayList<Parents> parents;
 
-  public Registration(NockContext context) {
+  public Registration() {
     this.roots = new HashMap<>();
     this.parents = new ArrayList<>();
   }

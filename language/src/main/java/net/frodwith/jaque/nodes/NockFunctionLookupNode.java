@@ -1,5 +1,6 @@
 package net.frodwith.jaque.nodes;
 
+import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.dsl.Cached;
@@ -10,7 +11,6 @@ import com.oracle.truffle.api.TruffleLanguage.ContextReference;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 
 import net.frodwith.jaque.data.Cell;
-import net.frodwith.jaque.data.NockFunction;
 import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.dashboard.Dashboard;
 import net.frodwith.jaque.exception.NockException;
@@ -21,23 +21,23 @@ import net.frodwith.jaque.exception.ExitException;
 public abstract class NockFunctionLookupNode extends NockNode {
   public static final int INLINE_CACHE_SIZE = 2;
   protected abstract Dashboard getDashboard();
-  public abstract NockFunction executeLookup(VirtualFrame frame);
+  public abstract CallTarget executeLookup(VirtualFrame frame);
 
   @Specialization(limit = "INLINE_CACHE_SIZE",
                   guards = "cachedFormula == formula")
-  protected NockFunction doCached(Cell formula,
+  protected CallTarget doCached(Cell formula,
     @Cached("formula") Cell cachedFormula,
-    @Cached("lookup(formula)") NockFunction cachedFunction) {
+    @Cached("lookup(formula)") CallTarget cachedFunction) {
     return cachedFunction;
   }
 
   @Specialization
-  protected NockFunction doUncached(Cell formula) {
+  protected CallTarget doUncached(Cell formula) {
     return lookup(formula);
   }
 
   @TruffleBoundary
-  protected NockFunction lookup(Cell formula) {
+  protected CallTarget lookup(Cell formula) {
     try {
       return formula.getMeta().getFunction(formula, getDashboard());
     }
@@ -47,7 +47,7 @@ public abstract class NockFunctionLookupNode extends NockNode {
   }
   
   @Fallback
-  protected NockFunction doAtom(Object atom) {
+  protected CallTarget doAtom(Object atom) {
     throw new NockException("atom not formula", this);
   }
 }

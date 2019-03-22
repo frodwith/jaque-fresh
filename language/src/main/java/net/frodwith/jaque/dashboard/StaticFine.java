@@ -5,8 +5,6 @@ import java.util.function.Supplier;
 
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.CellMeta;
-import net.frodwith.jaque.data.NockClass;
-import net.frodwith.jaque.data.LocatedClass;
 import net.frodwith.jaque.runtime.Equality;
 import net.frodwith.jaque.runtime.NockContext;
 

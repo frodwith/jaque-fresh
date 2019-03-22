@@ -1,17 +1,15 @@
-package net.frodwith.jaque.data;
+package net.frodwith.jaque.dashboard;
 
 import java.util.Optional;
 import java.util.function.Supplier;
 
+import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.Assumption;
 
+import net.frodwith.jaque.data.Axis;
+import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.nodes.FragmentNode;
-import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.exception.ExitException;
-import net.frodwith.jaque.dashboard.Location;
-import net.frodwith.jaque.dashboard.Dashboard;
-import net.frodwith.jaque.dashboard.BatteryHash;
-import net.frodwith.jaque.dashboard.Registration;
 
 // these objects live on grains, and so are guaranteed to be deduplicated
 // therefore there is no synchronization or assumptions required to ensure that
@@ -89,13 +87,13 @@ public final class Battery {
     }
   }
 
-  public NockFunction getArm(Cell battery, FragmentNode fragmentNode)
+  public CallTarget getArm(Cell battery, FragmentNode fragmentNode)
       throws ExitException {
     Cell formula = Cell.require(fragmentNode.executeFragment(battery));
     return formula.getMeta().getFunction(formula, dashboard);
   }
 
-  public NockFunction getArm(Cell battery, Axis axis) throws ExitException {
+  public CallTarget getArm(Cell battery, Axis axis) throws ExitException {
     Cell formula = Cell.require(axis.fragment(battery));
     return formula.getMeta().getFunction(formula, dashboard);
   }

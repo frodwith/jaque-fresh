@@ -3,6 +3,7 @@ package net.frodwith.jaque.test.nodes;
 import java.util.Map;
 import java.util.HashMap;
 
+import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.TruffleLanguage.ContextReference;
 
@@ -10,7 +11,6 @@ import net.frodwith.jaque.NockLanguage;
 
 import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.data.Cell;
-import net.frodwith.jaque.data.NockFunction;
 import net.frodwith.jaque.data.NockCall;
 
 import net.frodwith.jaque.nodes.SubjectNode;
@@ -43,7 +43,7 @@ public final class CountNockNode extends SubjectNode {
     try {
       Object subject = NockLanguage.getSubject(frame);
       Cell formula = Cell.require(armAxis.fragment(subject));
-      NockFunction fn = formula.getMeta().getFunction(formula, dashboard);
+      CallTarget fn = formula.getMeta().getFunction(formula, dashboard);
       NockCall call = new NockCall(fn, subject);
       bump();
       throw new NockControlFlowException(call);

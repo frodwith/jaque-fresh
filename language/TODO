@@ -1,4 +1,20 @@
-delete NockContext field from CellMeta
+* revisit packaging of things in data
+    Class(and subclasses) -> dashboard
+    Battery -> dashboard
+    Function -> dashboard
+
+* Rename FIXMEMetaObject DashboardCell, move to dashboard
+
+* Fix unification somehow
+
+* Test FineChecks.
+
+* Test class invalidation on core registration
+
+* Inspect equality checks to see if we can do pointer checks on batteries
+  anywhere, post-grainization.
+
+* Hunt for TODOS in the code
 
 Test all the new Slog stuff
   Tank tests (wash at least one example of each kind, some should line break)

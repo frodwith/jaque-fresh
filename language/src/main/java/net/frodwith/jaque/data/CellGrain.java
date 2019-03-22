@@ -9,6 +9,7 @@ import com.google.common.hash.HashFunction;
 import net.frodwith.jaque.runtime.GrainSilo;
 import net.frodwith.jaque.runtime.HoonSerial;
 import net.frodwith.jaque.dashboard.Dashboard;
+import net.frodwith.jaque.dashboard.Battery;
 
 public final class CellGrain {
   private static final HashFunction sha = Hashing.sha256();

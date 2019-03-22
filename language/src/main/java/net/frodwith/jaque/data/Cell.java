@@ -24,7 +24,6 @@ import net.frodwith.jaque.exception.ExitException;
  * longs etc.). In particular, suffix literal atoms with L (1L, etc) religiously to avoid
  * this. No real checking is done at runtime.
  */
-
 public final class Cell implements TruffleObject, Serializable {
   // head and tail are not final because we set them during unifying equals
   public Object head, tail;
@@ -162,10 +161,6 @@ public final class Cell implements TruffleObject, Serializable {
 
   public boolean inSilo(GrainSilo silo) {
     return ( meta instanceof CellMeta ) && ((CellMeta) meta).inSilo(silo);
-  }
-
-  public FIXMEMetaObject getFIXMEMetaObject(NockContext context) {
-    return new FIXMEMetaObject(context, this);
   }
 
   public void

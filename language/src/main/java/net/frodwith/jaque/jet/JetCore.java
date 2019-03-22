@@ -1,24 +1,21 @@
 package net.frodwith.jaque.jet;
 
-import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.ArrayList;
-
-import com.oracle.truffle.api.TruffleLanguage.ContextReference;
 
 import com.google.common.hash.HashCode;
 
+import com.oracle.truffle.api.CallTarget;
+
 import net.frodwith.jaque.NockLanguage;
-import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.data.AxisMap;
-import net.frodwith.jaque.data.NockFunction;
 import net.frodwith.jaque.dashboard.Hook;
 import net.frodwith.jaque.dashboard.Location;
 import net.frodwith.jaque.dashboard.BatteryHash;
 import net.frodwith.jaque.dashboard.Registration;
 import net.frodwith.jaque.dashboard.Dashboard;
+import net.frodwith.jaque.dashboard.NockFunction;
 
 public abstract class JetCore {
   public final String name;
@@ -45,15 +42,14 @@ public abstract class JetCore {
   public final void addToMaps(Location parent,
                               NockLanguage language,
                               Dashboard dashboard,
-                              NockContext context,
                               Map<HashCode,Registration> hot,
-                              Map<Location,AxisMap<NockFunction>> driver) {
+                              Map<Location,AxisMap<CallTarget>> driver) {
     Map<String,Hook> hookMap = new HashMap<>();
     for ( JetHook h : hooks ) {
       hookMap.put(h.name, h.hook);
     }
 
-    Registration r = new Registration(context);
+    Registration r = new Registration();
     Location loc = getLocation(parent, hookMap);
     loc.register(r);
     for ( HashCode h : hashes ) {
@@ -69,7 +65,7 @@ public abstract class JetCore {
     driver.put(loc, functions);
 
     for ( ChildCore child : children ) {
-      child.addToMaps(loc, language, dashboard, context, hot, driver);
+      child.addToMaps(loc, language, dashboard, hot, driver);
     }
   }
 }

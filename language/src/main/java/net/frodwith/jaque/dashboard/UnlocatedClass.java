@@ -1,15 +1,13 @@
-package net.frodwith.jaque.data;
+package net.frodwith.jaque.dashboard;
 
 import java.util.Optional;
-import java.util.function.Supplier;
 
+import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.Assumption;
 
-import net.frodwith.jaque.nodes.FragmentNode;
-import net.frodwith.jaque.runtime.NockContext;
-import net.frodwith.jaque.exception.ExitException;
 import net.frodwith.jaque.dashboard.Location;
-import net.frodwith.jaque.dashboard.Dashboard;
+import net.frodwith.jaque.data.Axis;
+import net.frodwith.jaque.data.Cell;
 
 public abstract class UnlocatedClass extends NockClass {
   protected final Battery battery;
@@ -30,7 +28,7 @@ public abstract class UnlocatedClass extends NockClass {
   }
 
   @Override
-  public Optional<NockFunction> getDriver(Axis axis) {
+  public Optional<CallTarget> getDriver(Axis axis) {
     return Optional.empty();
   }
 }

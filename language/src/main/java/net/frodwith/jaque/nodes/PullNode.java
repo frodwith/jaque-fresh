@@ -2,6 +2,7 @@ package net.frodwith.jaque.nodes;
 
 import java.util.function.Supplier;
 
+import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Fallback;
@@ -15,8 +16,6 @@ import com.oracle.truffle.api.CompilerDirectives;
 import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.NockCall;
-import net.frodwith.jaque.data.NockClass;
-import net.frodwith.jaque.data.NockFunction;
 
 import net.frodwith.jaque.runtime.Equality;
 import net.frodwith.jaque.runtime.HoonMath;
@@ -24,6 +23,7 @@ import net.frodwith.jaque.runtime.NockContext;
 
 import net.frodwith.jaque.dashboard.Dashboard;
 import net.frodwith.jaque.dashboard.FineCheck;
+import net.frodwith.jaque.dashboard.NockClass;
 
 import net.frodwith.jaque.exception.NockException;
 import net.frodwith.jaque.exception.ExitException;
@@ -56,7 +56,7 @@ public abstract class PullNode extends NockCallLookupNode {
                   replaces = "doStatic")
   protected NockCall doFine(Cell core,
     @Cached("getNockClass(core)") NockClass klass,
-    @Cached("getArm(klass, core)") NockFunction arm) {
+    @Cached("getArm(klass, core)") CallTarget arm) {
     return new NockCall(arm, core);
   }
 
@@ -76,7 +76,7 @@ public abstract class PullNode extends NockCallLookupNode {
   @Specialization(replaces = "doFine")
   protected NockCall doSlow(Cell core) {
     NockClass klass = getNockClass(core);
-    NockFunction arm = getArm(klass, core);
+    CallTarget arm = getArm(klass, core);
     return new NockCall(arm, core);
   }
 
@@ -95,7 +95,7 @@ public abstract class PullNode extends NockCallLookupNode {
     return fragmentNode;
   }
 
-  protected NockFunction getArm(NockClass klass, Cell core) {
+  protected CallTarget getArm(NockClass klass, Cell core) {
     try {
       return klass.getArm(core, getArmAxis(), getFragmentNode());
     }

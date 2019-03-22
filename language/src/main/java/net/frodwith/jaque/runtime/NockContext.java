@@ -8,6 +8,7 @@ import org.graalvm.options.OptionValues;
 import org.graalvm.options.OptionKey;
 import org.graalvm.options.OptionType;
 
+import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.TruffleLanguage.Env;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
@@ -18,21 +19,18 @@ import com.google.common.cache.CacheBuilder;
 
 import net.frodwith.jaque.NockLanguage;
 import net.frodwith.jaque.NockOptions;
-import net.frodwith.jaque.FormulaCompiler;
 import net.frodwith.jaque.jet.JetTree;
 import net.frodwith.jaque.jet.RootCore;
 import net.frodwith.jaque.data.BigAtom;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.AxisMap;
-import net.frodwith.jaque.data.NockFunction;
 import net.frodwith.jaque.parser.FormulaParser;
 import net.frodwith.jaque.exception.ExitException;
 
 import net.frodwith.jaque.dashboard.Location;
 import net.frodwith.jaque.dashboard.Registration;
 import net.frodwith.jaque.dashboard.Dashboard;
-import net.frodwith.jaque.dashboard.BatteryHash;
-import net.frodwith.jaque.dashboard.ColdRegistration;
+import net.frodwith.jaque.dashboard.NockFunction;
 
 public final class NockContext {
   private final Env env;
@@ -61,13 +59,13 @@ public final class NockContext {
     }
 
     Map<HashCode,Registration> hot = new HashMap<>();
-    Map<Location,AxisMap<NockFunction>> drivers = new HashMap<>();
+    Map<Location,AxisMap<CallTarget>> drivers = new HashMap<>();
 
     this.env       = env;
     this.language  = language;
     this.fast      = values.get(NockOptions.FAST);
     this.hash      = values.get(NockOptions.HASH);
-    this.dashboard = new Dashboard(this, language, silo, cold, hot, drivers,
+    this.dashboard = new Dashboard(language, silo, cold, hot, drivers,
         1024, hash);
     this.parser    = new FormulaParser(language, dashboard);
     this.functions = new HashMap<>();
@@ -75,7 +73,7 @@ public final class NockContext {
       .maximumSize(values.get(NockOptions.MEMO_SIZE))
       .build();
 
-    tree.addToMaps(language, dashboard, this, hot, drivers);
+    tree.addToMaps(language, dashboard, hot, drivers);
   }
 
   public Object lookupMemo(Object subject, Cell formula) {

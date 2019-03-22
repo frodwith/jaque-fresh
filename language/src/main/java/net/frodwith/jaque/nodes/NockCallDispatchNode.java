@@ -1,5 +1,6 @@
 package net.frodwith.jaque.nodes;
 
+import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.IndirectCallNode;
@@ -12,7 +13,6 @@ import com.oracle.truffle.api.dsl.ReportPolymorphism;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.dsl.TypeSystemReference;
 
-import net.frodwith.jaque.data.NockFunction;
 import net.frodwith.jaque.data.NockCall;
 import net.frodwith.jaque.exception.NockControlFlowException;
 
@@ -29,9 +29,9 @@ public abstract class NockCallDispatchNode extends NockNode {
   @Specialization(limit = "INLINE_CACHE_SIZE",
                   guards = "call.function == cachedFunction")
   protected Object doDirect(NockCall call,
-      @Cached("call.function") NockFunction cachedFunction,
-      @Cached("create(cachedFunction.callTarget)") DirectCallNode callNode) {
-    NockFunction function = call.function;
+      @Cached("call.function") CallTarget cachedFunction,
+      @Cached("create(cachedFunction)") DirectCallNode callNode) {
+    CallTarget function = call.function;
     Object subject = call.subject;
     while ( true ) {
       try {
@@ -50,11 +50,11 @@ public abstract class NockCallDispatchNode extends NockNode {
   @Specialization(replaces = "doDirect")
   protected Object doIndirect(NockCall call,
       @Cached("create()") IndirectCallNode callNode) {
-    NockFunction function = call.function;
+    CallTarget function = call.function;
     Object subject = call.subject;
     while ( true ) {
       try {
-        return callNode.call(function.callTarget, new Object[] { subject });
+        return callNode.call(function, new Object[] { subject });
       }
       catch ( NockControlFlowException e ) {
         subject  = e.call.subject;

@@ -5,9 +5,6 @@ import java.util.function.Supplier;
 
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.CellMeta;
-import net.frodwith.jaque.data.NockClass;
-import net.frodwith.jaque.data.UnlocatedClass;
-import net.frodwith.jaque.data.RegisteredClass;
 import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.exception.ExitException;
 

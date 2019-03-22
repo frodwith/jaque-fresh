@@ -9,10 +9,10 @@ import java.io.FileReader;
 import java.io.IOException;
 
 import com.google.common.hash.HashCode;
+import com.oracle.truffle.api.CallTarget;
 
 import net.frodwith.jaque.NockLanguage;
 import net.frodwith.jaque.data.AxisMap;
-import net.frodwith.jaque.data.NockFunction;
 import net.frodwith.jaque.dashboard.Location;
 import net.frodwith.jaque.dashboard.BatteryHash;
 import net.frodwith.jaque.dashboard.Dashboard;
@@ -28,11 +28,10 @@ public final class JetTree {
 
   public void addToMaps(NockLanguage language,
                         Dashboard dashboard,
-                        NockContext context,
                         Map<HashCode,Registration> hot,
-                        Map<Location, AxisMap<NockFunction>> driver) {
+                        Map<Location, AxisMap<CallTarget>> driver) {
     for ( RootCore r : roots ) {
-      r.addToMaps(null, language, dashboard, context, hot, driver);
+      r.addToMaps(null, language, dashboard, hot, driver);
     }
   }
 }

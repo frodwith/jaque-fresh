@@ -30,13 +30,14 @@ import net.frodwith.jaque.jet.RootCore;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.CellMeta;
 import net.frodwith.jaque.data.BigAtom;
-import net.frodwith.jaque.data.NockFunction;
 import net.frodwith.jaque.data.SourceMappedNoun;
 import net.frodwith.jaque.nodes.NockRootNode;
 import net.frodwith.jaque.parser.CustomParser;
 import net.frodwith.jaque.parser.FormulaParser;
 import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.dashboard.Dashboard;
+import net.frodwith.jaque.dashboard.DashboardCell;
+import net.frodwith.jaque.dashboard.NockFunction;
 import net.frodwith.jaque.exception.ExitException;
 
 @TruffleLanguage.Registration(id = NockLanguage.ID, 
@@ -162,7 +163,7 @@ public final class NockLanguage extends TruffleLanguage<NockContext> {
   @Override
   public Object findMetaObject(NockContext context, Object o) {
     if ( o instanceof Cell ) {
-      return ((Cell) o).getFIXMEMetaObject(context);
+      return new DashboardCell(context.dashboard, (Cell) o);
     }
     else {
       return null;

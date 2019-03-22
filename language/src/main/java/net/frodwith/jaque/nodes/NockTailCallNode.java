@@ -2,7 +2,6 @@ package net.frodwith.jaque.nodes;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 
-import net.frodwith.jaque.data.NockFunction;
 import net.frodwith.jaque.exception.NockControlFlowException;
 
 public final class NockTailCallNode extends NockExpressionNode {

@@ -2,8 +2,6 @@ package net.frodwith.jaque.nodes;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 
-import net.frodwith.jaque.data.NockFunction;
-
 public final class NockHeadCallNode extends NockExpressionNode {
   @Child private NockCallLookupNode lookupNode;
   @Child private NockCallDispatchNode dispatchNode;

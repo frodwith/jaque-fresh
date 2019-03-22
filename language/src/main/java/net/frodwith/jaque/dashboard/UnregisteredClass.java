@@ -1,13 +1,11 @@
-package net.frodwith.jaque.data;
+package net.frodwith.jaque.dashboard;
 
 import java.util.function.Supplier;
 
 import com.oracle.truffle.api.Assumption;
 
+import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.runtime.NockContext;
-import net.frodwith.jaque.dashboard.FineCheck;
-import net.frodwith.jaque.dashboard.UnregisteredFine;
-import net.frodwith.jaque.dashboard.Dashboard;
 import net.frodwith.jaque.exception.ExitException;
 
 public final class UnregisteredClass extends UnlocatedClass {

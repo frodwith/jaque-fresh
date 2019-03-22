@@ -2,7 +2,6 @@ package net.frodwith.jaque.dashboard;
 
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.Axis;
-import net.frodwith.jaque.data.LocatedClass;
 
 import net.frodwith.jaque.runtime.Equality;
 import net.frodwith.jaque.runtime.NockContext;

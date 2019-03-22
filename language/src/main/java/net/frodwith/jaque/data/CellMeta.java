@@ -3,17 +3,19 @@ package net.frodwith.jaque.data;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.TruffleLanguage.ContextReference;
 
-import net.frodwith.jaque.FormulaCompiler;
 import net.frodwith.jaque.runtime.Mug;
 import net.frodwith.jaque.runtime.GrainSilo;
 import net.frodwith.jaque.runtime.NockContext;
 
+import net.frodwith.jaque.dashboard.NockClass;
 import net.frodwith.jaque.dashboard.Dashboard;
 import net.frodwith.jaque.dashboard.Location;
+import net.frodwith.jaque.dashboard.NockFunction;
 import net.frodwith.jaque.exception.ExitException;
 
 public final class CellMeta {
@@ -90,7 +92,7 @@ public final class CellMeta {
     return grain.get();
   }
 
-  public NockFunction getFunction(Cell cell, Dashboard dashboard)
+  public CallTarget getFunction(Cell cell, Dashboard dashboard)
     throws ExitException {
     boolean have = function.isPresent();
     NockFunction f = null;
@@ -102,7 +104,7 @@ public final class CellMeta {
       f = dashboard.compileFormula(cell);
       function = Optional.of(f);
     }
-    return f;
+    return f.callTarget;
   }
 
   public int mug(Cell cell) {

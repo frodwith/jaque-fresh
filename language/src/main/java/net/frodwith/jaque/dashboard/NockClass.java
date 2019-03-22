@@ -1,16 +1,15 @@
-package net.frodwith.jaque.data;
+package net.frodwith.jaque.dashboard;
 
 import java.util.Optional;
 import java.util.function.Supplier;
 
+import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.Assumption;
 import com.oracle.truffle.api.CompilerDirectives;
 
+import net.frodwith.jaque.data.Axis;
+import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.nodes.FragmentNode;
-import net.frodwith.jaque.dashboard.Location;
-import net.frodwith.jaque.dashboard.FineCheck;
-import net.frodwith.jaque.dashboard.Dashboard;
-import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.exception.ExitException;
 
 public abstract class NockClass {
@@ -45,27 +44,21 @@ public abstract class NockClass {
     }
   }
 
-  protected final NockFunction
-    nockArm(Cell core, FragmentNode fragmentNode) throws ExitException {
-    Cell formula = Cell.require(fragmentNode.executeFragment(core));
-    return formula.getMeta().getFunction(formula, battery.dashboard);
-  }
-
   protected abstract FineCheck buildFine(Cell core) throws ExitException;
-  protected abstract Optional<NockFunction> getDriver(Axis axis);
+  protected abstract Optional<CallTarget> getDriver(Axis axis);
   public abstract boolean copyableEdit(Axis written, Cell battery);
   public abstract boolean locatedAt(Location location);
 
-  public NockFunction getArm(Cell core, Axis axis) throws ExitException {
-    Optional<NockFunction> driver = getDriver(axis);
+  public CallTarget getArm(Cell core, Axis axis) throws ExitException {
+    Optional<CallTarget> driver = getDriver(axis);
     return driver.isPresent()
       ? driver.get()
       : battery.getArm(Cell.require(core.head), axis.mas());
   }
 
-  public NockFunction getArm(Cell core, Axis axis, FragmentNode fragmentNode)
+  public CallTarget getArm(Cell core, Axis axis, FragmentNode fragmentNode)
     throws ExitException {
-    Optional<NockFunction> driver = getDriver(axis);
+    Optional<CallTarget> driver = getDriver(axis);
     return driver.isPresent()
       ? driver.get()
       : battery.getArm(Cell.require(core.head), fragmentNode);

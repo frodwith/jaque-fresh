@@ -8,8 +8,6 @@ import com.oracle.truffle.api.CompilerDirectives;
 import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.FastClue;
-import net.frodwith.jaque.data.LocatedClass;
-import net.frodwith.jaque.runtime.NockContext;
 
 import net.frodwith.jaque.exception.ExitException;
 
