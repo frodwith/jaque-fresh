@@ -44,7 +44,7 @@ public final class NockEditNode extends NockExpressionNode {
       CompilerDirectives.transferToInterpreter();
       throw new AssertionError();
     }
-    pc.copyObject(large, editAxis, dashboard);
+    large.copyClassToMutant(pc, editAxis, dashboard);
     return pc;
   }
 

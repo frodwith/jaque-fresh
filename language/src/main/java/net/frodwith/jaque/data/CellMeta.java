@@ -66,16 +66,18 @@ public final class CellMeta {
     return hasClass(dashboard) ? klass : Optional.empty();
   }
 
-  public void copyOnWrite(Cell core, Cell mutant, Axis written, Dashboard dashboard) {
-    if ( hasClass(dashboard) ) {
-      NockClass c = klass.get();
-      try {
-        if ( c.copyableEdit(written, Cell.require(core.head)) ) {
+  public void
+    copyClassToMutant(Cell core, Cell mutant, Axis written, Dashboard dashboard) {
+    try {
+      if ( hasClass(dashboard) ) {
+        NockClass c = klass.get();
+        Cell battery = Cell.require(core.head);
+        if ( c.copyableEdit(written, battery) ) {
           mutant.getMeta().setClass(c);
         }
       }
-      catch ( ExitException e) {
-      }
+    }
+    catch ( ExitException e) {
     }
   }
 

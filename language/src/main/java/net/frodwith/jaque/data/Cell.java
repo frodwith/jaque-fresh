@@ -168,10 +168,10 @@ public final class Cell implements TruffleObject, Serializable {
     return new FIXMEMetaObject(context, this);
   }
 
-  public void copyObject(Cell from, Axis written, Dashboard dashboard) {
-    if ( from.meta instanceof CellMeta ) {
-      CellMeta fromMeta = (CellMeta) from.meta;
-      fromMeta.copyOnWrite(this, from, written, dashboard);
+  public void
+    copyClassToMutant(Cell mutant, Axis written, Dashboard dashboard) {
+    if ( meta instanceof CellMeta ) {
+      ((CellMeta) meta).copyClassToMutant(this, mutant, written, dashboard);
     }
   }
 
