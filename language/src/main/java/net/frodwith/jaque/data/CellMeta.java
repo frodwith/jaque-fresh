@@ -32,6 +32,10 @@ public final class CellMeta {
     this.grain     = Optional.empty();
   }
 
+  public boolean hasFunction(Dashboard dashboard) {
+    return function.isPresent() && function.get().ofDashboard(dashboard);
+  }
+
   public boolean inSilo(GrainSilo silo) {
     return grain.isPresent() && grain.get().inSilo(silo);
   }
@@ -45,7 +49,7 @@ public final class CellMeta {
     }
   }
 
-  public NockClass getClass(Cell core, Dashboard dashboard) throws ExitException {
+  public NockClass getNockClass(Cell core, Dashboard dashboard) throws ExitException {
     if ( hasClass(dashboard) ) {
       return klass.get();
     }
@@ -92,7 +96,7 @@ public final class CellMeta {
     return grain.get();
   }
 
-  public CallTarget getFunction(Cell cell, Dashboard dashboard)
+  public NockFunction getFunction(Cell cell, Dashboard dashboard)
     throws ExitException {
     boolean have = function.isPresent();
     NockFunction f = null;
@@ -104,7 +108,7 @@ public final class CellMeta {
       f = dashboard.compileFormula(cell);
       function = Optional.of(f);
     }
-    return f.callTarget;
+    return f;
   }
 
   public int mug(Cell cell) {
@@ -122,6 +126,11 @@ public final class CellMeta {
     return mug;
   }
 
+  public static void unify(CellMeta a, CellMeta b) {
+    // FIXME: do nothing
+  }
+
+  /*
   public void unify(CellMeta other) {
     // FIXME: revisit this whole procedure, in particular need to think about
     // how grains unify
@@ -157,6 +166,6 @@ public final class CellMeta {
       other.object = object;
       mine = true;
     }
-    */
   }
+  */
 }

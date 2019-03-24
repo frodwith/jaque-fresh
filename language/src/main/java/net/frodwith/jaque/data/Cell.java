@@ -89,10 +89,7 @@ public final class Cell implements TruffleObject, Serializable {
       }
     }
     else {
-      CellMeta mine = (CellMeta) meta;
-      CellMeta theirs = (CellMeta) om;
-      mine.unify(theirs);
-      other.meta = mine;
+      CellMeta.unify((CellMeta) meta, (CellMeta) om);
     }
   }
 

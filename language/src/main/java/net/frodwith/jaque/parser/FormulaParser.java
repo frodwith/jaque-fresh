@@ -189,12 +189,17 @@ public final class FormulaParser {
         return new TossNode(clue, parseExpr(next, nextAxis, tail));
       }
       switch ( tag ) {
-        case Motes.FAST:
-          return new FastNode(language.getContextReference(),
-            clue, parseExpr(next, nextAxis, false));
         case Motes.MEMO:
           return new MemoNode(language.getContextReference(), Cell.require(next),
             clue, parseExpr(next, nextAxis, false));
+
+        case Motes.FAST:
+          if ( dashboard.fastHints ) {
+            return new FastNode(dashboard,
+              clue, parseExpr(next, nextAxis, false));
+          }
+          // FALL THROUGH
+
         default:
           return new TossNode(clue, parseExpr(next, nextAxis, tail));
         /*

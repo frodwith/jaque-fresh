@@ -29,11 +29,11 @@ public final class DynamicChildLocation extends Location {
     try {
       Cell battery = Cell.require(core.head);
       LocatedClass klass = (LocatedClass)
-        core.getMeta().getClass(core, dashboard);
+        core.getMeta().getNockClass(core, dashboard);
 
       Cell parentCore = Cell.require(toParent.fragment(core));
       FineCheck parentFine = parentCore.getMeta()
-        .getClass(parentCore, dashboard).getFine(parentCore);
+        .getNockClass(parentCore, dashboard).getFine(parentCore);
 
       return ((LocatedFine) parentFine)
         .addStep(new FineStep(battery, toParent, klass));

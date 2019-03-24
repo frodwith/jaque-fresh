@@ -26,6 +26,8 @@ import net.frodwith.jaque.data.FastClue;
 import net.frodwith.jaque.data.AxisMap;
 import net.frodwith.jaque.data.SourceMappedNoun;
 
+import net.frodwith.jaque.jet.JetTree;
+
 import net.frodwith.jaque.dashboard.Battery;
 import net.frodwith.jaque.dashboard.NockClass;
 import net.frodwith.jaque.dashboard.LocatedClass;
@@ -40,9 +42,10 @@ import net.frodwith.jaque.exception.ExitException;
 
 public final class Dashboard {
   public final FormulaParser parser;
+  public final boolean hashDiscovery, fastHints;
+
   private final NockLanguage language;
   private final GrainSilo silo;
-  private final boolean hashDiscovery;
   private final CyclicAssumption stable = new CyclicAssumption("dashboard");
   private final Map<StrongCellGrainKey,Registration> cold;
   private final Map<HashCode,Registration> hot;
@@ -51,22 +54,98 @@ public final class Dashboard {
   private final static TruffleLogger LOG =
     TruffleLogger.getLogger(NockLanguage.ID, Dashboard.class);
 
-  public Dashboard(NockLanguage language,
+  private Dashboard(NockLanguage language,
                    GrainSilo silo,
                    Map<StrongCellGrainKey,Registration> cold,
                    Map<HashCode,Registration> hot,
                    Map<Location,AxisMap<CallTarget>> drivers,
                    int functionCacheSize,
-                   boolean hashDiscovery) {
+                   boolean hashDiscovery,
+                   boolean fastHints) {
     this.hot     = hot;
     this.cold    = cold;
     this.drivers = drivers;
     this.silo    = silo;
     this.hashDiscovery = hashDiscovery;
+    this.fastHints = fastHints;
     this.language = language;
     this.parser = new FormulaParser(language, this);
     this.functions = CacheBuilder.newBuilder()
       .maximumSize(functionCacheSize).build();
+  }
+
+  public static class Builder {
+    private NockLanguage language;
+    private GrainSilo silo;
+    private Map<Cell, Registration> coldHistory;
+    private JetTree jetTree;
+    private int functionCacheSize = 0;
+    private boolean hashDiscovery = false;
+    private boolean fastHints = false;
+
+    public Dashboard build() {
+      assert( language != null );
+      if ( null == silo ) {
+        silo = new GrainSilo();
+      }
+
+      Map<Location,AxisMap<CallTarget>> drivers = new HashMap<>();
+      Map<HashCode,Registration> hot = new HashMap<>();
+      Map<StrongCellGrainKey,Registration> cold = new HashMap<>();
+      if ( null != coldHistory ) {
+        for ( Map.Entry<Cell,Registration> e : coldHistory.entrySet() ) {
+          Cell grain = silo.getCellGrain(e.getKey());
+          cold.put(new StrongCellGrainKey(grain), e.getValue());
+        }
+      }
+
+      if ( 0 == functionCacheSize ) {
+        functionCacheSize = 1024;
+      }
+
+      Dashboard dashboard = new Dashboard(language, silo, cold, 
+          hot, drivers, functionCacheSize, hashDiscovery, fastHints);
+
+      if ( null != jetTree ) {
+        jetTree.addToMaps(language, dashboard, hot, drivers);
+      }
+      return dashboard;
+    }
+
+    public Builder setJetTree(JetTree jetTree) {
+      this.jetTree = jetTree;
+      return this;
+    }
+
+    public Builder setLanguage(NockLanguage language) {
+      this.language = language;
+      return this;
+    }
+
+    public Builder setSilo(GrainSilo silo) {
+      this.silo = silo;
+      return this;
+    }
+
+    public Builder setColdHistory(Map<Cell,Registration> coldHistory) {
+      this.coldHistory = coldHistory;
+      return this;
+    }
+
+    public Builder setFunctionCacheSize(int functionCacheSize) {
+      this.functionCacheSize = functionCacheSize;
+      return this;
+    }
+
+    public Builder setHashDiscovery(boolean hashDiscovery) {
+      this.hashDiscovery = hashDiscovery;
+      return this;
+    }
+
+    public Builder setFastHints(boolean fastHints) {
+      this.fastHints = fastHints;
+      return this;
+    }
   }
 
   public AxisMap<CallTarget> getDrivers(Location loc) {
@@ -160,7 +239,8 @@ public final class Dashboard {
     }
     else {
       Cell parentCore = Cell.require(clue.toParent.fragment(core));
-      NockClass parentClass = parentCore.getMeta().getClass(parentCore, this);
+      NockClass parentClass = parentCore.getMeta()
+        .getNockClass(parentCore, this);
       if ( !(parentClass instanceof LocatedClass) ) {
         LOG.warning("trying to register " + clue.name +
             " with unlocated parent.");

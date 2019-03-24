@@ -15,7 +15,7 @@ public abstract class StaticLocation extends Location {
 
   @Override
   public final LocatedFine buildFine(Cell core, Dashboard dashboard) throws ExitException {
-    return new StaticFine(core, (LocatedClass) core.getMeta().getClass(core, dashboard));
+    return new StaticFine(core, (LocatedClass) core.getMeta().getNockClass(core, dashboard));
   }
 
   @Override

@@ -32,21 +32,21 @@ public final class DashboardCell implements TruffleObject {
   }
 
   public CallTarget getFunction() throws ExitException {
-    return meta().getFunction(cell, dashboard);
+    return meta().getFunction(cell, dashboard).callTarget;
   }
 
   public CallTarget getArm(Axis axis) throws ExitException {
-    return meta().getClass(cell, dashboard).getArm(cell, axis);
+    return meta().getNockClass(cell, dashboard).getArm(cell, axis);
   }
 
   public NockCall getCall(Axis axis) throws ExitException {
     CallTarget arm;
     if ( axis.inHead() ) {
-      arm = meta().getClass(cell, dashboard).getArm(cell, axis);
+      arm = meta().getNockClass(cell, dashboard).getArm(cell, axis);
     }
     else {
       Cell formula = Cell.require(axis.fragment(cell));
-      arm = formula.getMeta().getFunction(formula, dashboard);
+      arm = formula.getMeta().getFunction(formula, dashboard).callTarget;
     }
     return new NockCall(arm, cell);
   }

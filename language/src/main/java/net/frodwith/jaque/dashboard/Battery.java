@@ -90,12 +90,12 @@ public final class Battery {
   public CallTarget getArm(Cell battery, FragmentNode fragmentNode)
       throws ExitException {
     Cell formula = Cell.require(fragmentNode.executeFragment(battery));
-    return formula.getMeta().getFunction(formula, dashboard);
+    return formula.getMeta().getFunction(formula, dashboard).callTarget;
   }
 
   public CallTarget getArm(Cell battery, Axis axis) throws ExitException {
     Cell formula = Cell.require(axis.fragment(battery));
-    return formula.getMeta().getFunction(formula, dashboard);
+    return formula.getMeta().getFunction(formula, dashboard).callTarget;
   }
 
   public boolean copyableEdit(Axis written, Cell battery) {

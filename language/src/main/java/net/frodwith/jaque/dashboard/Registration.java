@@ -75,7 +75,7 @@ L0: for ( i = 0; i < len; ++i ) {
         for ( Parents p : parents ) {
           Cell parentCore = Cell.require(p.axis.fragment(core));
           NockClass parentClass = 
-            parentCore.getMeta().getClass(parentCore, dashboard);
+            parentCore.getMeta().getNockClass(parentCore, dashboard);
           if ( parentClass instanceof LocatedClass ) {
             Location found = p.map.get(((LocatedClass) parentClass).location);
             if ( null != found ) {

@@ -39,6 +39,10 @@ public final class CellGrain {
     return hash.get();
   }
 
+  public boolean hasBattery(Dashboard dashboard) {
+    return battery.isPresent() && battery.get().ofDashboard(dashboard);
+  }
+
   public Battery getBattery(Dashboard dashboard, Cell cell) {
     Battery got = null;
 

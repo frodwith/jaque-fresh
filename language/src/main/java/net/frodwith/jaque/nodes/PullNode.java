@@ -62,7 +62,7 @@ public abstract class PullNode extends NockCallLookupNode {
 
   protected NockClass getNockClass(Cell core) {
     try {
-      return core.getMeta().getClass(core, getDashboard());
+      return core.getMeta().getNockClass(core, getDashboard());
     }
     catch ( ExitException e ) {
       throw new NockException("class resolution failed", this);

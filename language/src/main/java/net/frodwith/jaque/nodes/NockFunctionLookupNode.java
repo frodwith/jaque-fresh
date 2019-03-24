@@ -39,7 +39,7 @@ public abstract class NockFunctionLookupNode extends NockNode {
   @TruffleBoundary
   protected CallTarget lookup(Cell formula) {
     try {
-      return formula.getMeta().getFunction(formula, getDashboard());
+      return formula.getMeta().getFunction(formula, getDashboard()).callTarget;
     }
     catch (ExitException e) {
       throw new NockException("bad formula", e, this);

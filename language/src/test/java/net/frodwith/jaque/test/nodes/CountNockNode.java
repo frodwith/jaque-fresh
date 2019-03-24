@@ -43,7 +43,8 @@ public final class CountNockNode extends SubjectNode {
     try {
       Object subject = NockLanguage.getSubject(frame);
       Cell formula = Cell.require(armAxis.fragment(subject));
-      CallTarget fn = formula.getMeta().getFunction(formula, dashboard);
+      CallTarget fn = formula.getMeta()
+        .getFunction(formula, dashboard).callTarget;
       NockCall call = new NockCall(fn, subject);
       bump();
       throw new NockControlFlowException(call);

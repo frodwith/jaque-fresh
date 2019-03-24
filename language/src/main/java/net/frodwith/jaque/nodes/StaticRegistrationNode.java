@@ -3,7 +3,6 @@ package net.frodwith.jaque.nodes;
 import java.util.function.Supplier;
 
 import com.oracle.truffle.api.CompilerDirectives;
-import com.oracle.truffle.api.TruffleLanguage.ContextReference;
 
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.FastClue;
@@ -19,26 +18,26 @@ public final class StaticRegistrationNode extends RegistrationNode {
   private final FastClue clue;
 
   public StaticRegistrationNode(Cell core, FastClue clue,
-    ContextReference<NockContext> contextReference) {
-    super(contextReference);
+    Dashboard dashboard) {
+    super(dashboard);
     this.core = core;
     this.clue = clue;
   }
 
-  protected void executeRegister(Object core, Object clue) {
+  @Override
+  public void executeRegister(Object core, Object clue) {
     RegistrationNode replacement;
     if ( Equality.equals(this.clue.noun, clue) ) {
       if ( Equality.equals(this.core, core) ) {
         return;
       }
       else {
-        Dashboard dash = contextReference.get().dashboard;
         NockClass klass;
         try {
-          klass = this.core.getMeta().getClass(this.core, dash);
+          klass = this.core.getMeta().getNockClass(this.core, dashboard);
           replacement = new FineRegistrationNode(
               this.clue, klass.getFine(this.core),
-              contextReference);
+              dashboard);
         }
         catch ( ExitException e ) {
           // XX log non-core registration
@@ -47,7 +46,7 @@ public final class StaticRegistrationNode extends RegistrationNode {
       }
     }
     else {
-      replacement = new FullyDynamicRegistrationNode(contextReference);
+      replacement = new FullyDynamicRegistrationNode(dashboard);
     }
     CompilerDirectives.transferToInterpreter();
     replace(replacement);

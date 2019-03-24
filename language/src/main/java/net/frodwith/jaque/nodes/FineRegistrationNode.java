@@ -1,7 +1,6 @@
 package net.frodwith.jaque.nodes;
 
 import com.oracle.truffle.api.CompilerDirectives;
-import com.oracle.truffle.api.TruffleLanguage.ContextReference;
 
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.FastClue;
@@ -19,13 +18,13 @@ public final class FineRegistrationNode extends RegistrationNode {
   private final FineCheck fine;
 
   public FineRegistrationNode(FastClue clue, FineCheck fine,
-      ContextReference<NockContext> contextReference) {
-    super(contextReference);
+      Dashboard dashboard) {
+    super(dashboard);
     this.clue = clue;
     this.fine = fine;
   }
 
-  protected void executeRegister(Object core, Object clue) {
+  public void executeRegister(Object core, Object clue) {
     Cell cc;
     try {
       cc = Cell.require(core);
@@ -36,16 +35,16 @@ public final class FineRegistrationNode extends RegistrationNode {
 
     RegistrationNode replacement;
     if ( Equality.equals(this.clue.noun, clue) ) {
-      if ( fine.check(cc, contextReference.get().dashboard) ) {
+      if ( fine.check(cc, dashboard) ) {
         return;
       }
       else {
         replacement =
-          new StaticClueRegistrationNode(this.clue, contextReference);
+          new StaticClueRegistrationNode(this.clue, dashboard);
       }
     }
     else {
-      replacement = new FullyDynamicRegistrationNode(contextReference);
+      replacement = new FullyDynamicRegistrationNode(dashboard);
     }
     CompilerDirectives.transferToInterpreter();
     replace(replacement);

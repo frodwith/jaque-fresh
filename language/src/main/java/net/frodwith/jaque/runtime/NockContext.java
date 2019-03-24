@@ -24,7 +24,6 @@ import net.frodwith.jaque.jet.RootCore;
 import net.frodwith.jaque.data.BigAtom;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.AxisMap;
-import net.frodwith.jaque.parser.FormulaParser;
 import net.frodwith.jaque.exception.ExitException;
 
 import net.frodwith.jaque.dashboard.Location;
@@ -33,13 +32,11 @@ import net.frodwith.jaque.dashboard.Dashboard;
 import net.frodwith.jaque.dashboard.NockFunction;
 
 public final class NockContext {
+  public final Dashboard dashboard;
+
   private final Env env;
   private final NockLanguage language;
-  private final FormulaParser parser;
-  private final Map<Cell,NockFunction> functions;
   private final Cache<Cell,Object> memoCache;
-  public final Dashboard dashboard;
-  public final boolean fast, hash;
 
   public NockContext(NockLanguage language, Env env) {
     OptionValues values = env.getOptions();
@@ -50,30 +47,20 @@ public final class NockContext {
     Map<Cell,Registration> coldHistory =
       language.findHistory(values.get(NockOptions.COLD_HISTORY));
 
-    GrainSilo silo = new GrainSilo(); // FIXME: get from env, but also dashboard
-
-    Map<StrongCellGrainKey,Registration> cold = new HashMap<>();
-    for ( Map.Entry<Cell,Registration> e : coldHistory.entrySet() ) {
-      Cell grain = silo.getCellGrain(e.getKey());
-      cold.put(new StrongCellGrainKey(grain), e.getValue());
-    }
-
-    Map<HashCode,Registration> hot = new HashMap<>();
-    Map<Location,AxisMap<CallTarget>> drivers = new HashMap<>();
-
     this.env       = env;
     this.language  = language;
-    this.fast      = values.get(NockOptions.FAST);
-    this.hash      = values.get(NockOptions.HASH);
-    this.dashboard = new Dashboard(language, silo, cold, hot, drivers,
-        1024, hash);
-    this.parser    = new FormulaParser(language, dashboard);
-    this.functions = new HashMap<>();
+
+    this.dashboard = new Dashboard.Builder()
+      .setLanguage(language)
+      .setColdHistory(coldHistory)
+      .setJetTree(tree)
+      .setHashDiscovery(values.get(NockOptions.HASH))
+      .setFastHints(values.get(NockOptions.FAST))
+      .build();
+
     this.memoCache = CacheBuilder.newBuilder()
       .maximumSize(values.get(NockOptions.MEMO_SIZE))
       .build();
-
-    tree.addToMaps(language, dashboard, hot, drivers);
   }
 
   public Object lookupMemo(Object subject, Cell formula) {
