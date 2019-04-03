@@ -8,7 +8,6 @@ import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.data.AxisMap;
 
 public class AxisMapTest {
-
   @Test
   public void testBasic() {
     Axis beg = Axis.HEAD,
@@ -33,5 +32,12 @@ public class AxisMapTest {
     assertEquals("middle", trel.get(mid));
     assertEquals("wrong", trel.get(end));
     assertEquals("odd", trel.get(odd));
+
+    trel = trel.transform((s) -> s.toUpperCase());
+
+    assertEquals("BEGINNING", trel.get(beg));
+    assertEquals("MIDDLE", trel.get(mid));
+    assertEquals("WRONG", trel.get(end));
+    assertEquals("ODD", trel.get(odd));
   }
 }

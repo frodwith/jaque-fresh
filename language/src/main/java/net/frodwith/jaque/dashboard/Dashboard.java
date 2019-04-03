@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.function.Supplier;
+import java.util.function.Function;
 
 import com.google.common.hash.HashCode;
 import com.google.common.cache.Cache;
@@ -18,20 +19,22 @@ import com.oracle.truffle.api.utilities.CyclicAssumption;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 
 import net.frodwith.jaque.NockLanguage;
+import net.frodwith.jaque.AstContext;
 
 import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.CellGrain;
 import net.frodwith.jaque.data.FastClue;
 import net.frodwith.jaque.data.AxisMap;
+import net.frodwith.jaque.data.NockFunction;
 import net.frodwith.jaque.data.SourceMappedNoun;
 
 import net.frodwith.jaque.jet.JetTree;
 
+import net.frodwith.jaque.data.NockObject;
 import net.frodwith.jaque.dashboard.Battery;
 import net.frodwith.jaque.dashboard.NockClass;
 import net.frodwith.jaque.dashboard.LocatedClass;
-import net.frodwith.jaque.dashboard.NockFunction;
 
 import net.frodwith.jaque.parser.FormulaParser;
 import net.frodwith.jaque.nodes.NockRootNode;
@@ -41,55 +44,43 @@ import net.frodwith.jaque.runtime.StrongCellGrainKey;
 import net.frodwith.jaque.exception.ExitException;
 
 public final class Dashboard {
-  public final FormulaParser parser;
   public final boolean hashDiscovery, fastHints;
 
-  private final NockLanguage language;
   private final GrainSilo silo;
   private final CyclicAssumption stable = new CyclicAssumption("dashboard");
   private final Map<StrongCellGrainKey,Registration> cold;
   private final Map<HashCode,Registration> hot;
-  private final Map<Location,AxisMap<CallTarget>> drivers;
-  private final Cache<Cell,NockFunction> functions;
+  private final Map<Location,AxisMap<Function<AstContext,CallTarget>>> drivers;
   private final static TruffleLogger LOG =
     TruffleLogger.getLogger(NockLanguage.ID, Dashboard.class);
 
-  private Dashboard(NockLanguage language,
-                   GrainSilo silo,
-                   Map<StrongCellGrainKey,Registration> cold,
-                   Map<HashCode,Registration> hot,
-                   Map<Location,AxisMap<CallTarget>> drivers,
-                   int functionCacheSize,
-                   boolean hashDiscovery,
-                   boolean fastHints) {
+  private Dashboard(GrainSilo silo,
+                    Map<StrongCellGrainKey,Registration> cold,
+                    Map<HashCode,Registration> hot,
+                    Map<Location,AxisMap<Function<AstContext,CallTarget>>> drivers,
+                    boolean hashDiscovery,
+                    boolean fastHints) {
     this.hot     = hot;
     this.cold    = cold;
     this.drivers = drivers;
     this.silo    = silo;
     this.hashDiscovery = hashDiscovery;
     this.fastHints = fastHints;
-    this.language = language;
-    this.parser = new FormulaParser(language, this);
-    this.functions = CacheBuilder.newBuilder()
-      .maximumSize(functionCacheSize).build();
   }
 
   public static class Builder {
-    private NockLanguage language;
     private GrainSilo silo;
     private Map<Cell, Registration> coldHistory;
     private JetTree jetTree;
-    private int functionCacheSize = 0;
     private boolean hashDiscovery = false;
     private boolean fastHints = false;
 
     public Dashboard build() {
-      assert( language != null );
       if ( null == silo ) {
         silo = new GrainSilo();
       }
 
-      Map<Location,AxisMap<CallTarget>> drivers = new HashMap<>();
+      Map<Location,AxisMap<Function<AstContext,CallTarget>>> drivers = new HashMap<>();
       Map<HashCode,Registration> hot = new HashMap<>();
       Map<StrongCellGrainKey,Registration> cold = new HashMap<>();
       if ( null != coldHistory ) {
@@ -99,26 +90,21 @@ public final class Dashboard {
         }
       }
 
-      if ( 0 == functionCacheSize ) {
-        functionCacheSize = 1024;
+      if ( null == jetTree ) {
+        hashDiscovery = false;
       }
 
-      Dashboard dashboard = new Dashboard(language, silo, cold, 
-          hot, drivers, functionCacheSize, hashDiscovery, fastHints);
+      Dashboard dashboard = new Dashboard(silo, cold, 
+          hot, drivers, hashDiscovery, fastHints);
 
       if ( null != jetTree ) {
-        jetTree.addToMaps(language, dashboard, hot, drivers);
+        jetTree.addToMaps(hot, drivers);
       }
       return dashboard;
     }
 
     public Builder setJetTree(JetTree jetTree) {
       this.jetTree = jetTree;
-      return this;
-    }
-
-    public Builder setLanguage(NockLanguage language) {
-      this.language = language;
       return this;
     }
 
@@ -132,11 +118,6 @@ public final class Dashboard {
       return this;
     }
 
-    public Builder setFunctionCacheSize(int functionCacheSize) {
-      this.functionCacheSize = functionCacheSize;
-      return this;
-    }
-
     public Builder setHashDiscovery(boolean hashDiscovery) {
       this.hashDiscovery = hashDiscovery;
       return this;
@@ -147,18 +128,17 @@ public final class Dashboard {
       return this;
     }
   }
-
-  public AxisMap<CallTarget> getDrivers(Location loc) {
-    AxisMap<CallTarget> drive = drivers.get(loc);
-    return (null == drive) ? AxisMap.EMPTY : drive;
+  
+  public AxisMap<CallTarget> getDrivers(Location location, AstContext context) {
+    return drivers.containsKey(location)
+      ? drivers.get(location).transform((f) -> f.apply(context))
+      : AxisMap.EMPTY;
   }
 
   private Cell canonicalizeBattery(Cell core) throws ExitException {
     return silo.getCellGrain(Cell.require(core.head));
   }
 
-  // these class objects could in principle be cached in some way, but they are
-  // not expensive and the sharing they enable is primarily useful for edit
   public NockClass getClass(Cell core) throws ExitException {
     Cell battery = canonicalizeBattery(core);
     return battery.getMeta()
@@ -170,27 +150,7 @@ public final class Dashboard {
   public LocatedClass locatedClass(Cell battery, Location location) {
     return new LocatedClass(
       battery.getMeta().getGrain().getBattery(this, battery),
-      stable.getAssumption(), location, getDrivers(location));
-  }
-
-  public NockFunction compileFormula(Cell formula) throws ExitException {
-    NockFunction f = functions.getIfPresent(formula);
-    if ( null == f ) {
-      Supplier<SourceMappedNoun> sup = () -> {
-        try {
-          return SourceMappedNoun.fromCell(formula);
-        }
-        catch ( ExitException e ) {
-          throw new RuntimeException("NockFunction.fromCell:supplier", e);
-        }
-      };
-      NockRootNode nockRoot = new NockRootNode(language,
-          NockLanguage.DESCRIPTOR, sup, parser.parse(formula));
-      RootCallTarget t = Truffle.getRuntime().createCallTarget(nockRoot);
-      f = new NockFunction(t, this);
-      functions.put(formula, f);
-    }
-    return f;
+      stable.getAssumption(), location);
   }
 
   public Optional<Registration> findHot(CellGrain grain, Cell cell) {
@@ -230,7 +190,9 @@ public final class Dashboard {
   }
 
   // unconditional (will not short-circuit)
-  public void register(Cell core, FastClue clue) throws ExitException {
+  public void 
+    register(Cell core, FastClue clue, AstContext context)
+      throws ExitException {
     Location loc;
     if ( clue.toParent.isCrash() ) {
       RootLocation root = new RootLocation(clue.name, clue.hooks, core.tail);
@@ -239,14 +201,14 @@ public final class Dashboard {
     }
     else {
       Cell parentCore = Cell.require(clue.toParent.fragment(core));
-      NockClass parentClass = parentCore.getMeta()
-        .getNockClass(parentCore, this);
-      if ( !(parentClass instanceof LocatedClass) ) {
+      Optional<Location> parentLocation 
+        = parentCore.getMeta().getObject(core, context).getLocation();
+      if ( parentLocation.isPresent() ) {
         LOG.warning("trying to register " + clue.name +
             " with unlocated parent.");
         return;
       }
-      Location parent = ((LocatedClass) parentClass).location;
+      Location parent = parentLocation.get();
       Location child = 
         ( clue.toParent == Axis.TAIL && parent instanceof StaticLocation )
         ? new StaticChildLocation(clue.name, clue.hooks, 
@@ -261,7 +223,9 @@ public final class Dashboard {
     Cell battery = canonicalizeBattery(core);
     Battery b = battery.getMeta().getGrain().getBattery(this, battery);
     Assumption a = getStableAssumption();
-    core.getMeta().setClass(new LocatedClass(b, a, loc, getDrivers(loc)));
+    NockClass klass = new LocatedClass(b, a, loc);
+    NockObject object = new NockObject(klass, context);
+    core.getMeta().setObject(object);
   }
 
   public Assumption getStableAssumption() {

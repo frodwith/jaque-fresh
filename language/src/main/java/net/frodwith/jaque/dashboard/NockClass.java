@@ -2,14 +2,19 @@ package net.frodwith.jaque.dashboard;
 
 import java.util.Optional;
 import java.util.function.Supplier;
+import java.util.function.Function;
 
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.Assumption;
 import com.oracle.truffle.api.CompilerDirectives;
 
+import net.frodwith.jaque.AstContext;
 import net.frodwith.jaque.data.Axis;
+import net.frodwith.jaque.data.AxisMap;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.nodes.FragmentNode;
+import net.frodwith.jaque.parser.FormulaParser;
+import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.exception.ExitException;
 
 public abstract class NockClass {
@@ -44,23 +49,10 @@ public abstract class NockClass {
     }
   }
 
+
   protected abstract FineCheck buildFine(Cell core) throws ExitException;
-  protected abstract Optional<CallTarget> getDriver(Axis axis);
   public abstract boolean copyableEdit(Axis written, Cell battery);
   public abstract boolean locatedAt(Location location);
-
-  public CallTarget getArm(Cell core, Axis axis) throws ExitException {
-    Optional<CallTarget> driver = getDriver(axis);
-    return driver.isPresent()
-      ? driver.get()
-      : battery.getArm(Cell.require(core.head), axis.mas());
-  }
-
-  public CallTarget getArm(Cell core, Axis axis, FragmentNode fragmentNode)
-    throws ExitException {
-    Optional<CallTarget> driver = getDriver(axis);
-    return driver.isPresent()
-      ? driver.get()
-      : battery.getArm(Cell.require(core.head), fragmentNode);
-  }
+  public abstract AxisMap<CallTarget> getDrivers(AstContext context);
+  public abstract Optional<Location> getLocation();
 }

@@ -2,20 +2,22 @@ package net.frodwith.jaque.jet;
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.function.Function;
 
 import com.google.common.hash.HashCode;
 
 import com.oracle.truffle.api.CallTarget;
 
+import net.frodwith.jaque.AstContext;
 import net.frodwith.jaque.NockLanguage;
 import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.data.AxisMap;
+import net.frodwith.jaque.parser.FormulaParser;
 import net.frodwith.jaque.dashboard.Hook;
 import net.frodwith.jaque.dashboard.Location;
 import net.frodwith.jaque.dashboard.BatteryHash;
 import net.frodwith.jaque.dashboard.Registration;
 import net.frodwith.jaque.dashboard.Dashboard;
-import net.frodwith.jaque.dashboard.NockFunction;
 
 public abstract class JetCore {
   public final String name;
@@ -40,10 +42,8 @@ public abstract class JetCore {
   }
 
   public final void addToMaps(Location parent,
-                              NockLanguage language,
-                              Dashboard dashboard,
                               Map<HashCode,Registration> hot,
-                              Map<Location,AxisMap<CallTarget>> driver) {
+                              Map<Location,AxisMap<Function<AstContext,CallTarget>>> driver) {
     Map<String,Hook> hookMap = new HashMap<>();
     for ( JetHook h : hooks ) {
       hookMap.put(h.name, h.hook);
@@ -56,16 +56,17 @@ public abstract class JetCore {
       hot.put(h, r);
     }
 
-    AxisMap functions = AxisMap.EMPTY;
+    AxisMap<Function<AstContext,CallTarget>>
+      factories = AxisMap.EMPTY;
+
     for ( JetArm arm : arms ) {
       Axis ax = arm.getAxis(hookMap);
-      JetContext jetContext = new JetContext(ax, dashboard, language);
-      functions = functions.insert(ax, arm.getFunction(jetContext));
+      factories = factories.insert(ax, arm.getFactory(ax));
     }
-    driver.put(loc, functions);
+    driver.put(loc, factories);
 
     for ( ChildCore child : children ) {
-      child.addToMaps(loc, language, dashboard, hot, driver);
+      child.addToMaps(loc, hot, driver);
     }
   }
 }

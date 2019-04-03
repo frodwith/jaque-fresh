@@ -9,6 +9,7 @@ import com.oracle.truffle.api.Assumption;
 import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.nodes.FragmentNode;
+import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.exception.ExitException;
 
 // these objects live on grains, and so are guaranteed to be deduplicated
@@ -76,8 +77,7 @@ public final class Battery {
     Optional<Location> location = locate(core, battery);
     Assumption stable = dashboard.getStableAssumption();
     if ( location.isPresent() ) {
-      Location l = location.get();
-      return new LocatedClass(this, stable, l, dashboard.getDrivers(l));
+      return new LocatedClass(this, stable, location.get());
     }
     else if ( cold.isPresent() ) {
       return new RegisteredClass(this, stable);
@@ -85,17 +85,6 @@ public final class Battery {
     else {
       return new UnregisteredClass(this, stable);
     }
-  }
-
-  public CallTarget getArm(Cell battery, FragmentNode fragmentNode)
-      throws ExitException {
-    Cell formula = Cell.require(fragmentNode.executeFragment(battery));
-    return formula.getMeta().getFunction(formula, dashboard).callTarget;
-  }
-
-  public CallTarget getArm(Cell battery, Axis axis) throws ExitException {
-    Cell formula = Cell.require(axis.fragment(battery));
-    return formula.getMeta().getFunction(formula, dashboard).callTarget;
   }
 
   public boolean copyableEdit(Axis written, Cell battery) {

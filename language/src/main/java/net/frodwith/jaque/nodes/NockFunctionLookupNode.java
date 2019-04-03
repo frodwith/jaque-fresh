@@ -17,10 +17,10 @@ import net.frodwith.jaque.exception.NockException;
 import net.frodwith.jaque.exception.ExitException;
 
 @NodeChild(value="cellNode", type=NockExpressionNode.class)
-@NodeField(name="dashboard", type=Dashboard.class)
+@NodeField(name="contextReference", type=ContextReference.class)
 public abstract class NockFunctionLookupNode extends NockNode {
   public static final int INLINE_CACHE_SIZE = 2;
-  protected abstract Dashboard getDashboard();
+  protected abstract ContextReference<NockContext> getContextReference();
   public abstract CallTarget executeLookup(VirtualFrame frame);
 
   @Specialization(limit = "INLINE_CACHE_SIZE",
@@ -39,7 +39,7 @@ public abstract class NockFunctionLookupNode extends NockNode {
   @TruffleBoundary
   protected CallTarget lookup(Cell formula) {
     try {
-      return formula.getMeta().getFunction(formula, getDashboard()).callTarget;
+      return formula.getMeta().getFunction(formula, getContextReference().get()).callTarget;
     }
     catch (ExitException e) {
       throw new NockException("bad formula", e, this);

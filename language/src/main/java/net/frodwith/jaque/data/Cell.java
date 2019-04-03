@@ -8,6 +8,7 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.interop.ForeignAccess;
 
+import net.frodwith.jaque.AstContext;
 import net.frodwith.jaque.runtime.Mug;
 import net.frodwith.jaque.runtime.GrainSilo;
 import net.frodwith.jaque.runtime.Equality;
@@ -161,9 +162,9 @@ public final class Cell implements TruffleObject, Serializable {
   }
 
   public void
-    copyClassToMutant(Cell mutant, Axis written, Dashboard dashboard) {
+    copyObjectToMutant(Cell mutant, Axis written, AstContext context) {
     if ( meta instanceof CellMeta ) {
-      ((CellMeta) meta).copyClassToMutant(this, mutant, written, dashboard);
+      ((CellMeta) meta).copyObjectToMutant(this, mutant, written, context);
     }
   }
 

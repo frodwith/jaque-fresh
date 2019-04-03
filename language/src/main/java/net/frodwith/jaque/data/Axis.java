@@ -88,6 +88,10 @@ public final class Axis implements Iterable<Axis.Fragment> {
     return new Axis(HoonMath.peg(this.atom, under.atom));
   }
 
+  public boolean isIdentity() {
+    return this == IDENTITY;
+  }
+
   public boolean isCrash() {
     return this == CRASH;
   }

@@ -99,7 +99,7 @@ public class AckermanTest {
               Axis.CONTEXT,
               new HashCode[] { BatteryHash.read(DEC_HASH) },
               new JetArm[] {
-                new AxisArm(Axis.HEAD, (jc) ->
+                new AxisArm(Axis.HEAD, (c, ax) ->
                     MockDecNodeGen.create(new SlotNode(Axis.SAMPLE)))
               },
               new JetHook[0],

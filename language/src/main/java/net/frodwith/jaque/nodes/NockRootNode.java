@@ -21,10 +21,9 @@ public final class NockRootNode extends RootNode {
   private SourceMappedNoun source;
 
   public NockRootNode(NockLanguage language,
-                      FrameDescriptor frameDescriptor,
                       Supplier<SourceMappedNoun> sourceSupplier,
                       NockExpressionNode bodyNode) {
-    super(language, frameDescriptor);
+    super(language, NockLanguage.DESCRIPTOR);
     this.sourceSupplier = sourceSupplier;
     this.bodyNode       = bodyNode;
     this.source         = null;

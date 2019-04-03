@@ -22,15 +22,15 @@ import net.frodwith.jaque.exception.NockException;
 import net.frodwith.jaque.exception.NockControlFlowException;
 
 public final class CountNockNode extends SubjectNode {
-  private final Dashboard dashboard;
+  private final ContextReference<NockContext> contextReference;
   private final Axis armAxis;
   private final String countName;
   private static final Map<String,Integer> counts = new HashMap<>();
 
-  public CountNockNode(Dashboard dashboard,
+  public CountNockNode(ContextReference<NockContext> contextReference,
                        Axis armAxis,
                        String countName) {
-    this.dashboard = dashboard;
+    this.contextReference = contextReference;
     this.armAxis = armAxis;
     this.countName = countName;
   }
@@ -44,7 +44,7 @@ public final class CountNockNode extends SubjectNode {
       Object subject = NockLanguage.getSubject(frame);
       Cell formula = Cell.require(armAxis.fragment(subject));
       CallTarget fn = formula.getMeta()
-        .getFunction(formula, dashboard).callTarget;
+        .getFunction(formula, contextReference.get()).callTarget;
       NockCall call = new NockCall(fn, subject);
       bump();
       throw new NockControlFlowException(call);

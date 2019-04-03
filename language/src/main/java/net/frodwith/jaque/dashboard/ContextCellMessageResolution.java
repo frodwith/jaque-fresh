@@ -20,12 +20,12 @@ import net.frodwith.jaque.parser.SimpleAtomParser;
 import net.frodwith.jaque.exception.ExitException;
 import net.frodwith.jaque.exception.NockException;
 
-@MessageResolution(receiverType = DashboardCell.class)
-public abstract class DashboardCellMessageResolution extends Node {
+@MessageResolution(receiverType = ContextCell.class)
+public abstract class ContextCellMessageResolution extends Node {
 
   @Resolve(message = "READ")
-  public abstract static class DashboardCellReadNode extends Node {
-    protected Object access(DashboardCell reciever, String name) {
+  public abstract static class ContextCellReadNode extends Node {
+    protected Object access(ContextCell reciever, String name) {
       if ( name.equals("isCore") ) {
         return reciever.hasClass();
       }
@@ -36,11 +36,11 @@ public abstract class DashboardCellMessageResolution extends Node {
   }
 
   @Resolve(message = "EXECUTE")
-  public abstract static class DashboardCellExecuteNode extends Node {
+  public abstract static class ContextCellExecuteNode extends Node {
     @Child private NockCallDispatchNode dispatch =
       NockCallDispatchNodeGen.create();
 
-    protected Object access(DashboardCell reciever, Object[] arguments) {
+    protected Object access(ContextCell reciever, Object[] arguments) {
       CallTarget function;
       Object subject = NockLanguage.fromArguments(arguments, 0L);
       try {
@@ -54,10 +54,10 @@ public abstract class DashboardCellMessageResolution extends Node {
   }
 
   @Resolve(message = "INVOKE")
-	public abstract static class DashboardCellInvokeNode extends Node {
+	public abstract static class ContextCellInvokeNode extends Node {
 		@Child private NockCallDispatchNode dispatch = NockCallDispatchNodeGen.create();
 
-    private Object accessZero(DashboardCell receiver, String name) {
+    private Object accessZero(ContextCell receiver, String name) {
       NockCall call;
       try {
         call = receiver.getCall(Axis.require(SimpleAtomParser.parse(name)));
@@ -68,13 +68,13 @@ public abstract class DashboardCellMessageResolution extends Node {
       return dispatch.executeCall(call);
     }
 
-    public Object access(DashboardCell receiver, String name, Object[] arguments) {
+    public Object access(ContextCell receiver, String name, Object[] arguments) {
       if ( 0 == arguments.length ) {
         return accessZero(receiver, name);
       }
       try {
         Object sample = NockLanguage.fromArguments(arguments);
-        DashboardCell newMeta = receiver.edit(Axis.SAMPLE, sample);
+        ContextCell newMeta = receiver.edit(Axis.SAMPLE, sample);
         return accessZero(newMeta, name);
       }
       catch ( ExitException e ) {
@@ -84,9 +84,9 @@ public abstract class DashboardCellMessageResolution extends Node {
   }
 
   @CanResolve
-  public abstract static class DashboardCellCheckNode extends Node {
+  public abstract static class ContextCellCheckNode extends Node {
     protected static boolean test(TruffleObject receiver) {
-      return receiver instanceof DashboardCell;
+      return receiver instanceof ContextCell;
     }
   }
 }

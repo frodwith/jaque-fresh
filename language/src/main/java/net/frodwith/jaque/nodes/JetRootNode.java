@@ -18,9 +18,8 @@ public final class JetRootNode extends RootNode {
     .build();
 
   public JetRootNode(NockLanguage language,
-                     FrameDescriptor frameDescriptor,
                      SubjectNode bodyNode) {
-    super(language, frameDescriptor);
+    super(language, NockLanguage.DESCRIPTOR);
     this.bodyNode = bodyNode;
   }
 

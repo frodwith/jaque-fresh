@@ -1,4 +1,4 @@
-package net.frodwith.jaque.dashboard;
+package net.frodwith.jaque.data;
 
 import com.oracle.truffle.api.interop.CanResolve;
 import com.oracle.truffle.api.interop.MessageResolution;
@@ -8,7 +8,6 @@ import com.oracle.truffle.api.interop.ArityException;
 import com.oracle.truffle.api.nodes.Node;
 
 import net.frodwith.jaque.NockLanguage;
-import net.frodwith.jaque.data.NockCall;
 import net.frodwith.jaque.nodes.NockCallDispatchNode;
 import net.frodwith.jaque.nodes.NockCallDispatchNodeGen;
 

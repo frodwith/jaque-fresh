@@ -4,9 +4,11 @@ import java.util.Map;
 import java.util.List;
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.function.Function;
 
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.Value;
+import org.graalvm.options.OptionValues;
 import org.graalvm.options.OptionDescriptor;
 import org.graalvm.options.OptionDescriptors;
 
@@ -30,14 +32,14 @@ import net.frodwith.jaque.jet.RootCore;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.CellMeta;
 import net.frodwith.jaque.data.BigAtom;
+import net.frodwith.jaque.data.NockFunction;
 import net.frodwith.jaque.data.SourceMappedNoun;
 import net.frodwith.jaque.nodes.NockRootNode;
 import net.frodwith.jaque.parser.CustomParser;
 import net.frodwith.jaque.parser.FormulaParser;
 import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.dashboard.Dashboard;
-import net.frodwith.jaque.dashboard.DashboardCell;
-import net.frodwith.jaque.dashboard.NockFunction;
+import net.frodwith.jaque.dashboard.ContextCell;
 import net.frodwith.jaque.exception.ExitException;
 
 @TruffleLanguage.Registration(id = NockLanguage.ID, 
@@ -49,6 +51,7 @@ public final class NockLanguage extends TruffleLanguage<NockContext> {
 
   private static final Map<String,JetTree> installedJets =
     new HashMap<>();
+
   private static final Map<String,Map<Cell,net.frodwith.jaque.dashboard.Registration>> histories =
     new HashMap<>();
 
@@ -63,6 +66,24 @@ public final class NockLanguage extends TruffleLanguage<NockContext> {
     List<OptionDescriptor> options = new ArrayList<>();
     NockOptions.describe(options);
     OPTION_DESCRIPTORS = OptionDescriptors.create(options);
+  }
+
+  private final Map<Dashboard,AstContext>
+    contexts = new HashMap<>();
+
+  private final Map<Cell,Function<AstContext,NockFunction>>
+    functionFactories = new HashMap<>();
+
+  // for use by AstContext -- don't use directly
+  public Function<AstContext,NockFunction>
+    getFunctionFactory(Cell formula)
+      throws ExitException {
+    Function<AstContext,NockFunction> f = functionFactories.get(formula);
+    if ( null == f ) {
+      f = FormulaParser.parse(formula);
+      functionFactories.put(formula, f);
+    }
+    return f;
   }
 
   public static void installJetTree(String name, JetTree tree) {
@@ -133,9 +154,28 @@ public final class NockLanguage extends TruffleLanguage<NockContext> {
       || o instanceof Long;
   }
 
+  private AstContext getAstContext(Dashboard dashboard) {
+    AstContext c = contexts.get(dashboard);
+    if ( null == c ) {
+      c = new AstContext(this, dashboard);
+      contexts.put(c);
+    }
+    return c;
+  }
+
   @Override
   protected NockContext createContext(Env env) {
-    return new NockContext(this, env);
+    OptionValues values = env.getOptions();
+
+    // FIXME: use config values first (for subcontexts)
+    Dashboard dashboard = new Dashboard.Builder()
+        .setColdHistory(findHistory(values.get(NockOptions.COLD_HISTORY)))
+        .setJetTree(getJetTree(values.get(NockOptions.JET_TREE)))
+        .setHashDiscovery(values.get(NockOptions.HASH))
+        .setFastHints(values.get(NockOptions.FAST))
+        .build();
+
+    return new NockContext(this, env, getAstContext(dashboard));
   }
 
   @Override
@@ -149,13 +189,12 @@ public final class NockLanguage extends TruffleLanguage<NockContext> {
     if ( !request.getArgumentNames().isEmpty() ) {
       throw new UnsupportedOperationException("nock has no named values");
     }
-    SourceSection whole     = source.createSection(0, source.getLength());
+    SourceSection whole = source.createSection(0, source.getLength());
     SourceMappedNoun mapped = CustomParser.parse(whole);
-    Dashboard dashboard = getContextReference().get().dashboard;
-    RootNode nockRoot = new NockRootNode(this, DESCRIPTOR, () -> mapped,
-        dashboard.parser.parse(Cell.require(mapped.noun)));
-    RootCallTarget target = Truffle.getRuntime().createCallTarget(nockRoot);
-    NockFunction function = new NockFunction(target, dashboard);
+
+    NockContext context = getCurrentContext(NockLanguage.class);
+    NockFunction function = context.getMappedFunction(mapped);
+
     return Truffle.getRuntime()
       .createCallTarget(RootNode.createConstantNode(function));
   }
@@ -163,7 +202,7 @@ public final class NockLanguage extends TruffleLanguage<NockContext> {
   @Override
   public Object findMetaObject(NockContext context, Object o) {
     if ( o instanceof Cell ) {
-      return new DashboardCell(context.dashboard, (Cell) o);
+      return new ContextCell(context, (Cell) o);
     }
     else {
       return null;

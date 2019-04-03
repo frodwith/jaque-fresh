@@ -1,6 +1,7 @@
 package net.frodwith.jaque.data;
 
 import java.util.ArrayDeque;
+import java.util.function.Function;
 
 /* Immutable Map indexed by Axis with T values.
  * Immutable to aid partial evaluation, indexed by Axis to facilitate
@@ -39,6 +40,65 @@ public final class AxisMap<T> {
         : new AxisMap<T>(parent.value, parent.left, cur);
     }
     return cur;
+  }
+
+  public <U> AxisMap<U> transform(Function<T,U> f) {
+    if ( this == EMPTY ) {
+      return EMPTY;
+    }
+    else {
+      final class Frame {
+        public int state;
+        public AxisMap<T> node;
+        public AxisMap<U> left;
+        public AxisMap<U> right;
+
+        public Frame(AxisMap<T> node) {
+          this.state = 0;
+          this.node = node;
+          this.left = null;
+          this.right = null;
+        }
+      }
+      AxisMap<U> ret = null;
+      U val;
+      Frame top = new Frame(this);
+      ArrayDeque<Frame> stack = new ArrayDeque<>();
+      stack.push(top);
+      do {
+        switch ( top.state ) {
+          case 0:
+            ++top.state;
+            if ( top.node.left == null ) {
+              ret = null;
+              // fall through
+            }
+            else {
+              stack.push(top = new Frame(top.node.left));
+              break;
+            }
+
+          case 1:
+            ++top.state;
+            top.left = ret;
+            if ( top.node.right == null ) {
+              ret = null;
+              // fall through
+            }
+            else {
+              stack.push(top = new Frame(top.node.right));
+              break;
+            }
+
+          case 2:
+            val = (null == top.node.value) ? null : f.apply(top.node.value);
+            ret = new AxisMap<U>(val, top.left, ret);
+            top = stack.pop();
+            break;
+        }
+      } while ( null != top );
+      return ret;
+    }
   }
 
   public T get(Axis index) {

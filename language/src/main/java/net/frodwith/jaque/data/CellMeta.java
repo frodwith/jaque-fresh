@@ -8,6 +8,7 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.TruffleLanguage.ContextReference;
 
+import net.frodwith.jaque.AstContext;
 import net.frodwith.jaque.runtime.Mug;
 import net.frodwith.jaque.runtime.GrainSilo;
 import net.frodwith.jaque.runtime.NockContext;
@@ -15,14 +16,13 @@ import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.dashboard.NockClass;
 import net.frodwith.jaque.dashboard.Dashboard;
 import net.frodwith.jaque.dashboard.Location;
-import net.frodwith.jaque.dashboard.NockFunction;
 import net.frodwith.jaque.exception.ExitException;
 
 public final class CellMeta {
   private int mug;
 
   private Optional<NockFunction> function;
-  private Optional<NockClass> klass;
+  private Optional<NockObject> object;
   private Optional<CellGrain> grain;
 
   public CellMeta(int mug) {
@@ -30,100 +30,6 @@ public final class CellMeta {
     this.klass     = Optional.empty();
     this.function  = Optional.empty();
     this.grain     = Optional.empty();
-  }
-
-  public boolean hasFunction(Dashboard dashboard) {
-    return function.isPresent() && function.get().ofDashboard(dashboard);
-  }
-
-  public boolean inSilo(GrainSilo silo) {
-    return grain.isPresent() && grain.get().inSilo(silo);
-  }
-
-  public void setSilo(GrainSilo silo) {
-    if ( grain.isPresent() ) {
-      grain.get().setSilo(silo);
-    }
-    else {
-      grain = Optional.of(new CellGrain(silo));
-    }
-  }
-
-  public NockClass getNockClass(Cell core, Dashboard dashboard) throws ExitException {
-    if ( hasClass(dashboard) ) {
-      return klass.get();
-    }
-    else {
-      NockClass k = dashboard.getClass(core);
-      klass = Optional.of(k);
-      return k;
-    }
-  }
-
-  public void setClass(NockClass klass) {
-    this.klass = Optional.of(klass);
-  }
-
-  public boolean hasClass(Dashboard dashboard) {
-    return klass.isPresent() && klass.get().ofDashboard(dashboard);
-  }
-
-  public Optional<NockClass> cachedClass(Dashboard dashboard) {
-    return hasClass(dashboard) ? klass : Optional.empty();
-  }
-
-  public void
-    copyClassToMutant(Cell core, Cell mutant, Axis written, Dashboard dashboard) {
-    try {
-      if ( hasClass(dashboard) ) {
-        NockClass c = klass.get();
-        Cell battery = Cell.require(core.head);
-        if ( c.copyableEdit(written, battery) ) {
-          mutant.getMeta().setClass(c);
-        }
-      }
-    }
-    catch ( ExitException e) {
-    }
-  }
-
-  public boolean knownAt(Location location, Dashboard dashboard) {
-    return hasClass(dashboard) && klass.get().locatedAt(location);
-  }
-
-  // don't call unless you know you have a grain.
-  public CellGrain getGrain() {
-    return grain.get();
-  }
-
-  public NockFunction getFunction(Cell cell, Dashboard dashboard)
-    throws ExitException {
-    boolean have = function.isPresent();
-    NockFunction f = null;
-    if ( have ) {
-      f = function.get();
-      have = f.ofDashboard(dashboard);
-    }
-    if ( !have ) {
-      f = dashboard.compileFormula(cell);
-      function = Optional.of(f);
-    }
-    return f;
-  }
-
-  public int mug(Cell cell) {
-    if ( 0 == mug ) {
-      mug = Mug.calculate(cell);
-    }
-    return mug;
-  }
-
-  public void setMug(int mug) {
-    this.mug = mug;
-  }
-
-  public int cachedMug() {
-    return mug;
   }
 
   public static void unify(CellMeta a, CellMeta b) {
@@ -168,4 +74,126 @@ public final class CellMeta {
     }
   }
   */
+
+  // mugs
+
+  public int mug(Cell cell) {
+    if ( 0 == mug ) {
+      mug = Mug.calculate(cell);
+    }
+    return mug;
+  }
+
+  public void setMug(int mug) {
+    this.mug = mug;
+  }
+
+  public int cachedMug() {
+    return mug;
+  }
+
+  // grains
+
+  public boolean inSilo(GrainSilo silo) {
+    return grain.isPresent() && grain.get().inSilo(silo);
+  }
+
+  public void setSilo(GrainSilo silo) {
+    if ( grain.isPresent() ) {
+      grain.get().setSilo(silo);
+    }
+    else {
+      grain = Optional.of(new CellGrain(silo));
+    }
+  }
+
+  // don't call unless you know you have a grain.
+  public CellGrain getGrain() {
+    return grain.get();
+  }
+
+  // cell-as-formula
+
+  public boolean hasFunction(AstContext context) {
+    return function.isPresent() && function.get().compatible(context);
+  }
+
+  public NockFunction 
+    getFunction(Cell cell, AstContext context)
+      throws ExitException {
+    NockFunction f;
+    if ( function.isPresent() ) {
+      f = function.get();
+      if ( !f.compatible(context) ) {
+        f = f.forContext(context);
+        function = Optional.of(f);
+      }
+    }
+    else {
+      f = context.getFunction(cell);
+      function = Optional.of(f);
+    }
+    return f;
+  }
+
+  // cell-as-core
+
+  public boolean hasObject(AstContext context) {
+    return object.isPresent() && object.get().compatible(context);
+  }
+
+  public boolean knownAt(Location location, Dashboard dashboard) {
+    if ( object.isPresent() ) {
+      NockObject o = object.get();
+      return o.dashboardCompatible(dashboard) && o.locatedAt(location);
+    }
+    else {
+      return false;
+    }
+  }
+
+  public Optional<NockObject> cachedObject(AstContext context) {
+    return hasObject(context) ? object : Optional.empty();
+  }
+
+  public void setObject(NockObject object) {
+    this.object = Optional.of(object);
+  }
+
+  public NockObject 
+    getObject(Cell core, AstContext context) 
+      throws ExitException {
+    NockObject o;
+
+    if ( object.isPresent() ) {
+      o = object.get();
+      if ( o.compatible(context) ) {
+        return o;
+      }
+      else {
+        o = o.recontextualize(context);
+      }
+    }
+    else {
+      o = context.getObject(core);
+    }
+
+    object = Optional.of(o);
+    return o;
+  }
+
+  public void
+    copyObjectToMutant(Cell core, Cell mutant, Axis written, AstContext context) {
+    try {
+      if ( hasObject(context) ) {
+        NockObject o = object.get();
+        Cell battery = Cell.require(core.head);
+        if ( o.copyableEdit(written, battery) ) {
+          mutant.getMeta().setObject(o);
+        }
+      }
+    }
+    catch ( ExitException e) {
+    }
+  }
 }

@@ -25,13 +25,13 @@ public final class RegisteredFine extends UnlocatedFine {
     }
     else {
       Optional<Location> location = klass.locate(core, battery);
-      if ( !location.isPresent() ) {
-        meta.setClass(klass);
-        return true;
-      }
-      else {
+      if ( location.isPresent() ) {
         meta.setClass(dashboard.locatedClass(battery, location.get()));
         return false;
+      }
+      else {
+        meta.setClass(klass);
+        return true;
       }
     }
   }

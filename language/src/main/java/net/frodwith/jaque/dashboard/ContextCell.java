@@ -8,14 +8,15 @@ import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.CellMeta;
 import net.frodwith.jaque.data.NockCall;
+import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.exception.ExitException;
 
-public final class DashboardCell implements TruffleObject {
-  private final Dashboard dashboard;
+public final class ContextCell implements TruffleObject {
+  private final NockContext context;
   private final Cell cell;
 
-  public DashboardCell(Dashboard dashboard, Cell cell) {
-    this.dashboard = dashboard;
+  public ContextCell(NockContext context, Cell cell) {
+    this.context = context;
     this.cell = cell;
   }
 
@@ -24,19 +25,20 @@ public final class DashboardCell implements TruffleObject {
   }
 
   public ForeignAccess getForeignAccess() {
-    return DashboardCellMessageResolutionForeign.ACCESS;
+    return ContextCellMessageResolutionForeign.ACCESS;
   }
 
   public boolean hasClass() {
-    return meta().hasClass(dashboard);
+    return meta().hasClass(context.dashboard);
   }
 
   public CallTarget getFunction() throws ExitException {
-    return meta().getFunction(cell, dashboard).callTarget;
+    return meta().getFunction(cell, context).callTarget;
   }
 
   public CallTarget getArm(Axis axis) throws ExitException {
-    return meta().getNockClass(cell, dashboard).getArm(cell, axis);
+    return meta().getNockClass(cell, context.dashboard)
+      .getArm(cell, axis, context);
   }
 
   public NockCall getCall(Axis axis) throws ExitException {
@@ -51,8 +53,8 @@ public final class DashboardCell implements TruffleObject {
     return new NockCall(arm, cell);
   }
 
-  public DashboardCell edit(Axis axis, Object sample) throws ExitException {
+  public ContextCell edit(Axis axis, Object sample) throws ExitException {
     Object subject = axis.edit(cell, sample);
-    return new DashboardCell(dashboard, Cell.require(subject));
+    return new ContextCell(dashboard, Cell.require(subject));
   }
 }
