@@ -13,13 +13,11 @@ import net.frodwith.jaque.data.Cell;
 
 import net.frodwith.jaque.dashboard.Location;
 import net.frodwith.jaque.parser.FormulaParser;
+import net.frodwith.jaque.exception.ExitException;
 
 public abstract class UnlocatedClass extends NockClass {
-  protected final Battery battery;
-
   protected UnlocatedClass(Battery battery, Assumption stable) {
     super(battery, stable);
-    this.battery = battery;
   }
 
   @Override
@@ -33,8 +31,10 @@ public abstract class UnlocatedClass extends NockClass {
   }
 
   @Override
-  public AxisMap<CallTarget> getDrivers(AstContext context) {
-    return AxisMap.EMPTY;
+  public final CallTarget 
+    getArm(Axis axis, AstContext context, GetArm g)
+      throws ExitException {
+    return rawArm(context, g);
   }
 
   @Override

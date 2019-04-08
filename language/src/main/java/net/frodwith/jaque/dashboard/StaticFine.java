@@ -25,7 +25,7 @@ public final class StaticFine extends LocatedFine {
       return cachedClass.get().locatedAt(klass.location);
     }
     else if ( Equality.equals(core, staticNoun) ) {
-      meta.setClass(klass);
+      meta.setNockClass(klass);
       return true;
     }
     else {

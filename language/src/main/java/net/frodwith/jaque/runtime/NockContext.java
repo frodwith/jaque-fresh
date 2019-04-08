@@ -31,7 +31,7 @@ import net.frodwith.jaque.dashboard.Dashboard;
 public final class NockContext {
   private final Env env;
   private final Cache<Cell,Object> memoCache;
-  private final AstContext astContext;
+  public final AstContext astContext;
 
   public NockContext(Env env, AstContext astContext) {
     this.env  = env;
@@ -40,10 +40,6 @@ public final class NockContext {
     this.memoCache = CacheBuilder.newBuilder()
       .maximumSize(env.getOptions().get(NockOptions.MEMO_SIZE))
       .build();
-  }
-
-  public AstContext getAstContext() {
-    return astContext;
   }
 
   public Object lookupMemo(Object subject, Cell formula) {

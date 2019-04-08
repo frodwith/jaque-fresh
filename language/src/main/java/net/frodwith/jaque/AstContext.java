@@ -8,7 +8,6 @@ import com.oracle.truffle.api.CallTarget;
 
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.AxisMap;
-import net.frodwith.jaque.data.NockObject;
 import net.frodwith.jaque.data.NockFunction;
 import net.frodwith.jaque.dashboard.Location;
 import net.frodwith.jaque.dashboard.Dashboard;

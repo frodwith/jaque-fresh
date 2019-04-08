@@ -32,6 +32,10 @@ public abstract class NockClass {
     return battery.ofDashboard(dashboard);
   }
 
+  public final boolean isValid(Dashboard dashboard) {
+    return valid.isValid() && ofDashboard(dashboard);
+  }
+
   public final FineCheck getFine(Cell core) {
     if ( fine.isPresent() ) {
       return fine.get();
@@ -49,10 +53,37 @@ public abstract class NockClass {
     }
   }
 
+  @FunctionalInterface
+  protected static interface GetArm {
+    public Object get() throws ExitException;
+  }
+
+  protected abstract CallTarget
+    getArm(Axis axis, AstContext context, GetArm g)
+      throws ExitException;
+
+  protected final CallTarget 
+    rawArm(AstContext context, GetArm g)
+      throws ExitException {
+    Cell formula = Cell.require(g.get());
+    return formula.getMeta().getFunction(formula, context).callTarget;
+  }
+ 
+  public final CallTarget
+    getArm(Cell core, Axis axis, AstContext context)
+      throws ExitException {
+    return getArm(axis, context, () -> axis.fragment(core));
+  }
+
+  // if you have a FragmentNode, we can use it
+  public final CallTarget
+    getArm(Cell core, Axis axis, FragmentNode fragmentNode, AstContext context)
+      throws ExitException {
+    return getArm(axis, context, () -> fragmentNode.executeFragment(core));
+  }
 
   protected abstract FineCheck buildFine(Cell core) throws ExitException;
   public abstract boolean copyableEdit(Axis written, Cell battery);
   public abstract boolean locatedAt(Location location);
-  public abstract AxisMap<CallTarget> getDrivers(AstContext context);
   public abstract Optional<Location> getLocation();
 }

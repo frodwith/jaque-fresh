@@ -31,6 +31,6 @@ public final class FineStep {
   }
 
   public void save(Cell core) {
-    core.getMeta().setClass(klass);
+    core.getMeta().setNockClass(klass);
   }
 }

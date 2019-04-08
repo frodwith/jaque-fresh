@@ -4,29 +4,27 @@ import java.util.Optional;
 import java.util.function.Function;
 
 import com.oracle.truffle.api.CallTarget;
+import com.oracle.truffle.api.Assumption;
 
 import net.frodwith.jaque.AstContext;
+import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.data.AxisMap;
+import net.frodwith.jaque.dashboard.Location;
 
 public final class Drivers {
   private final AstContext context;
   private final AxisMap<CallTarget> targets;
-  private final Assumption valid;
 
-  public Drivers(AstContext context, Optional<Location> location) {
+  public Drivers(AstContext context, Location location) {
     this.context = context;
-    this.valid   = context.dashboard.getStableAssumption();
-    this.targets = location.isPresent()
-                 ? context.getDrivers(location.get())
-                 : AxisMap.EMPTY;
+    this.targets = context.getDrivers(location);
   }
 
   public Optional<CallTarget> getDriver(Axis axis) {
-    CallTarget target = targets.get(axis);
-    return ( null != t ) ? t : Optional.empty();
+    return Optional.ofNullable(targets.get(axis));
   }
 
   public boolean isValid(AstContext context) {
-    return valid.isValid() && this.context.compatible(context);
+    return this.context.compatible(context);
   }
 }

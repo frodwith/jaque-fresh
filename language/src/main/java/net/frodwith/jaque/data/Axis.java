@@ -89,13 +89,21 @@ public final class Axis implements Iterable<Axis.Fragment> {
   }
 
   public boolean isIdentity() {
-    return this == IDENTITY;
+    return (long) atom == 1L;
   }
 
   public boolean isCrash() {
-    return this == CRASH;
+    return (long) atom == 0L;
   }
 
+  public boolean isHead() {
+    return (long) atom == 2L;
+  }
+
+  public boolean isTail() {
+    return (long) atom == 3L;
+  }
+  
   public boolean inHead() {
     return subAxis(atom, 2L);
   }

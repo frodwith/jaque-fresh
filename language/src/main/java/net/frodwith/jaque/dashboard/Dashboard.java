@@ -138,12 +138,12 @@ public final class Dashboard {
     return silo.getCellGrain(Cell.require(core.head));
   }
 
-  public NockClass getClass(Cell core) throws ExitException {
+  public NockClass getNockClass(Cell core) throws ExitException {
     Cell battery = canonicalizeBattery(core);
     return battery.getMeta()
       .getGrain()
       .getBattery(this, battery)
-      .getClass(core, battery);
+      .getNockClass(core, battery);
   }
 
   public LocatedClass locatedClass(Cell battery, Location location) {
@@ -222,7 +222,8 @@ public final class Dashboard {
 
     Cell battery = canonicalizeBattery(core);
     Battery b = battery.getMeta().getGrain().getBattery(this, battery);
-    core.getMeta().register(b, getStableAssumption(), location);
+    core.getMeta()
+      .setNockClass(new LocatedClass(b, getStableAssumption(), location));
   }
 
   public Assumption getStableAssumption() {

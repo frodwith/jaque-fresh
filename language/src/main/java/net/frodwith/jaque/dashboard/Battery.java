@@ -73,7 +73,7 @@ public final class Battery {
     return location;
   }
   
-  public NockClass getClass(Cell core, Cell battery) {
+  public NockClass getNockClass(Cell core, Cell battery) {
     Optional<Location> location = locate(core, battery);
     Assumption stable = dashboard.getStableAssumption();
     if ( location.isPresent() ) {

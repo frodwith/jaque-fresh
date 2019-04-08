@@ -3,32 +3,36 @@ package net.frodwith.jaque.data;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+import com.oracle.truffle.api.Assumption;
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.TruffleLanguage.ContextReference;
 
 import net.frodwith.jaque.AstContext;
+import net.frodwith.jaque.jet.Drivers;
 import net.frodwith.jaque.runtime.Mug;
 import net.frodwith.jaque.runtime.GrainSilo;
 import net.frodwith.jaque.runtime.NockContext;
 
-import net.frodwith.jaque.dashboard.NockClass;
-import net.frodwith.jaque.dashboard.Dashboard;
+import net.frodwith.jaque.dashboard.Battery;
 import net.frodwith.jaque.dashboard.Location;
+import net.frodwith.jaque.dashboard.Dashboard;
+import net.frodwith.jaque.dashboard.NockClass;
+import net.frodwith.jaque.dashboard.LocatedClass;
 import net.frodwith.jaque.exception.ExitException;
+
+import net.frodwith.jaque.nodes.FragmentNode;
 
 public final class CellMeta {
   private int mug;
   private Optional<NockClass> klass;
-  private Optional<Drivers> drivers;
   private Optional<NockFunction> function;
   private Optional<CellGrain> grain;
 
   public CellMeta(int mug) {
     this.mug       = mug;
     this.klass     = Optional.empty();
-    this.drivers   = Optional.empty();
     this.function  = Optional.empty();
     this.grain     = Optional.empty();
   }
@@ -136,13 +140,12 @@ public final class CellMeta {
   }
 
   // cell-as-core
-  //   class (dashboard-specific, no asts)
   public NockClass
     getNockClass(Cell core, Dashboard dashboard) 
       throws ExitException {
     NockClass k;
     if ( klass.isPresent() ) {
-      k = object.get();
+      k = klass.get();
       if ( k.isValid(dashboard) ) {
         return k;
       }
@@ -152,13 +155,16 @@ public final class CellMeta {
     return k;
   }
 
-  public void 
-    register(Battery battery, Assumption assumption, Location location) {
-    this.klass = Optional.of(new LocatedClass(battery, assumption, location));
+  public void setNockClass(NockClass klass) {
+    this.klass = Optional.of(klass);
   }
 
   public boolean hasClass(Dashboard dashboard) {
     return klass.isPresent() && klass.get().isValid(dashboard);
+  }
+
+  public Optional<NockClass> cachedClass(Dashboard dashboard) {
+    return hasClass(dashboard) ? klass : Optional.empty();
   }
 
   public boolean knownAt(Location location, Dashboard dashboard) {
@@ -180,7 +186,6 @@ public final class CellMeta {
         if ( c.copyableEdit(written, battery) ) {
           CellMeta mutantMeta = mutant.getMeta();
           mutantMeta.klass = klass;
-          mutantMeta.drivers = drivers;
         }
       }
     }
@@ -188,47 +193,4 @@ public final class CellMeta {
     }
   }
 
-  //    arms (astcontext-specific calltargets)
-  private AxisMap<CallTarget>
-    getDrivers(Cell core, AstContext context)
-      throws ExitException {
-    Drivers d;
-    if ( drivers.isPresent() ) {
-      d = drivers.get();
-      if ( d.isValid(context) ) {
-        return d;
-      }
-    }
-    d = new Drivers(context, getNockClass(core, context.dashboard).getLocation());
-    drivers = Optional.of(d);
-    return d;
-  }
-
-  @FunctionalInterface
-  private interface GetArm {
-    public Object get() throws ExitException;
-  }
-
-  private CallTarget
-    getArm(Axis axis, AstContext context, GetArm g)
-      throws ExitException {
-    Optional<CallTarget> driver = getDrivers(core, context).get(axis);
-
-    return driver.isPresent()
-      ? driver.get()
-      : Cell.require(g.get()).getMeta().getFunction(context).callTarget;
-  }
-
-  public CallTarget
-    getArm(Cell core, Axis axis, AstContext context)
-      throws ExitException {
-    return getArm(core, axis, context, () -> axis.fragment(core));
-  }
-
-  // if you have a FragmentNode, we can use it
-  public CallTarget
-    getArm(Cell core, Axis axis, FragmentNode fragmentNode, AstContext context)
-      throws ExitException {
-    return getArm(core, axis, context, () -> fragmentNode.executeFragment(core));
-  }
 }

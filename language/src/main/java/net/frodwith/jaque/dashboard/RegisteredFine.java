@@ -26,11 +26,11 @@ public final class RegisteredFine extends UnlocatedFine {
     else {
       Optional<Location> location = klass.locate(core, battery);
       if ( location.isPresent() ) {
-        meta.setClass(dashboard.locatedClass(battery, location.get()));
+        meta.setNockClass(dashboard.locatedClass(battery, location.get()));
         return false;
       }
       else {
-        meta.setClass(klass);
+        meta.setNockClass(klass);
         return true;
       }
     }

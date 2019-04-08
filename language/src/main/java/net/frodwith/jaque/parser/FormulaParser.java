@@ -178,7 +178,7 @@ public final class FormulaParser {
     if ( armAxis.inHead() ) {
       return (c) -> {
         NockCallLookupNode pull =
-          PullNodeGen.create(core.apply(c), armAxis, c.dashboard);
+          PullNodeGen.create(core.apply(c), armAxis, c);
 
         return axe(axis, tail
           ? new NockTailCallNode(pull)
@@ -376,10 +376,14 @@ public final class FormulaParser {
   private static Function<AstContext,NockFunction>
     factory(Object formula, Supplier<SourceMappedNoun> sup)
       throws ExitException {
-    Function<AstContext,NockExpressionNode> e = 
-      parseExpr(formula, Axis.IDENTITY, true);
-    return (c) -> new NockFunction(Truffle.getRuntime().createCallTarget(
-      new NockRootNode(c.language, sup, e.apply(c))), c.language, c.dashboard);
+    Function<AstContext,NockExpressionNode>
+      exprFactory = parseExpr(formula, Axis.IDENTITY, true);
+
+    Function<AstContext,RootCallTarget>
+      targetFactory = (c) -> Truffle.getRuntime().createCallTarget(
+        new NockRootNode(c.language, sup, exprFactory.apply(c)));
+
+    return (c) -> new NockFunction(c, targetFactory);
   }
 
   public static Function<AstContext, NockFunction>
@@ -392,15 +396,14 @@ public final class FormulaParser {
     parse(Object formula)
       throws ExitException {
     Cell c = Cell.require(formula);
-    Supplier<SourceMappedNoun> sup = () -> {
+
+    return factory(formula, () -> {
       try {
         return SourceMappedNoun.fromCell(c);
       }
       catch ( ExitException e ) {
         throw new RuntimeException("NockFunction.fromCell:supplier", e);
       }
-    };
-
-    return factory(formula, sup);
+    });
   }
 }
