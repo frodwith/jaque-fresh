@@ -27,8 +27,8 @@ import net.frodwith.jaque.exception.ExitException;
  */
 
 public final class AstContext {
-  private final NockLanguage language;
-  private final Dashboard dashboard;
+  public final NockLanguage language;
+  public final Dashboard dashboard;
   private final Map<Location,AxisMap<CallTarget>> drivers;
   private final Map<Cell,NockFunction> functions;
 
@@ -48,10 +48,6 @@ public final class AstContext {
     return f;
   }
 
-  public NockObject getObject(Cell core) throws ExitException {
-    return new NockObject(dashboard.getClass(core), this);
-  }
-
   public AxisMap<CallTarget> getDrivers(Location location) {
     AxisMap<CallTarget> m = drivers.get(location);
     if ( null == m ) {
@@ -63,18 +59,6 @@ public final class AstContext {
 
   public boolean compatible(AstContext other) {
     return equals(other);
-  }
-
-  public boolean dashboardCompatible(Dashboard dashboard) {
-    return this.dashboard == dashboard;
-  }
-
-  public boolean dashboardCompatible(AstContext context) {
-    return context.dashboardCompatible(dashboard);
-  }
-
-  public boolean checkFine(Cell core, NockObject object) {
-    return object.getFine(core).check(core, dashboard);
   }
 
   public boolean equals(AstContext other) {

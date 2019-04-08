@@ -20,17 +20,20 @@ import net.frodwith.jaque.exception.ExitException;
 
 public final class CellMeta {
   private int mug;
-
+  private Optional<NockClass> klass;
+  private Optional<Drivers> drivers;
   private Optional<NockFunction> function;
-  private Optional<NockObject> object;
   private Optional<CellGrain> grain;
 
   public CellMeta(int mug) {
     this.mug       = mug;
     this.klass     = Optional.empty();
+    this.drivers   = Optional.empty();
     this.function  = Optional.empty();
     this.grain     = Optional.empty();
   }
+
+  // metadata unification
 
   public static void unify(CellMeta a, CellMeta b) {
     // FIXME: do nothing
@@ -75,8 +78,7 @@ public final class CellMeta {
   }
   */
 
-  // mugs
-
+  // mugs (cached hashes)
   public int mug(Cell cell) {
     if ( 0 == mug ) {
       mug = Mug.calculate(cell);
@@ -92,7 +94,10 @@ public final class CellMeta {
     return mug;
   }
 
-  // grains
+  // grains (deduplicated, lazily-strongly hashed nouns)
+  public CellGrain getGrain() {
+    return grain.get();
+  }
 
   public boolean inSilo(GrainSilo silo) {
     return grain.isPresent() && grain.get().inSilo(silo);
@@ -107,13 +112,7 @@ public final class CellMeta {
     }
   }
 
-  // don't call unless you know you have a grain.
-  public CellGrain getGrain() {
-    return grain.get();
-  }
-
-  // cell-as-formula
-
+  // cell-as-nock-formula (AstContext specific)
   public boolean hasFunction(AstContext context) {
     return function.isPresent() && function.get().compatible(context);
   }
@@ -137,63 +136,99 @@ public final class CellMeta {
   }
 
   // cell-as-core
+  //   class (dashboard-specific, no asts)
+  public NockClass
+    getNockClass(Cell core, Dashboard dashboard) 
+      throws ExitException {
+    NockClass k;
+    if ( klass.isPresent() ) {
+      k = object.get();
+      if ( k.isValid(dashboard) ) {
+        return k;
+      }
+    }
+    k = dashboard.getNockClass(core);
+    klass = Optional.of(k);
+    return k;
+  }
 
-  public boolean hasObject(AstContext context) {
-    return object.isPresent() && object.get().compatible(context);
+  public void 
+    register(Battery battery, Assumption assumption, Location location) {
+    this.klass = Optional.of(new LocatedClass(battery, assumption, location));
+  }
+
+  public boolean hasClass(Dashboard dashboard) {
+    return klass.isPresent() && klass.get().isValid(dashboard);
   }
 
   public boolean knownAt(Location location, Dashboard dashboard) {
-    if ( object.isPresent() ) {
-      NockObject o = object.get();
-      return o.dashboardCompatible(dashboard) && o.locatedAt(location);
+    if ( hasClass(dashboard) ) {
+      return klass.get().locatedAt(location);
     }
     else {
       return false;
     }
   }
 
-  public Optional<NockObject> cachedObject(AstContext context) {
-    return hasObject(context) ? object : Optional.empty();
-  }
-
-  public void setObject(NockObject object) {
-    this.object = Optional.of(object);
-  }
-
-  public NockObject 
-    getObject(Cell core, AstContext context) 
-      throws ExitException {
-    NockObject o;
-
-    if ( object.isPresent() ) {
-      o = object.get();
-      if ( o.compatible(context) ) {
-        return o;
-      }
-      else {
-        o = o.recontextualize(context);
-      }
-    }
-    else {
-      o = context.getObject(core);
-    }
-
-    object = Optional.of(o);
-    return o;
-  }
-
+  // copy metadata objects (if possible) after an edit (nock #)
   public void
-    copyObjectToMutant(Cell core, Cell mutant, Axis written, AstContext context) {
+    copyMetaToMutant(Cell core, Cell mutant, Axis written, AstContext context) {
     try {
-      if ( hasObject(context) ) {
-        NockObject o = object.get();
+      if ( hasClass(context.dashboard) ) {
+        NockClass c = klass.get();
         Cell battery = Cell.require(core.head);
-        if ( o.copyableEdit(written, battery) ) {
-          mutant.getMeta().setObject(o);
+        if ( c.copyableEdit(written, battery) ) {
+          CellMeta mutantMeta = mutant.getMeta();
+          mutantMeta.klass = klass;
+          mutantMeta.drivers = drivers;
         }
       }
     }
     catch ( ExitException e) {
     }
+  }
+
+  //    arms (astcontext-specific calltargets)
+  private AxisMap<CallTarget>
+    getDrivers(Cell core, AstContext context)
+      throws ExitException {
+    Drivers d;
+    if ( drivers.isPresent() ) {
+      d = drivers.get();
+      if ( d.isValid(context) ) {
+        return d;
+      }
+    }
+    d = new Drivers(context, getNockClass(core, context.dashboard).getLocation());
+    drivers = Optional.of(d);
+    return d;
+  }
+
+  @FunctionalInterface
+  private interface GetArm {
+    public Object get() throws ExitException;
+  }
+
+  private CallTarget
+    getArm(Axis axis, AstContext context, GetArm g)
+      throws ExitException {
+    Optional<CallTarget> driver = getDrivers(core, context).get(axis);
+
+    return driver.isPresent()
+      ? driver.get()
+      : Cell.require(g.get()).getMeta().getFunction(context).callTarget;
+  }
+
+  public CallTarget
+    getArm(Cell core, Axis axis, AstContext context)
+      throws ExitException {
+    return getArm(core, axis, context, () -> axis.fragment(core));
+  }
+
+  // if you have a FragmentNode, we can use it
+  public CallTarget
+    getArm(Cell core, Axis axis, FragmentNode fragmentNode, AstContext context)
+      throws ExitException {
+    return getArm(core, axis, context, () -> fragmentNode.executeFragment(core));
   }
 }

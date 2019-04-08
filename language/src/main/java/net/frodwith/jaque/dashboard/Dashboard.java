@@ -31,7 +31,6 @@ import net.frodwith.jaque.data.SourceMappedNoun;
 
 import net.frodwith.jaque.jet.JetTree;
 
-import net.frodwith.jaque.data.NockObject;
 import net.frodwith.jaque.dashboard.Battery;
 import net.frodwith.jaque.dashboard.NockClass;
 import net.frodwith.jaque.dashboard.LocatedClass;
@@ -191,41 +190,39 @@ public final class Dashboard {
 
   // unconditional (will not short-circuit)
   public void 
-    register(Cell core, FastClue clue, AstContext context)
+    register(Cell core, FastClue clue)
       throws ExitException {
-    Location loc;
+    Location location;
     if ( clue.toParent.isCrash() ) {
       RootLocation root = new RootLocation(clue.name, clue.hooks, core.tail);
       getCold(core).registerRoot(core.tail, root);
-      loc = root;
+      location = root;
     }
     else {
       Cell parentCore = Cell.require(clue.toParent.fragment(core));
       Optional<Location> parentLocation 
-        = parentCore.getMeta().getObject(core, context).getLocation();
-      if ( parentLocation.isPresent() ) {
+        = parentCore.getMeta().getNockClass(core, this).getLocation();
+
+      if ( !parentLocation.isPresent() ) {
         LOG.warning("trying to register " + clue.name +
             " with unlocated parent.");
         return;
       }
       Location parent = parentLocation.get();
       Location child = 
-        ( clue.toParent == Axis.TAIL && parent instanceof StaticLocation )
+        ( clue.toParent.isTail() && parent instanceof StaticLocation )
         ? new StaticChildLocation(clue.name, clue.hooks, 
             (StaticLocation) parent)
         : new DynamicChildLocation(clue.name, clue.hooks, parent, clue.toParent);
       getCold(core).registerChild(clue.toParent, child, parent);
-      loc = child;
+      location = child;
     }
-    loc.audit(clue);
+    location.audit(clue);
     invalidate();
 
     Cell battery = canonicalizeBattery(core);
     Battery b = battery.getMeta().getGrain().getBattery(this, battery);
-    Assumption a = getStableAssumption();
-    NockClass klass = new LocatedClass(b, a, loc);
-    NockObject object = new NockObject(klass, context);
-    core.getMeta().setObject(object);
+    core.getMeta().register(b, getStableAssumption(), location);
   }
 
   public Assumption getStableAssumption() {

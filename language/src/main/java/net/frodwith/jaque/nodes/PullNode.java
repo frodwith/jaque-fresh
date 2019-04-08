@@ -39,41 +39,28 @@ public abstract class PullNode extends NockCallLookupNode {
   protected abstract AstContext getAstContext();
 
   @Specialization(limit = "1",
-                  guards = { "sameCells(cachedCore, core)" },
-                  assumptions = "object.getAssumption()")
+                  guards = "sameCells(cachedCore, core)",
+                  assumptions = "klass.valid")
   protected NockCall doStatic(Cell core,
     @Cached("core") Cell cachedCore,
-    @Cached("getObject(core)") NockObject object,
-    @Cached("new(getArm(cachedCore, object), cachedCore)") NockCall call) {
+    @Cached("getNockClass(core)") NockClass klass,
+    @Cached("new(getArm(cachedCore), cachedCore)") NockCall call) {
     return call;
   }
 
   @Specialization(limit = "INLINE_CACHE_SIZE",
-                  guards = "fine(core, object)",
-                  assumptions = "object.getAssumption()",
+                  guards = "fine(core, klass)",
+                  assumptions = "klass.valid",
                   replaces = "doStatic")
   protected NockCall doFine(Cell core,
-    @Cached("getObject(core)") NockObject object,
-    @Cached("getArm(core, object)") CallTarget arm) {
+    @Cached("getNockClass(core)") NockClass klass,
+    @Cached("getArm(core)") CallTarget arm) {
     return new NockCall(arm, core);
-  }
-
-  protected final NockObject getObject(Cell core) {
-    try {
-      return core.getMeta().getObject(core, getAstContext());
-    }
-    catch ( ExitException e ) {
-      throw new NockException("object resolution failed", this);
-    }
-  }
-
-  protected final boolean fine(Cell core, NockObject object) {
-    return getAstContext().checkFine(core, object);
   }
 
   @Specialization(replaces = "doFine")
   protected NockCall doSlow(Cell core) {
-    return new NockCall(getArm(core, getObject(core)), core);
+    return new NockCall(getArm(core), core);
   }
 
   @Fallback
@@ -81,19 +68,31 @@ public abstract class PullNode extends NockCallLookupNode {
     throw new NockException("atom not core", this);
   }
 
+  protected final NockClass getNockClass(Cell core) {
+    try {
+      return core.getMeta().getNockClass(core, getAstContext());
+    }
+    catch ( ExitException e ) {
+      throw new NockException("object resolution failed", this);
+    }
+  }
+
+  protected final boolean fine(Cell core, NockClass klass) {
+    return klass.getFine(core).check(core, getAstContext().dashboard);
+  }
+
   private FragmentNode getFragmentNode() {
     if ( null == fragmentNode ) {
       CompilerDirectives.transferToInterpreter();
-      Axis inBattery = getArmAxis().mas();
-      fragmentNode = FragmentNode.fromAxis(inBattery);
+      fragmentNode = FragmentNode.fromAxis(getArmAxis());
       insert(fragmentNode);
     }
     return fragmentNode;
   }
 
-  protected CallTarget getArm(Cell core, NockObject object) {
+  protected final CallTarget getArm(Cell core) {
     try {
-      return object.getArm(core, getArmAxis(), getFragmentNode());
+      return core.getMeta().getArm(core, getArmAxis(), getFragmentNode());
     }
     catch ( ExitException e ) {
       throw new NockException("fail to fetch arm from battery", e, this);
