@@ -51,13 +51,11 @@ public final class AxisMap<T> {
         public int state;
         public AxisMap<T> node;
         public AxisMap<U> left;
-        public AxisMap<U> right;
 
         public Frame(AxisMap<T> node) {
           this.state = 0;
           this.node = node;
           this.left = null;
-          this.right = null;
         }
       }
       AxisMap<U> ret = null;
@@ -65,7 +63,7 @@ public final class AxisMap<T> {
       Frame top = new Frame(this);
       ArrayDeque<Frame> stack = new ArrayDeque<>();
       stack.push(top);
-      do {
+      while ( true ) {
         switch ( top.state ) {
           case 0:
             ++top.state;
@@ -93,11 +91,16 @@ public final class AxisMap<T> {
           case 2:
             val = (null == top.node.value) ? null : f.apply(top.node.value);
             ret = new AxisMap<U>(val, top.left, ret);
-            top = stack.pop();
-            break;
+            stack.pop();
+            if ( stack.isEmpty() ) {
+              return ret;
+            }
+            else {
+              top = stack.peek();
+              break;
+            }
         }
-      } while ( null != top );
-      return ret;
+      }
     }
   }
 
