@@ -70,7 +70,7 @@ public abstract class PullNode extends NockCallLookupNode {
 
   protected final NockClass getNockClass(Cell core) {
     try {
-      return core.getMeta().getNockClass(core, getAstContext());
+      return core.getMeta().getNockClass(core, getAstContext().dashboard);
     }
     catch ( ExitException e ) {
       throw new NockException("object resolution failed", this);
@@ -92,7 +92,9 @@ public abstract class PullNode extends NockCallLookupNode {
 
   protected final CallTarget getArm(Cell core) {
     try {
-      return core.getMeta().getArm(core, getArmAxis(), getFragmentNode());
+      AstContext c = getAstContext();
+      return core.getMeta().getNockClass(core, c.dashboard)
+        .getArm(core, getArmAxis(), getFragmentNode(), c);
     }
     catch ( ExitException e ) {
       throw new NockException("fail to fetch arm from battery", e, this);

@@ -178,9 +178,9 @@ public final class CellMeta {
 
   // copy metadata objects (if possible) after an edit (nock #)
   public void
-    copyMetaToMutant(Cell core, Cell mutant, Axis written, AstContext context) {
+    copyMetaToMutant(Cell core, Cell mutant, Axis written, Dashboard dashboard) {
     try {
-      if ( hasClass(context.dashboard) ) {
+      if ( hasClass(dashboard) ) {
         NockClass c = klass.get();
         Cell battery = Cell.require(core.head);
         if ( c.copyableEdit(written, battery) ) {

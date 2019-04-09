@@ -68,9 +68,8 @@ public final class FormulaParser {
       formula = parseExpr(args.tail, axis.peg(7), false);
 
     return (c) -> {
-      NockFunctionLookupNode lookup = NockFunctionLookupNodeGen.create(
-          formula.apply(c),
-          c.language.getContextReference());
+      NockExpressionNode e = formula.apply(c);
+      NockFunctionLookupNode lookup = NockFunctionLookupNodeGen.create(e, c);
       NockEvalNode eval = new NockEvalNode(lookup, subject.apply(c));
       return axe(axis, tail
         ? new NockTailCallNode(eval)
@@ -193,14 +192,15 @@ public final class FormulaParser {
         formula = axe(axis.peg(6), parseSlot(armAxis));
 
       return (c) -> {
-        NockFunctionLookupNode lookup = 
-          NockFunctionLookupNodeGen.create(formula,
-              c.language.getContextReference());
+        NockFunctionLookupNode
+          lookup = NockFunctionLookupNodeGen.create(formula, c);
 
-        NockCallLookupNode eval = new NockEvalNode(lookup, subject);
-        NockExpressionNode call = axe(axis, tail
-                                ? new NockHeadCallNode(eval)
-                                : new NockTailCallNode(eval));
+        NockCallLookupNode 
+          eval = new NockEvalNode(lookup, subject);
+        NockExpressionNode 
+          call = axe(axis, tail
+               ? new NockHeadCallNode(eval)
+               : new NockTailCallNode(eval));
 
         return axe(axis, new ComposeNode(core.apply(c), call));
       };

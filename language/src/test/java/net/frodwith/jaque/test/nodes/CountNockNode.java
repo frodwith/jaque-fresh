@@ -7,6 +7,7 @@ import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.TruffleLanguage.ContextReference;
 
+import net.frodwith.jaque.AstContext;
 import net.frodwith.jaque.NockLanguage;
 
 import net.frodwith.jaque.data.Axis;
@@ -22,15 +23,15 @@ import net.frodwith.jaque.exception.NockException;
 import net.frodwith.jaque.exception.NockControlFlowException;
 
 public final class CountNockNode extends SubjectNode {
-  private final ContextReference<NockContext> contextReference;
+  private final AstContext astContext;
   private final Axis armAxis;
   private final String countName;
   private static final Map<String,Integer> counts = new HashMap<>();
 
-  public CountNockNode(ContextReference<NockContext> contextReference,
+  public CountNockNode(AstContext astContext,
                        Axis armAxis,
                        String countName) {
-    this.contextReference = contextReference;
+    this.astContext = astContext;
     this.armAxis = armAxis;
     this.countName = countName;
   }
@@ -44,7 +45,7 @@ public final class CountNockNode extends SubjectNode {
       Object subject = NockLanguage.getSubject(frame);
       Cell formula = Cell.require(armAxis.fragment(subject));
       CallTarget fn = formula.getMeta()
-        .getFunction(formula, contextReference.get()).callTarget;
+        .getFunction(formula, astContext).callTarget;
       NockCall call = new NockCall(fn, subject);
       bump();
       throw new NockControlFlowException(call);

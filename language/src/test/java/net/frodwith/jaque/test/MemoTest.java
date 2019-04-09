@@ -1,6 +1,6 @@
 package net.frodwith.jaque.test;
 
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
 import org.junit.Test;
 import org.junit.After;
@@ -98,7 +98,7 @@ public class MemoTest {
   private Context context;
 
   private static ChildCore
-    gate(String name, Bifunction<AstContext,Axis,SubjectNode> factory) {
+    gate(String name, BiFunction<AstContext,Axis,SubjectNode> factory) {
     return new ChildCore(name,
         Axis.CONTEXT,
         new HashCode[0],
@@ -134,7 +134,7 @@ public class MemoTest {
                   new JetHook[0],
                   new ChildCore[] {
                     gate("fib", (c, ax) ->
-                      new CountNockNode(c.dashboard, axis, "fib"))})})})}));
+                      new CountNockNode(c, ax, "fib"))})})})}));
   }
 
   @Before

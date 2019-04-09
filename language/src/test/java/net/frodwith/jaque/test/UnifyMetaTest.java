@@ -12,7 +12,6 @@ import net.frodwith.jaque.data.CellMeta;
 import net.frodwith.jaque.dashboard.Battery;
 import net.frodwith.jaque.dashboard.Dashboard;
 import net.frodwith.jaque.dashboard.NockClass;
-import net.frodwith.jaque.dashboard.NockFunction;
 import net.frodwith.jaque.exception.ExitException;
 
 public class UnifyMetaTest {
@@ -25,6 +24,8 @@ public class UnifyMetaTest {
 
   @Test
   public void testFormulas() throws ExitException {
+    assertTrue(false);
+    /*
     Cell a = new Cell(1L, 0L);
     Cell b = new Cell(1L, 0L);
 
@@ -40,10 +41,13 @@ public class UnifyMetaTest {
 
     assertTrue(a.getMeta().hasFunction(dashboard));
     assertTrue(b.getMeta().hasFunction(dashboard));
+    */
   }
 
   @Test
   public void testCores() throws ExitException {
+    assertTrue(false);
+    /*
     Cell a = new Cell(new Cell(1L, 0L), 0L);
     Cell b = new Cell(new Cell(1L, 0L), 0L);
 
@@ -59,6 +63,7 @@ public class UnifyMetaTest {
 
     assertTrue(a.getMeta().hasClass(dashboard));
     assertTrue(b.getMeta().hasClass(dashboard));
+    */
   }
 
   // we don't unify battery meta because of grains
