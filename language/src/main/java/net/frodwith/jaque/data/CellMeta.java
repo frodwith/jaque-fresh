@@ -40,7 +40,15 @@ public final class CellMeta {
   // metadata unification
 
   public static void unify(CellMeta a, CellMeta b) {
-    // FIXME: do nothing
+    if ( a.klass.isPresent() ) {
+      if ( !b.klass.isPresent() ) {
+        b.klass = a.klass;
+      }
+    }
+    else if ( b.klass.isPresent() ) {
+      a.klass = b.klass;
+    }
+    // FIXME: do something for functions
   }
 
   /*

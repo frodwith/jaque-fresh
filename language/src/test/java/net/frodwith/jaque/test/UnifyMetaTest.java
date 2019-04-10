@@ -46,8 +46,6 @@ public class UnifyMetaTest {
 
   @Test
   public void testCores() throws ExitException {
-    assertTrue(false);
-    /*
     Cell a = new Cell(new Cell(1L, 0L), 0L);
     Cell b = new Cell(new Cell(1L, 0L), 0L);
 
@@ -63,7 +61,6 @@ public class UnifyMetaTest {
 
     assertTrue(a.getMeta().hasClass(dashboard));
     assertTrue(b.getMeta().hasClass(dashboard));
-    */
   }
 
   // we don't unify battery meta because of grains
