@@ -154,7 +154,7 @@ public final class NockLanguage extends TruffleLanguage<NockContext> {
       || o instanceof Long;
   }
 
-  private AstContext getAstContext(Dashboard dashboard) {
+  public AstContext getAstContext(Dashboard dashboard) {
     AstContext c = contexts.get(dashboard);
     if ( null == c ) {
       c = new AstContext(this, dashboard);
@@ -195,7 +195,7 @@ public final class NockLanguage extends TruffleLanguage<NockContext> {
     // need an ast context (for dashboard)
     NockContext context = getCurrentContext(NockLanguage.class);
     NockFunction function = FormulaParser.parseMapped(mapped)
-      .apply(context.astContext);
+      .apply(context.getAstContext());
 
     return Truffle.getRuntime()
       .createCallTarget(RootNode.createConstantNode(function));

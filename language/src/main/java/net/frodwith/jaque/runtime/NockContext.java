@@ -12,6 +12,7 @@ import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.TruffleLanguage.Env;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+import com.oracle.truffle.api.interop.UnsupportedTypeException;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -31,15 +32,42 @@ import net.frodwith.jaque.dashboard.Dashboard;
 public final class NockContext {
   private final Env env;
   private final Cache<Cell,Object> memoCache;
-  public final AstContext astContext;
+  private AstContext astContext;
+  private static final String dashboardRequired = Dashboard.class + " required";
 
   public NockContext(Env env, AstContext astContext) {
-    this.env  = env;
     this.astContext = astContext;
-
+    this.env  = env;
     this.memoCache = CacheBuilder.newBuilder()
       .maximumSize(env.getOptions().get(NockOptions.MEMO_SIZE))
       .build();
+
+    if ( env.isPolyglotAccessAllowed() ) {
+      env.exportSymbol("nock", new NockInterop(this));
+    }
+  }
+
+  public AstContext getAstContext() {
+    return astContext;
+  }
+
+  public void setDashboard(Dashboard dashboard) {
+    astContext = astContext.language.getAstContext(dashboard);
+  }
+
+  public Dashboard asDashboard(Object value)
+    throws UnsupportedTypeException {
+    if ( env.isHostObject(value) ) {
+      Object hostObject = env.asHostObject(value);
+      if ( hostObject instanceof Dashboard ) {
+        return (Dashboard) hostObject;
+      }
+    }
+    throw UnsupportedTypeException.create(new Object[] { value} , dashboardRequired);
+  }
+
+  public Dashboard getDashboard() {
+    return astContext.dashboard;
   }
 
   public Object lookupMemo(Object subject, Cell formula) {

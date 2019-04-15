@@ -29,27 +29,28 @@ public final class ContextCell implements TruffleObject {
   }
 
   public boolean hasClass() {
-    return meta().hasClass(context.astContext.dashboard);
+    return meta().hasClass(context.getDashboard());
   }
 
   public CallTarget getFunction() throws ExitException {
-    return meta().getFunction(cell, context.astContext).callTarget;
+    return meta().getFunction(cell, context.getAstContext()).callTarget;
   }
 
   public CallTarget getArm(Axis axis) throws ExitException {
-    return meta().getNockClass(cell, context.astContext.dashboard)
-      .getArm(cell, axis, context.astContext);
+    return meta().getNockClass(cell, context.getDashboard())
+      .getArm(cell, axis, context.getAstContext());
   }
 
   public NockCall getCall(Axis axis) throws ExitException {
     CallTarget arm;
     if ( axis.inHead() ) {
-      arm = meta().getNockClass(cell, context.astContext.dashboard)
-        .getArm(cell, axis, context.astContext);
+      arm = meta().getNockClass(cell, context.getDashboard())
+        .getArm(cell, axis, context.getAstContext());
     }
     else {
       Cell formula = Cell.require(axis.fragment(cell));
-      arm = formula.getMeta().getFunction(formula, context.astContext).callTarget;
+      arm = formula.getMeta()
+        .getFunction(formula, context.getAstContext()).callTarget;
     }
     return new NockCall(arm, cell);
   }

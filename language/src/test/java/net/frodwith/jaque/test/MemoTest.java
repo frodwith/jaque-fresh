@@ -15,6 +15,7 @@ import static org.junit.Assert.assertEquals;
 import org.graalvm.polyglot.Value;
 import org.graalvm.polyglot.Source;
 import org.graalvm.polyglot.Context;
+import org.graalvm.polyglot.PolyglotAccess;
 
 import com.oracle.truffle.api.TruffleLanguage.ContextReference;
 
@@ -34,6 +35,7 @@ import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.runtime.Cords;
 import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.exception.ExitException;
+import net.frodwith.jaque.dashboard.Dashboard;
 import net.frodwith.jaque.dashboard.BatteryHash;
 
 import net.frodwith.jaque.nodes.SlotNode;
@@ -107,41 +109,45 @@ public class MemoTest {
         new ChildCore[0]);
   }
 
-  @BeforeClass
-  public static void installJets() {
-    NockLanguage.installJetTree("memo",
-      new JetTree(new RootCore[] {
-        new RootCore("kern", 42L,
-          new HashCode[0],
-          new JetArm[0],
-          new JetHook[0],
-          new ChildCore[] {
-            new ChildCore("one",
-              Axis.TAIL,
-              new HashCode[0],
-              new JetArm[0],
-              new JetHook[0],
-              new ChildCore[] {
-                gate("dec", (c, ax) ->
-                    DecNodeGen.create(new SlotNode(Axis.SAMPLE))),
-                gate("add", (c, ax) ->
-                    AddNodeGen.create(new SlotNode(Axis.get(12L)),
-                                      new SlotNode(Axis.get(13L)))),
-                new ChildCore("two",
-                  Axis.TAIL,
-                  new HashCode[0],
-                  new JetArm[0],
-                  new JetHook[0],
-                  new ChildCore[] {
-                    gate("fib", (c, ax) ->
-                      new CountNockNode(c, ax, "fib"))})})})}));
-  }
+  private static final Dashboard dashboard = new Dashboard.Builder()
+    .setFastHints(true)
+    .setJetTree(new JetTree(new RootCore[] {
+      new RootCore("kern", 42L,
+        new HashCode[0],
+        new JetArm[0],
+        new JetHook[0],
+        new ChildCore[] {
+          new ChildCore("one",
+            Axis.TAIL,
+            new HashCode[0],
+            new JetArm[0],
+            new JetHook[0],
+            new ChildCore[] {
+              gate("dec", (c, ax) ->
+                  DecNodeGen.create(new SlotNode(Axis.SAMPLE))),
+              gate("add", (c, ax) ->
+                  AddNodeGen.create(new SlotNode(Axis.get(12L)),
+                                    new SlotNode(Axis.get(13L)))),
+              new ChildCore("two",
+                Axis.TAIL,
+                new HashCode[0],
+                new JetArm[0],
+                new JetHook[0],
+                new ChildCore[] {
+                  gate("fib", (c, ax) ->
+                    new CountNockNode(c, ax, "fib"))})})})}))
+    .build();
 
   @Before
   public void init() {
     context = Context.newBuilder()
-                     .option("nock.jets", "memo")
-                     .build();
+      .allowPolyglotAccess(PolyglotAccess.ALL)
+      .build();
+
+    context.initialize("nock");
+    context.getPolyglotBindings()
+      .getMember("nock")
+      .invokeMember("setDashboard", dashboard);
   }
 
   @After
