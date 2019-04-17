@@ -12,6 +12,7 @@ import static org.junit.Assert.assertEquals;
 import org.graalvm.polyglot.Value;
 import org.graalvm.polyglot.Source;
 import org.graalvm.polyglot.Context;
+import org.graalvm.polyglot.PolyglotAccess;
 
 import com.google.common.hash.HashCode;
 
@@ -27,6 +28,7 @@ import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.nodes.SlotNode;
 import net.frodwith.jaque.runtime.Cords;
+import net.frodwith.jaque.dashboard.Dashboard;
 import net.frodwith.jaque.dashboard.BatteryHash;
 
 import net.frodwith.jaque.test.nodes.*;
@@ -85,91 +87,80 @@ public class AckermanTest {
   private static final String KACK_HASH =
     "e62f14d11dd53a53887273494f6c12f653470adf9392ac35ab69781882abd38b";
 
-  @BeforeClass
-  public static void installJets() {
-    NockLanguage.installJetTree("ack", 
-      new JetTree(new RootCore[] {
-        new RootCore("kack",
-          Cords.fromString("kack"),
-          new HashCode[] { BatteryHash.read(KACK_HASH) },
-          new JetArm[0],
-          new JetHook[0],
-          new ChildCore[] {
-            new ChildCore("dec",
-              Axis.CONTEXT,
-              new HashCode[] { BatteryHash.read(DEC_HASH) },
-              new JetArm[] {
-                new AxisArm(Axis.HEAD, (c, ax) ->
-                    MockDecNodeGen.create(new SlotNode(Axis.SAMPLE)))
-              },
-              new JetHook[0],
-              new ChildCore[0])})}));
-  }
+  private static final JetTree jetTree =
+    new JetTree(new RootCore[] {
+      new RootCore("kack",
+        Cords.fromString("kack"),
+        new HashCode[] { BatteryHash.read(KACK_HASH) },
+        new JetArm[0],
+        new JetHook[0],
+        new ChildCore[] {
+          new ChildCore("dec",
+            Axis.CONTEXT,
+            new HashCode[] { BatteryHash.read(DEC_HASH) },
+            new JetArm[] {
+              new AxisArm(Axis.HEAD, (c, ax) ->
+                  MockDecNodeGen.create(new SlotNode(Axis.SAMPLE)))
+            },
+            new JetHook[0],
+            new ChildCore[0])})});
 
   @Before
   public void init() {
     MockDecNode.called = false;
   }
 
-  private void doTest(Context context) {
+  private Dashboard makeDashboard(boolean fast, boolean hash) {
+    return new Dashboard.Builder()
+      .setFastHints(fast)
+      .setHashDiscovery(hash)
+      .setJetTree(jetTree)
+      .build();
+  }
+
+  private Context makeContext(boolean fast, boolean hash) {
+    Context context = Context.newBuilder()
+      .allowPolyglotAccess(PolyglotAccess.ALL)
+      .build();
+
+    context.initialize("nock");
+    context.getPolyglotBindings()
+      .getMember("nock")
+      .invokeMember("setDashboard", makeDashboard(fast, hash));
+
+    return context;
+  }
+
+  private void doTest(Context context, boolean expectCall) {
     Value gate = context.eval(ackSource).execute();
     Value product = gate.getMetaObject().invokeMember("2", 2L, 2L);
     assertEquals(7L, product.as(Number.class));
+    assertEquals(expectCall, MockDecNode.called);
+    context.close();
   }
 
   @Test
   public void testUnjetted() {
-    Context context = Context.create();
-    doTest(context);
-    assertFalse(MockDecNode.called);
-    context.close();
+    doTest(Context.create(), false);
   }
   
   @Test
   public void testOff() {
-    Context context = Context.newBuilder("nock")
-                             .option("nock.jets", "ack")
-                             .option("nock.fast", "false")
-                             .option("nock.hash", "false")
-                             .build();
-    doTest(context);
-    assertFalse(MockDecNode.called);
-    context.close();
+    doTest(makeContext(false, false), false);
   }
 
   @Test
   public void testFast() {
-    Context context = Context.newBuilder("nock")
-                             .option("nock.jets", "ack")
-                             .option("nock.fast", "true")
-                             .option("nock.hash", "false")
-                             .build();
-    doTest(context);
-    assertTrue(MockDecNode.called);
-    context.close();
+    doTest(makeContext(true, false), true);
   }
 
   @Test
   public void testHash() {
-    Context context = Context.newBuilder("nock")
-                             .option("nock.jets", "ack")
-                             .option("nock.fast", "false")
-                             .option("nock.hash", "true")
-                             .build();
-    doTest(context);
-    assertTrue(MockDecNode.called);
-    context.close();
+    doTest(makeContext(false, true), true);
   }
 
   @Test
   public void testOn() {
-    Context context = Context.newBuilder("nock")
-                             .option("nock.jets", "ack")
-                             .option("nock.fast", "true")
-                             .option("nock.hash", "true")
-                             .build();
-    doTest(context);
-    assertTrue(MockDecNode.called);
-    context.close();
+    doTest(makeContext(true, true), true);
   }
 }
