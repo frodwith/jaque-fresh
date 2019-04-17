@@ -67,6 +67,8 @@ public final class CellMeta {
     }
     
     // TODO: should we do anything with grains?
+    //       should we take an AstContext and use it?
+    //       (i.e. prefer not just presence but validity)
   }
 
   // mugs (cached hashes)
