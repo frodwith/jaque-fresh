@@ -1,11 +1,6 @@
-* revisit packaging of things in data
-    Class(and subclasses) -> dashboard
-    Battery -> dashboard
-    Function -> dashboard
+* Fix formula unification
 
-* Rename FIXMEMetaObject DashboardCell, move to dashboard
-
-* Fix unification somehow
+* Redo interop as InteropLibrary exports
 
 * Test FineChecks.
 
