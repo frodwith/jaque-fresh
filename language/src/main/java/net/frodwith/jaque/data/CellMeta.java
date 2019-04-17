@@ -37,9 +37,16 @@ public final class CellMeta {
     this.grain     = Optional.empty();
   }
 
-  // metadata unification
-
   public static void unify(CellMeta a, CellMeta b) {
+    // mugs
+    if ( 0 == a.mug ) {
+      a.mug = b.mug;
+    }
+    else if ( 0 == b.mug ) {
+      b.mug = a.mug;
+    }
+
+    // cores
     if ( a.klass.isPresent() ) {
       if ( !b.klass.isPresent() ) {
         b.klass = a.klass;
@@ -48,47 +55,19 @@ public final class CellMeta {
     else if ( b.klass.isPresent() ) {
       a.klass = b.klass;
     }
-    // FIXME: do something for functions
+
+    // formulas
+    if ( a.function.isPresent() ) {
+      if ( !b.function.isPresent() ) {
+        b.function = a.function;
+      }
+    }
+    else if ( b.function.isPresent() ) {
+      a.function = b.function;
+    }
+    
+    // TODO: should we do anything with grains?
   }
-
-  /*
-  public void unify(CellMeta other) {
-    // FIXME: revisit this whole procedure, in particular need to think about
-    // how grains unify
-
-    // Double TODO-ado!
-    boolean mine = false, his = false;
-
-    // mugs
-    if ( 0 == mug ) {
-      mug = other.mug;
-    }
-    else if ( 0 == other.mug ) {
-      other.mug = mug;
-    }
-
-    // functions
-    if ( null == function ) {
-      function = other.function;
-      his = true;
-    }
-    else if ( null == other.function ) {
-      other.function = function;
-      mine = true;
-    }
-
-    /* TRIPLE Todo-ado!
-    // objects
-    if ( null == object ) {
-      object = other.object;
-      his = true;
-    }
-    else {
-      other.object = object;
-      mine = true;
-    }
-  }
-  */
 
   // mugs (cached hashes)
   public int mug(Cell cell) {

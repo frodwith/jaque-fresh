@@ -3,8 +3,13 @@ package net.frodwith.jaque.test;
 import org.junit.Test;
 import org.junit.Before;
 
+import org.graalvm.polyglot.Value;
+import org.graalvm.polyglot.Source;
+import org.graalvm.polyglot.Context;
+
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertEquals;
 
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.CellMeta;
@@ -24,24 +29,28 @@ public class UnifyMetaTest {
 
   @Test
   public void testFormulas() throws ExitException {
-    assertTrue(false);
-    /*
-    Cell a = new Cell(1L, 0L);
-    Cell b = new Cell(1L, 0L);
+    Source src = Source.newBuilder("nock", "[[1 1] 1 0]", "cell.nock")
+      .buildLiteral();
+    Context context = Context.create();
+    Value make = context.eval(src),
+          one = make.execute(),
+          two = make.execute();
 
-    assertFalse(a.getMeta().hasFunction(dashboard));
-    assertFalse(b.getMeta().hasFunction(dashboard));
+    assertFalse(one.getMetaObject().getMember("isFormula").as(Boolean.class));
+    assertFalse(two.getMetaObject().getMember("isFormula").as(Boolean.class));
 
-    NockFunction fa = a.getMeta().getFunction(a, dashboard);
+    Value product = one.getMetaObject().execute();
 
-    assertTrue(a.getMeta().hasFunction(dashboard));
-    assertFalse(b.getMeta().hasFunction(dashboard));
+    assertTrue(one.getMetaObject().getMember("isFormula").as(Boolean.class));
+    assertFalse(two.getMetaObject().getMember("isFormula").as(Boolean.class));
 
-    CellMeta.unify(a.getMeta(), b.getMeta());
+    src = Source.newBuilder("nock", "[5 [0 2] 0 3]", "equal.nock")
+      .buildLiteral();
+    Value isEqual = context.eval(src);
+    assertEquals(0L, isEqual.execute(one, two).as(Number.class));
 
-    assertTrue(a.getMeta().hasFunction(dashboard));
-    assertTrue(b.getMeta().hasFunction(dashboard));
-    */
+    assertTrue(one.getMetaObject().getMember("isFormula").as(Boolean.class));
+    assertTrue(two.getMetaObject().getMember("isFormula").as(Boolean.class));
   }
 
   @Test
@@ -61,6 +70,25 @@ public class UnifyMetaTest {
 
     assertTrue(a.getMeta().hasClass(dashboard));
     assertTrue(b.getMeta().hasClass(dashboard));
+  }
+
+  @Test
+  public void testMugs() throws ExitException {
+    Cell a = new Cell(new Cell(1L, 0L), 0L);
+    Cell b = new Cell(new Cell(1L, 0L), 0L);
+
+    assertEquals(0, a.getMeta().cachedMug());
+    assertEquals(0, b.getMeta().cachedMug());
+
+    int mug = a.getMeta().mug(a);
+
+    assertEquals(mug, a.getMeta().cachedMug());
+    assertEquals(0, b.getMeta().cachedMug());
+
+    CellMeta.unify(a.getMeta(), b.getMeta());
+
+    assertEquals(mug, a.getMeta().cachedMug());
+    assertEquals(mug, b.getMeta().cachedMug());
   }
 
   // we don't unify battery meta because of grains
