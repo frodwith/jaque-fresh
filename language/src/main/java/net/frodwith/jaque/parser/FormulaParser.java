@@ -211,19 +211,19 @@ public final class FormulaParser {
   private static Function<AstContext,NockExpressionNode>
     parseStaticHint(Object tag, Object nextNoun, Axis axis, Axis nextAxis, boolean tail)
       throws ExitException {
-    Function<AstContext,NockExpressionNode>
-      next = parseExpr(nextNoun, nextAxis, tail);
+    Function<AstContext,NockExpressionNode> next;
 
     try {
       switch ( Atom.requireInt(tag) ) {
         case Motes.CORE:
+          next = parseExpr(nextNoun, nextAxis, false);
           return (c) -> CoreNodeGen.create(next.apply(c), c.dashboard);
       }
     }
     catch ( ExitException e ) {
     }
 
-    return next;
+    return parseExpr(nextNoun, nextAxis, tail);
   }
 
   private static Function<AstContext,NockExpressionNode>
@@ -256,15 +256,13 @@ public final class FormulaParser {
       }
 
       case Motes.FAST: {
-        Function<AstContext, NockExpressionNode> nexTail;
         next    = parseExpr(nextNoun, nextAxis, false);
-        nexTail = tail ? parseExpr(nextNoun, nextAxis, true) : next;
         return (c) -> {
           NockExpressionNode clueNode = clue.apply(c);
           return axe(axis, c.dashboard.fastHints
             ? new FastNode(c.dashboard, clueNode, next.apply(c))
             : new TossNode(clueNode,
-                CoreNodeGen.create(nexTail.apply(c), c.dashboard)));
+                CoreNodeGen.create(next.apply(c), c.dashboard)));
         };
       }
 
