@@ -49,12 +49,6 @@ public final class NockLanguage extends TruffleLanguage<NockContext> {
   public static final String ID = "nock";
   public static final String MIME_TYPE = "application/x-nock";
 
-  private static final Map<String,JetTree> installedJets =
-    new HashMap<>();
-
-  private static final Map<String,Map<Cell,net.frodwith.jaque.dashboard.Registration>> histories =
-    new HashMap<>();
-
   public static final FrameDescriptor DESCRIPTOR;
   protected static final FrameSlot SUBJECT_SLOT;
   private static final OptionDescriptors OPTION_DESCRIPTORS;
@@ -84,51 +78,6 @@ public final class NockLanguage extends TruffleLanguage<NockContext> {
       functionFactories.put(formula, f);
     }
     return f;
-  }
-
-  public static void installJetTree(String name, JetTree tree) {
-    if ( name.equals("") ) {
-      throw new IllegalArgumentException("Empty jet tree name");
-    }
-    else if ( installedJets.containsKey(name) ) {
-      throw new IllegalArgumentException("multiple jet trees at " + name);
-    }
-    else {
-      installedJets.put(name, tree);
-    }
-  }
-
-  public static JetTree getJetTree(String name) {
-    if ( !name.equals("") ) {
-      JetTree t = installedJets.get(name);
-      if ( null != t ) {
-        return t;
-      }
-    }
-    return new JetTree(new RootCore[0]);
-  }
-
-
-  public static void registerHistory(String name, 
-      Map<Cell,net.frodwith.jaque.dashboard.Registration> history) {
-    if ( name.equals("") ) {
-      throw new IllegalArgumentException("Empty history name");
-    }
-    else if ( histories.containsKey(name) ) {
-      throw new IllegalArgumentException("multiple cold histories at " + name);
-    }
-    histories.put(name, history);
-  }
-
-  public static Map<Cell,net.frodwith.jaque.dashboard.Registration> findHistory(String name) {
-    if ( !name.equals("") ) {
-      Map<Cell,net.frodwith.jaque.dashboard.Registration> m = histories.get(name);
-      // XX: need to copy this so it's not shared between contexts
-      if ( null != m ) {
-        return m;
-      }
-    }
-    return new HashMap<>();
   }
 
   /* Nock's only local variable is the subject. */
@@ -168,12 +117,7 @@ public final class NockLanguage extends TruffleLanguage<NockContext> {
     OptionValues values = env.getOptions();
 
     // FIXME: use config values first (for subcontexts)
-    Dashboard dashboard = new Dashboard.Builder()
-        .setColdHistory(findHistory(values.get(NockOptions.COLD_HISTORY)))
-        .setJetTree(getJetTree(values.get(NockOptions.JET_TREE)))
-        .setHashDiscovery(values.get(NockOptions.HASH))
-        .setFastHints(values.get(NockOptions.FAST))
-        .build();
+    Dashboard dashboard = new Dashboard.Builder().build();
 
     return new NockContext(env, getAstContext(dashboard));
   }

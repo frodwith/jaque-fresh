@@ -18,11 +18,12 @@ import net.frodwith.jaque.data.NockFunction;
 import net.frodwith.jaque.data.SourceMappedNoun;
 import net.frodwith.jaque.dashboard.Dashboard;
 import net.frodwith.jaque.runtime.Atom;
-import net.frodwith.jaque.nodes.*;
 import net.frodwith.jaque.exception.ExitException;
 
+import net.frodwith.jaque.nodes.*;
+
 public final class FormulaParser {
-  
+
   private static NockExpressionNode axe(Axis axis, NockExpressionNode node) {
     node.setAxisInFormula(axis);
     return node;
@@ -59,7 +60,7 @@ public final class FormulaParser {
   }
 
   private static Function<AstContext,NockExpressionNode>
-    parseEval(Object arg, Axis axis, boolean tail) 
+    parseEval(Object arg, Axis axis, boolean tail)
       throws ExitException {
     Cell args = Cell.require(arg);
 
@@ -84,14 +85,14 @@ public final class FormulaParser {
   }
 
   private static Function<AstContext,NockExpressionNode>
-    parseDeep(Object arg, Axis axis) 
+    parseDeep(Object arg, Axis axis)
       throws ExitException {
     Function<AstContext,NockExpressionNode> e = parseUnary(arg, axis);
     return (c) -> axe(axis, DeepNodeGen.create(e.apply(c)));
   }
 
   private static Function<AstContext,NockExpressionNode>
-    parseBump(Object arg, Axis axis) 
+    parseBump(Object arg, Axis axis)
       throws ExitException {
     Function<AstContext,NockExpressionNode> e = parseUnary(arg, axis);
     return (c) -> axe(axis, BumpNodeGen.create(e.apply(c)));
@@ -101,7 +102,7 @@ public final class FormulaParser {
     parseSame(Object arg, Axis axis)
       throws ExitException {
     Cell args = Cell.require(arg);
-    Function<AstContext,NockExpressionNode> 
+    Function<AstContext,NockExpressionNode>
       left = parseExpr(args.head, axis.peg(6), false),
       right = parseExpr(args.tail, axis.peg(7), false);
 
@@ -147,7 +148,7 @@ public final class FormulaParser {
     parseComp(Object arg, Axis axis, boolean tail)
       throws ExitException {
     Cell args = Cell.require(arg);
-    Function<AstContext,NockExpressionNode> 
+    Function<AstContext,NockExpressionNode>
       f = parseExpr(args.head, axis.peg(6), false),
       g = parseExpr(args.tail, axis.peg(7), tail);
 
@@ -155,10 +156,10 @@ public final class FormulaParser {
   }
 
   private static Function<AstContext,NockExpressionNode>
-    parsePush(Object arg, Axis axis, boolean tail) 
+    parsePush(Object arg, Axis axis, boolean tail)
       throws ExitException {
     Cell args = Cell.require(arg);
-    Function<AstContext,NockExpressionNode> 
+    Function<AstContext,NockExpressionNode>
       f = parseExpr(args.head, axis.peg(6), false),
       g = parseExpr(args.tail, axis.peg(7), tail);
     return (c) -> axe(axis, new PushNode(f.apply(c), g.apply(c)));
@@ -187,7 +188,7 @@ public final class FormulaParser {
     else {
       // Only pulls out of the battery of a core are treated as method calls,
       // pulls out of the payload get rewritten to an eval.
-      NockExpressionNode 
+      NockExpressionNode
         subject = axe(coreAxis, new IdentityNode()),
         formula = axe(axis.peg(6), parseSlot(armAxis));
 
@@ -195,15 +196,91 @@ public final class FormulaParser {
         NockFunctionLookupNode
           lookup = NockFunctionLookupNodeGen.create(formula, c);
 
-        NockCallLookupNode 
+        NockCallLookupNode
           eval = new NockEvalNode(lookup, subject);
-        NockExpressionNode 
+        NockExpressionNode
           call = axe(axis, tail
                ? new NockHeadCallNode(eval)
                : new NockTailCallNode(eval));
 
         return axe(axis, new ComposeNode(core.apply(c), call));
       };
+    }
+  }
+
+  private static Function<AstContext,NockExpressionNode>
+    parseStaticHint(Object tag, Object nextNoun, Axis axis, Axis nextAxis, boolean tail)
+      throws ExitException {
+    Function<AstContext,NockExpressionNode>
+      next = parseExpr(nextNoun, nextAxis, tail);
+
+    try {
+      switch ( Atom.requireInt(tag) ) {
+        case Motes.CORE:
+          return (c) -> CoreNodeGen.create(next.apply(c), c.dashboard);
+      }
+    }
+    catch ( ExitException e ) {
+    }
+
+    return next;
+  }
+
+  private static Function<AstContext,NockExpressionNode>
+    parseDynamicHint(Cell hints, Object nextNoun, Axis axis, Axis nextAxis, boolean tail)
+      throws ExitException {
+    Function<AstContext, NockExpressionNode> next,
+      clue = parseExpr(hints.tail, axis.peg(6), false);
+
+    int tag;
+    try {
+      // all currently recognized hint tags fit into an int mote, which
+      // is handy for switch statements.
+      tag = Atom.requireInt(hints.head);
+    }
+    catch ( ExitException e ) {
+      next = parseExpr(nextNoun, nextAxis, tail);
+      return (c) -> axe(axis, new TossNode(clue.apply(c), next.apply(c)));
+    }
+    switch ( tag ) {
+      case Motes.MEMO: {
+        next = parseExpr(nextNoun, nextAxis, false);
+        Cell key = Cell.require(nextNoun);
+        return (c) -> {
+          return axe(axis, new MemoNode(
+            c.language.getContextReference(),
+            key,
+            clue.apply(c),
+            next.apply(c)));
+        };
+      }
+
+      case Motes.FAST: {
+        Function<AstContext, NockExpressionNode> nexTail;
+        next    = parseExpr(nextNoun, nextAxis, false);
+        nexTail = tail ? parseExpr(nextNoun, nextAxis, true) : next;
+        return (c) -> {
+          NockExpressionNode clueNode = clue.apply(c);
+          return axe(axis, c.dashboard.fastHints
+            ? new FastNode(c.dashboard, clueNode, next.apply(c))
+            : new TossNode(clueNode,
+                CoreNodeGen.create(nexTail.apply(c), c.dashboard)));
+        };
+      }
+
+      default:
+        next = parseExpr(nextNoun, nextAxis, tail);
+        return (c) -> axe(axis, new TossNode(clue.apply(c), next.apply(c)));
+      /*
+      case Motes.MEAN:
+      case Motes.HUNK:
+      case Motes.LOSE:
+      case Motes.SPOT:
+        return StackNode.create(hints.head, clue, parseExpr(next, false));
+
+      case Motes.SLOG:
+        return SlogNode.create(clue, parseExpr(next, tail));
+      */
     }
   }
 
@@ -215,66 +292,9 @@ public final class FormulaParser {
     Object nextNoun = args.tail;
     Axis nextAxis = axis.peg(7);
 
-    if ( !(hint instanceof Cell) ) {
-      // no recognized static hints
-      return parseExpr(nextNoun, nextAxis, tail);
-    }
-    else {
-      Cell hints = Cell.require(hint);
-      Function<AstContext, NockExpressionNode> next,
-        clue = parseExpr(hints.tail, axis.peg(6), false);
-
-      int tag;
-      try {
-        // all currently recognized hint tags fit into an int mote, which
-        // is handy for switch statements.
-        tag = Atom.requireInt(hints.head);
-      }
-      catch ( ExitException e ) {
-        next = parseExpr(nextNoun, nextAxis, tail);
-        return (c) -> axe(axis, new TossNode(clue.apply(c), next.apply(c)));
-      }
-      switch ( tag ) {
-        case Motes.MEMO: {
-          next = parseExpr(nextNoun, nextAxis, false);
-          Cell key = Cell.require(nextNoun);
-          return (c) -> {
-            return axe(axis, new MemoNode(
-              c.language.getContextReference(), 
-              key,
-              clue.apply(c),
-              next.apply(c)));
-          };
-        }
-
-        case Motes.FAST: {
-          Function<AstContext, NockExpressionNode> nexTail;
-          next    = parseExpr(nextNoun, nextAxis, false);
-          nexTail = tail ? parseExpr(nextNoun, nextAxis, true) : next;
-          return (c) -> {
-            NockExpressionNode clueNode = clue.apply(c);
-            return axe(axis, c.dashboard.fastHints
-              ? new FastNode(c.dashboard, clueNode, 
-                next.apply(c))
-              : new TossNode(clueNode, nexTail.apply(c)));
-          };
-        }
-
-        default:
-          next = parseExpr(nextNoun, nextAxis, tail);
-          return (c) -> axe(axis, new TossNode(clue.apply(c), next.apply(c)));
-        /*
-        case Motes.MEAN:
-        case Motes.HUNK:
-        case Motes.LOSE:
-        case Motes.SPOT:
-          return StackNode.create(hints.head, clue, parseExpr(next, false));
-
-        case Motes.SLOG:
-          return SlogNode.create(clue, parseExpr(next, tail));
-        */
-      }
-    }
+    return ( args.head instanceof Cell )
+      ? parseDynamicHint((Cell) hint, nextNoun, axis, nextAxis, tail)
+      : parseStaticHint(hint, nextNoun, axis, nextAxis, tail);
   }
 
   /*
@@ -300,7 +320,7 @@ public final class FormulaParser {
     Function<AstContext,NockExpressionNode>
       small = parseExpr(spec.tail, axis.peg(13), false),
       large = parseExpr(args.tail, axis.peg(7), false);
-    
+
     if ( editAxis.isIdentity() ) {
       // NockEditNode specializes to producing a cell, but edit 1 is valid
       // and could produce an atom.
@@ -320,7 +340,7 @@ public final class FormulaParser {
                 : new EditTailNode(chain);
         }
 
-        return axe(axis, 
+        return axe(axis,
           new NockEditNode(large.apply(c), chain, editAxis, c.dashboard));
       };
     }
