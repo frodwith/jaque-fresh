@@ -391,26 +391,23 @@ public final class FormulaParser {
     }
   }
 
-  private static Function<AstContext,NockFunction>
+  private static Function<AstContext,RootCallTarget>
     factory(Object formula, Supplier<SourceMappedNoun> sup)
       throws ExitException {
     Function<AstContext,NockExpressionNode>
       exprFactory = parseExpr(formula, Axis.IDENTITY, true);
 
-    Function<AstContext,RootCallTarget>
-      targetFactory = (c) -> Truffle.getRuntime().createCallTarget(
-        new NockRootNode(c.language, sup, exprFactory.apply(c)));
-
-    return (c) -> new NockFunction(c, targetFactory);
+    return (c) -> Truffle.getRuntime().createCallTarget(
+      new NockRootNode(c.language, sup, exprFactory.apply(c)));
   }
 
-  public static Function<AstContext, NockFunction>
+  public static Function<AstContext,RootCallTarget>
     parseMapped(SourceMappedNoun mapped)
       throws ExitException {
     return factory(mapped.noun, () -> mapped);
   }
 
-  public static Function<AstContext, NockFunction>
+  public static Function<AstContext,RootCallTarget>
     parse(Object formula)
       throws ExitException {
     Cell c = Cell.require(formula);

@@ -38,6 +38,7 @@ import net.frodwith.jaque.data.SourceMappedNoun;
 import net.frodwith.jaque.nodes.NockRootNode;
 import net.frodwith.jaque.parser.CustomParser;
 import net.frodwith.jaque.parser.FormulaParser;
+import net.frodwith.jaque.interop.Formula;
 import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.dashboard.Dashboard;
 import net.frodwith.jaque.exception.ExitException;
@@ -74,7 +75,9 @@ public final class NockLanguage extends TruffleLanguage<NockContext> {
       throws ExitException {
     Function<AstContext,NockFunction> f = functionFactories.get(formula);
     if ( null == f ) {
-      f = FormulaParser.parse(formula);
+      Function<AstContext,RootCallTarget>
+        target = FormulaParser.parse(formula);
+      f = (c) -> new NockFunction(c, target);
       functionFactories.put(formula, f);
     }
     return f;
@@ -138,11 +141,13 @@ public final class NockLanguage extends TruffleLanguage<NockContext> {
 
     // need an ast context (for dashboard)
     NockContext context = getCurrentContext(NockLanguage.class);
-    NockFunction function = FormulaParser.parseMapped(mapped)
+
+    RootCallTarget target = FormulaParser.parseMapped(mapped)
       .apply(context.getAstContext());
+    Formula interop = new Formula(target);
 
     return Truffle.getRuntime()
-      .createCallTarget(RootNode.createConstantNode(function));
+      .createCallTarget(RootNode.createConstantNode(interop));
   }
 
   @Override

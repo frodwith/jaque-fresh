@@ -11,7 +11,7 @@ import net.frodwith.jaque.AstContext;
 import net.frodwith.jaque.NockLanguage;
 import net.frodwith.jaque.runtime.NockContext;
 
-public final class NockFunction implements TruffleObject {
+public final class NockFunction {
   private final AstContext context;
   private final Function<AstContext,RootCallTarget> factory;
   public final RootCallTarget callTarget;
@@ -29,10 +29,5 @@ public final class NockFunction implements TruffleObject {
 
   public boolean compatible(AstContext context) {
     return context.compatible(context);
-  }
-
-  @Override
-  public ForeignAccess getForeignAccess() {
-    return NockFunctionMessageResolutionForeign.ACCESS;
   }
 }
