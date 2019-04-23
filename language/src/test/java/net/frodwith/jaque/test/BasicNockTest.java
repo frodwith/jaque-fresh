@@ -85,10 +85,10 @@ public class BasicNockTest {
 
     Object big = SimpleAtomParser.parse("1000000000000000000000000");
     BigAtom bigger = (BigAtom) SimpleAtomParser.parse("1000000000000000000000001");
-    int[] got = bump.execute(big).as(int[].class);
+    int[] got = bump.execute(big).getMember("words").as(int[].class);
     assertArrayEquals("huge", bigger.words, got);
 
-    got = bump.execute(0xFFFFFFFFFFFFFFFFL).as(int[].class);
+    got = bump.execute(0xFFFFFFFFFFFFFFFFL).getMember("words").as(int[].class);
     assertArrayEquals("max", new int[] {0,0,1}, got);
   }
 
