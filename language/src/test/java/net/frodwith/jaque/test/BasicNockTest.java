@@ -83,8 +83,8 @@ public class BasicNockTest {
     assertEquals(1L, bump.execute(0L).as(Number.class));
     assertEquals(42L, bump.execute(41L).as(Number.class));
 
-    Object big = SimpleAtomParser.parse("1.000.000.000.000.000.000.000.000");
-    BigAtom bigger = (BigAtom) SimpleAtomParser.parse("1.000.000.000.000.000.000.000.001");
+    Object big = SimpleAtomParser.parse("1000000000000000000000000");
+    BigAtom bigger = (BigAtom) SimpleAtomParser.parse("1000000000000000000000001");
     int[] got = bump.execute(big).as(int[].class);
     assertArrayEquals("huge", bigger.words, got);
 

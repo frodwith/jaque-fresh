@@ -10,14 +10,20 @@ public final class SimpleAtomParser {
   }
   
   public static Object parse(CharSequence s, int radix) {
-    int    len = s.length(),
-           cpw = MPN.chars_per_word(radix),
-           i;
+    int len = s.length(),
+        cpw = MPN.chars_per_word(radix),
+        i;
     byte[] dig = new byte[len];
     int[]  wor = new int[(len / cpw) + 1];
 
     for (i = 0; i < len; ++i) {
-        dig[i] = (byte) Character.digit(s.charAt(i), radix);
+      int digit = Character.digit(s.charAt(i), radix);
+      if ( -1 == digit ) {
+        throw new IllegalArgumentException();
+      }
+      else {
+        dig[i] = (byte) digit;
+      }
     }
 
     MPN.set_str(wor, dig, len, radix);
