@@ -107,6 +107,23 @@ public final class NockLanguage extends TruffleLanguage<NockContext> {
       || o instanceof Long;
   }
 
+  @TruffleBoundary
+  private static long fromForeignNumber(Object a) {
+    return ((Number) a).longValue();
+  }
+
+  private Object ensureNoun(Object o) {
+    if ( isObjectOfLanguage(o) ) {
+      return o;
+    }
+    else if ( o instanceof Number ) {
+      return ((Number) o).longValue();
+    }
+    else {
+      throw new IllegalArgumentException();
+    }
+  }
+
   public Object
     argumentsToSubject(Object... arguments)
       throws UnsupportedTypeException {
@@ -115,18 +132,17 @@ public final class NockLanguage extends TruffleLanguage<NockContext> {
       return 0L;
     }
     else {
-      Object head, tail = arguments[size-1];
-      if ( !isObjectOfLanguage(tail) ) {
+      try {
+        Object head, tail = ensureNoun(arguments[size-1]);
+        for ( int i = size-2; i >= 0; i-- ) {
+          head = ensureNoun(arguments[i]);
+          tail = new Cell(head, tail);
+        }
+        return tail;
+      }
+      catch ( IllegalArgumentException e ) {
         throw UnsupportedTypeException.create(arguments);
       }
-      for ( int i = size-2; i >= 0; i-- ) {
-        head = arguments[i];
-        if ( !isObjectOfLanguage(head) ) {
-          throw UnsupportedTypeException.create(arguments);
-        }
-        tail = new Cell(head, tail);
-      }
-      return tail;
     }
   }
 
@@ -182,11 +198,6 @@ public final class NockLanguage extends TruffleLanguage<NockContext> {
     else {
       return null;
     }
-  }
-
-  @TruffleBoundary
-  private static long fromForeignNumber(Object a) {
-    return ((Number) a).longValue();
   }
 
   // TODO: DEPRECATED

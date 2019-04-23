@@ -48,7 +48,7 @@ public final class Marshall implements TruffleObject {
 
   @ExportMessage
   public Object execute(Object[] arguments,
-    @CachedLibrary(limit="2") InteropLibrary interop)
+    @CachedLibrary(limit="3") InteropLibrary interop)
       throws ArityException, UnsupportedTypeException {
     if ( 0 == arguments.length ) {
       throw ArityException.create(1, 0);
