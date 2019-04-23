@@ -29,8 +29,8 @@ public class BasicNockTest {
   public void testAutocons() {
     Value flipper = context.eval("nock", "[[0 3] 0 2]");
     Value product = flipper.execute(new Cell(42L, 0L));
-    assertEquals(0L, product.getMember("head").as(Number.class));
-    assertEquals(42L, product.getMember("tail").as(Number.class));
+    assertEquals(0L, product.getArrayElement(0).as(Number.class));
+    assertEquals(42L, product.getArrayElement(1).as(Number.class));
   }
 
   @Test
@@ -44,8 +44,8 @@ public class BasicNockTest {
   public void testLiteralCell() {
     Value callable = context.eval("nock", "[1 0 42]");
     Value product  = callable.execute();
-    assertEquals(0L, product.getMember("head").as(Number.class));
-    assertEquals(42L, product.getMember("tail").as(Number.class));
+    assertEquals(0L, product.getArrayElement(0).as(Number.class));
+    assertEquals(42L, product.getArrayElement(1).as(Number.class));
   }
 
   @Test
@@ -57,8 +57,8 @@ public class BasicNockTest {
     assertEquals("+>", 3L, context.eval("nock", "[0 7]").execute(data).as(Number.class));
 
     Value tail = context.eval("nock", "[0 3]").execute(data);
-    assertEquals("+memhead", 2L, tail.getMember("head").as(Number.class));
-    assertEquals("+memtail", 3L, tail.getMember("tail").as(Number.class));
+    assertEquals("+memhead", 2L, tail.getArrayElement(0).as(Number.class));
+    assertEquals("+memtail", 3L, tail.getArrayElement(1).as(Number.class));
   }
 
   @Test
@@ -156,16 +156,16 @@ public class BasicNockTest {
   public void testComp() {
     Value comp = context.eval("nock", "[7 [0 2] [0 3] 0 2]");
     Value r = comp.execute(new Cell(new Cell(1L, 2L), 3L));
-    assertEquals(2L, r.getMember("head").as(Number.class));
-    assertEquals(1L, r.getMember("tail").as(Number.class));
+    assertEquals(2L, r.getArrayElement(0).as(Number.class));
+    assertEquals(1L, r.getArrayElement(1).as(Number.class));
   }
 
   @Test
   public void testPush() {
     Value push = context.eval("nock", "[8 [1 42] [0 3] 0 2]");
     Value r = push.execute();
-    assertEquals(0L, r.getMember("head").as(Number.class));
-    assertEquals(42L, r.getMember("tail").as(Number.class));
+    assertEquals(0L, r.getArrayElement(0).as(Number.class));
+    assertEquals(42L, r.getArrayElement(1).as(Number.class));
   }
 
   @Test

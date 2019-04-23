@@ -47,14 +47,14 @@ public class EditCacheTest {
   @Test
   public void testCache() {
     Value pair = context.eval(zeroSource).execute();
-    Value zero = pair.getMember("head");
-    Value one = pair.getMember("tail");
+    Value zero = pair.getArrayElement(0);
+    Value one = pair.getArrayElement(1);
 
     // will know it's a core because it was fast hinted
     assertTrue(zero.getMetaObject().getMember("isCore").as(Boolean.class));
 
     Value mzero = zero.getMetaObject().invokeMember("2", zero);
-    assertEquals(0L, mzero.getMember("tail").getMember("head").as(Number.class));
+    assertEquals(0L, mzero.getArrayElement(1).getArrayElement(0).as(Number.class));
     // edited outside a location relevant axis, so still a core
     assertTrue(mzero.getMetaObject().getMember("isCore").as(Boolean.class));
 

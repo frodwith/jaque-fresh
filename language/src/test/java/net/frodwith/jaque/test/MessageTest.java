@@ -43,8 +43,8 @@ public class MessageTest {
   }
 
   private void kelp(Value cell) {
-    assertEquals(42L, cell.getMember("head").as(Number.class));
-    assertEquals(43L, cell.getMember("tail").as(Number.class));
+    assertEquals(42L, cell.getArrayElement(0).as(Number.class));
+    assertEquals(43L, cell.getArrayElement(1).as(Number.class));
   }
 
   private void exId(Value fn) {

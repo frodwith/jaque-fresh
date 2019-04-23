@@ -6,7 +6,10 @@ import java.io.IOException;
 
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.interop.TruffleObject;
-import com.oracle.truffle.api.interop.ForeignAccess;
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.InvalidArrayIndexException;
+import com.oracle.truffle.api.library.ExportLibrary;
+import com.oracle.truffle.api.library.ExportMessage;
 
 import net.frodwith.jaque.AstContext;
 import net.frodwith.jaque.runtime.Mug;
@@ -25,10 +28,12 @@ import net.frodwith.jaque.exception.ExitException;
  * longs etc.). In particular, suffix literal atoms with L (1L, etc) religiously to avoid
  * this. No real checking is done at runtime.
  */
+
+@ExportLibrary(InteropLibrary.class)
 public final class Cell implements TruffleObject, Serializable {
   // head and tail are not final because we set them during unifying equals
   public Object head, tail;
-  private Object meta;
+  private transient Object meta;
   
   public Cell(Object head, Object tail) {
     this.head = head;
@@ -178,8 +183,37 @@ public final class Cell implements TruffleObject, Serializable {
     return (o instanceof Cell) && Equality.equals(this, (Cell) o);
   }
 
-  public ForeignAccess getForeignAccess() {
-    return CellMessageResolutionForeign.ACCESS;
+  @ExportMessage
+  public boolean hasArrayElements() {
+    return true;
+  }
+
+  @ExportMessage
+  public long getArraySize() {
+    return 2L;
+  }
+
+  @ExportMessage
+  public boolean isArrayElementReadable(long index) {
+    switch ((int) index) {
+      case 0:
+      case 1:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  @ExportMessage
+  public Object readArrayElement(long index) throws InvalidArrayIndexException {
+    switch ((int) index) {
+      case 0:
+        return head;
+      case 1:
+        return tail;
+      default:
+        throw InvalidArrayIndexException.create(index);
+    }
   }
 
 /* for debugging
