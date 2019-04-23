@@ -24,6 +24,7 @@ import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.AxisMap;
 import net.frodwith.jaque.data.NockFunction;
 import net.frodwith.jaque.parser.FormulaParser;
+import net.frodwith.jaque.interop.Bindings;
 import net.frodwith.jaque.exception.ExitException;
 
 import net.frodwith.jaque.dashboard.Location;
@@ -43,7 +44,7 @@ public final class NockContext {
       .build();
 
     if ( env.isPolyglotAccessAllowed() ) {
-      env.exportSymbol("nock", new NockInterop(this));
+      env.exportSymbol("nock", new Bindings(this));
     }
   }
 

@@ -26,6 +26,7 @@ import com.oracle.truffle.api.source.Source;
 import com.oracle.truffle.api.source.SourceSection;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+import com.oracle.truffle.api.interop.UnsupportedTypeException;
 
 import net.frodwith.jaque.jet.JetTree;
 import net.frodwith.jaque.jet.RootCore;
@@ -106,6 +107,29 @@ public final class NockLanguage extends TruffleLanguage<NockContext> {
       || o instanceof Long;
   }
 
+  public Object
+    argumentsToSubject(Object... arguments)
+      throws UnsupportedTypeException {
+    int size = arguments.length;
+    if ( 0 == size ) {
+      return 0L;
+    }
+    else {
+      Object head, tail = arguments[size-1];
+      if ( !isObjectOfLanguage(tail) ) {
+        throw UnsupportedTypeException.create(arguments);
+      }
+      for ( int i = size-2; i >= 0; i-- ) {
+        head = arguments[i];
+        if ( !isObjectOfLanguage(head) ) {
+          throw UnsupportedTypeException.create(arguments);
+        }
+        tail = new Cell(head, tail);
+      }
+      return tail;
+    }
+  }
+
   public AstContext getAstContext(Dashboard dashboard) {
     AstContext c = contexts.get(dashboard);
     if ( null == c ) {
@@ -165,6 +189,7 @@ public final class NockLanguage extends TruffleLanguage<NockContext> {
     return ((Number) a).longValue();
   }
 
+  // TODO: DEPRECATED
   public static Object fromForeignValue(Object a) {
     if ( a instanceof Long || a instanceof BigAtom || a instanceof Cell ) {
       return a;
@@ -181,6 +206,7 @@ public final class NockLanguage extends TruffleLanguage<NockContext> {
     }
   }
 
+  // TODO: DEPRECATED
   public static Object fromArguments(Object[] arguments) {
     Object product = fromForeignValue(arguments[arguments.length-1]);
     for ( int i = arguments.length-2; i >= 0; --i ) {
@@ -189,6 +215,7 @@ public final class NockLanguage extends TruffleLanguage<NockContext> {
     return product;
   }
 
+  // TODO: DEPRECATED
   public static Object fromArguments(Object[] arguments, Object nullValue) {
     return (null == arguments || 0 == arguments.length)
       ? nullValue

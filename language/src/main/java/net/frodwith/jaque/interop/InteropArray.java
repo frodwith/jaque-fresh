@@ -1,4 +1,4 @@
-package net.frodwith.jaque.runtime;
+package net.frodwith.jaque.interop;
 
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.library.ExportLibrary;
