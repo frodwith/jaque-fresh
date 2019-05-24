@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.io.StringWriter;
 import java.io.IOException;
 
+import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.interop.InteropLibrary;
@@ -12,10 +13,11 @@ import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 
 import net.frodwith.jaque.AstContext;
-import net.frodwith.jaque.runtime.Mug;
 import net.frodwith.jaque.runtime.GrainSilo;
 import net.frodwith.jaque.runtime.Equality;
+import net.frodwith.jaque.runtime.Mug;
 import net.frodwith.jaque.runtime.NockContext;
+import net.frodwith.jaque.library.NounLibrary;
 import net.frodwith.jaque.dashboard.Location;
 import net.frodwith.jaque.dashboard.Dashboard;
 import net.frodwith.jaque.printer.MappedNounPrinter;
@@ -29,6 +31,7 @@ import net.frodwith.jaque.exception.ExitException;
  * this. No real checking is done at runtime.
  */
 
+@ExportLibrary(NounLibrary.class)
 @ExportLibrary(InteropLibrary.class)
 public final class Cell implements TruffleObject, Serializable {
   // head and tail are not final because we set them during unifying equals
@@ -41,6 +44,11 @@ public final class Cell implements TruffleObject, Serializable {
     this.meta = null;
   }
 
+  @ExportMessage
+  public boolean isNoun() {
+    return true;
+  }
+
   public static Cell require(Object o) throws ExitException {
     if ( o instanceof Cell ) {
       return (Cell) o;
@@ -51,6 +59,7 @@ public final class Cell implements TruffleObject, Serializable {
     }
   }
 
+  @ExportMessage
   public int mug() {
     int mug;
     if ( null == meta ) {

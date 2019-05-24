@@ -17,10 +17,12 @@ import net.frodwith.jaque.runtime.Atom;
 import net.frodwith.jaque.runtime.Equality;
 import net.frodwith.jaque.runtime.HoonMath;
 import net.frodwith.jaque.runtime.GrainSilo;
+import net.frodwith.jaque.library.NounLibrary;
 import net.frodwith.jaque.interop.InteropArray;
 import net.frodwith.jaque.printer.SimpleAtomPrinter;
 
 @ExportLibrary(InteropLibrary.class)
+@ExportLibrary(NounLibrary.class)
 public final class BigAtom implements TruffleObject, Serializable {
   public static final BigAtom MINIMUM = new BigAtom(new int[] {0, 0, 1});
 
@@ -35,7 +37,13 @@ public final class BigAtom implements TruffleObject, Serializable {
     this.meta  = 0;
   }
 
-  public int getMug() {
+  @ExportMessage
+  public boolean isNoun() {
+    return true;
+  }
+
+  @ExportMessage
+  public int mug() {
     if ( meta instanceof BigAtomMeta ) {
       return ((BigAtomMeta) meta).getMug(words);
     }
@@ -69,7 +77,7 @@ public final class BigAtom implements TruffleObject, Serializable {
   }
 
   public int hashCode() {
-    return getMug();
+    return mug();
   }
 
   public int cachedMug() {
