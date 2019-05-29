@@ -1,23 +1,41 @@
 package net.frodwith.jaque.test;
 
 import org.junit.Test;
-
+import org.junit.After;
+import org.junit.Before;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
+import org.graalvm.polyglot.Context;
+
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.BigAtom;
-import net.frodwith.jaque.runtime.Mug;
 import net.frodwith.jaque.library.NounLibrary;
 
 public class MugTest {
+  Context context;
   NounLibrary nouns = NounLibrary.getUncached();
+
+  @Before
+  public void init() {
+    // libraries should have an active context,
+    // otherwise @CachedContext for example will not function
+    context = Context.create();
+    context.enter();
+    context.initialize("nock");
+  }
+
+  @After
+  public void dispose() {
+    context.leave();
+    context.close();
+  }
 
   @Test
   public void testSmallAtom() {
     assertEquals(0x2f0c9f3d, nouns.mug(42L));
   }
-  
+
   @Test
   public void testBigAtom() {
     BigAtom a = new BigAtom(new int[] { 0xdeadbeef, 0xbeefdead, 0xfeedbeef });
