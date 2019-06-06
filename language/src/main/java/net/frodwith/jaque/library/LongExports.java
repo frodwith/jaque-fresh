@@ -14,11 +14,6 @@ final class LongExports {
   }
 
   @ExportMessage
-  static boolean isAtom(Long receiver) {
-    return true;
-  }
-
-  @ExportMessage
   static boolean fitsInLong(Long receiver) {
     return true;
   }

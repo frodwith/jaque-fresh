@@ -23,5 +23,13 @@ public abstract class NounLibrary extends Library {
     return false;
   }
 
+  public final boolean isCell(Object receiver) {
+    return false;
+  }
+
+  public final boolean isAtom(Object receiver) {
+    return isNoun(receiver) && !isCell(receiver);
+  }
+
   public abstract int mug(Object receiver);
 }
