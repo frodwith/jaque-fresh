@@ -48,6 +48,10 @@ public final class NockContext {
     }
   }
 
+  public boolean isHostObject(Object object) {
+    return env.isHostObject(object);
+  }
+
   public AstContext getAstContext() {
     return astContext;
   }

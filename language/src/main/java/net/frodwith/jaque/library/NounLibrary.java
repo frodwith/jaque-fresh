@@ -5,7 +5,7 @@ import com.oracle.truffle.api.library.LibraryFactory;
 import com.oracle.truffle.api.library.GenerateLibrary;
 import com.oracle.truffle.api.library.GenerateLibrary.DefaultExport;
 
-@GenerateLibrary
+@GenerateLibrary(assertions=NounAsserts.class)
 @DefaultExport(LongExports.class)
 public abstract class NounLibrary extends Library {
   private static final LibraryFactory<NounLibrary> 
@@ -23,13 +23,6 @@ public abstract class NounLibrary extends Library {
     return false;
   }
 
-  public final boolean isCell(Object receiver) {
-    return false;
-  }
-
-  public final boolean isAtom(Object receiver) {
-    return isNoun(receiver) && !isCell(receiver);
-  }
-
   public abstract int mug(Object receiver);
+
 }
