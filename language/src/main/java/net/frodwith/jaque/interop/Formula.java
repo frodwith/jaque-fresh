@@ -35,7 +35,10 @@ public final class Formula implements TruffleObject {
   private Object argumentToNoun(NounLibrary nouns, Object[] arguments, int i)
     throws UnsupportedTypeException {
     Object arg = arguments[i];
-    if ( nouns.isNoun(arg) ) {
+    if ( arg instanceof Wrapper ) {
+      return ((Wrapper) arg).noun;
+    }
+    else if ( nouns.isNoun(arg) ) {
       // anything implementing the noun library is ok. HostObjects don't export
       // NounLibrary, and we would get our own internal data objects as
       // HostObjects if they were allocated by the embedder. Other exporters are
@@ -78,6 +81,23 @@ public final class Formula implements TruffleObject {
     @Cached(value="makeDispatch()", allowUncached=true)
     NockCallDispatchNode dispatch) throws UnsupportedTypeException {
     final Object subject = argumentsToSubject(nouns, arguments);
-    return dispatch.executeCall(new NockCall(target, subject));
+    final Object product = dispatch.executeCall(new NockCall(target, subject));
+    return isPrimitive(product) ? product : new Wrapper(product);
+  }
+
+  private static boolean isPrimitive(Object o) {
+    return o instanceof Integer
+      || o instanceof Short
+      || o instanceof Byte
+      || o instanceof Boolean
+      || o instanceof Long;
+  }
+
+  private static class Wrapper implements TruffleObject {
+    final Object noun;
+
+    Wrapper(Object noun) {
+      this.noun = noun;
+    }
   }
 }
