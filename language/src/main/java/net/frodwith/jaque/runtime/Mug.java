@@ -73,7 +73,7 @@ public final class Mug {
     return both(get(c.head), get(c.tail));
   }
 
-  private static int both(int a, int b) {
+  public static int both(int a, int b) {
     int bot, out;
     while ( true ) {
       bot = fnv(a ^ fnv(b));

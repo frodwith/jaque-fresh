@@ -11,10 +11,14 @@ import static org.junit.Assert.assertEquals;
 
 public class MessageTest {
   Context context;
+  Value id, head, tail;
 
   @Before
   public void init() {
     context = Context.create();
+    id   = context.eval("nock", "[0 1]");
+    head = context.eval("nock", "[0 2]");
+    tail = context.eval("nock", "[0 3]");
   }
 
   @After
@@ -22,35 +26,55 @@ public class MessageTest {
     context.close();
   }
 
+  private static void assertInt(int expected, Value value) {
+    assertEquals(expected, (int) value.as(int.class));
+  }
+
+  // this class used to test a richer interop api for cells, which has been
+  // discarded in favor of using nock exclusively to break apart nouns
+  // the new patterns are tested here (partly as an example).
   @Test
-  public void testExec() {
-    exId(context.eval("nock", "[0 1]"));
+  public void testNoArg() {
+    assertInt(0, context.eval("nock", "[0 1]").execute());
   }
 
   @Test
-  public void testMetaExec() {
-    exId(context.eval("nock", "[1 0 1]").execute().getMetaObject());
+  public void testCellArg() {
+    Value r = id.execute(42, 43);
+    assertInt(42, head.execute(r));
+    assertInt(43, tail.execute(r));
   }
 
   @Test
-  public void testInvoke() {
-    Value core = context.eval("nock", "[1 [0 6] 42 0]")
-                 .execute().getMetaObject();
-    assertEquals(42L, core.invokeMember("2").as(Number.class));
-    assertEquals(1L, core.invokeMember("2", 1L).as(Number.class));
-
-    kelp(core.invokeMember("2", 42, 43));
+  public void testTrelArg() {
+    Value r = id.execute(42, 43, 44);
+    assertInt(42, context.eval("nock", "[0 2]").execute(r));
+    assertInt(43, context.eval("nock", "[0 6]").execute(r));
+    assertInt(44, context.eval("nock", "[0 7]").execute(r));
   }
 
-  private void kelp(Value cell) {
-    assertEquals(42L, cell.getArrayElement(0).as(Number.class));
-    assertEquals(43L, cell.getArrayElement(1).as(Number.class));
+  @Test
+  public void testNock() {
+    Value formula = context.eval("nock", "[1 0 1]").execute(),
+          cell    = context.eval("nock", "[1 42 43]").execute(),
+          nock    = context.eval("nock", "[2 [0 3] 0 2]"),
+          r       = nock.execute(0, cell);
+    assertInt(0, nock.execute(0, formula));
+    assertInt(42, head.execute(r));
+    assertInt(43, tail.execute(r));
   }
 
-  private void exId(Value fn) {
-    assertEquals(0L, fn.execute().as(Number.class));
-    assertEquals(42L, fn.execute(42L).as(Number.class));
-    
-    kelp(fn.execute(42L, 43L));
+  @Test
+  public void testKick() {
+    Value gate = context.eval("nock", "[1 [0 6] 42 0]").execute(),
+          bunt = context.eval("nock", "[9 2 0 1]"),
+          slam = context.eval("nock", "[9 2 10 [6 0 3] 0 2]"),
+          r    = slam.execute(gate, 42, 43);
+
+    assertInt(42, bunt.execute(gate));
+    assertInt(1, slam.execute(gate, 1));
+
+    assertInt(42, head.execute(r));
+    assertInt(43, tail.execute(r));
   }
 }

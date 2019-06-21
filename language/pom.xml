@@ -26,7 +26,8 @@
             <include>**/*TestSuite.java</include>
             <include>**/*Test.java</include>
           </includes>
-          <argLine>-XX:-UseJVMCIClassLoader</argLine>
+          <!-- -esa needed to make library assertion checks run -->
+          <argLine>-esa -XX:-UseJVMCIClassLoader</argLine>
         </configuration>
       </plugin>
       <plugin>

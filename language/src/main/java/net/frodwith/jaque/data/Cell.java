@@ -31,9 +31,9 @@ import net.frodwith.jaque.exception.ExitException;
  * this. No real checking is done at runtime.
  */
 
-@ExportLibrary(NounLibrary.class)
-@ExportLibrary(InteropLibrary.class)
-public final class Cell implements TruffleObject, Serializable {
+//@ExportLibrary(NounLibrary.class)
+//@ExportLibrary(InteropLibrary.class)
+public final class Cell { //implements TruffleObject, Serializable {
   // head and tail are not final because we set them during unifying equals
   public Object head, tail;
   private transient Object meta;
@@ -44,7 +44,7 @@ public final class Cell implements TruffleObject, Serializable {
     this.meta = null;
   }
 
-  @ExportMessage
+  //@ExportMessage
   public boolean isNoun() {
     return true;
   }
@@ -59,7 +59,7 @@ public final class Cell implements TruffleObject, Serializable {
     }
   }
 
-  @ExportMessage
+  //@ExportMessage
   public int mug() {
     int mug;
     if ( null == meta ) {
@@ -192,17 +192,17 @@ public final class Cell implements TruffleObject, Serializable {
     return (o instanceof Cell) && Equality.equals(this, (Cell) o);
   }
 
-  @ExportMessage
+  //@ExportMessage
   public boolean hasArrayElements() {
     return true;
   }
 
-  @ExportMessage
+  //@ExportMessage
   public long getArraySize() {
     return 2L;
   }
 
-  @ExportMessage
+  //@ExportMessage
   public boolean isArrayElementReadable(long index) {
     switch ((int) index) {
       case 0:
@@ -213,7 +213,7 @@ public final class Cell implements TruffleObject, Serializable {
     }
   }
 
-  @ExportMessage
+  //@ExportMessage
   public Object readArrayElement(long index) throws InvalidArrayIndexException {
     switch ((int) index) {
       case 0:

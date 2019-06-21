@@ -33,12 +33,12 @@ import net.frodwith.jaque.dashboard.Dashboard;
 public final class NockContext {
   private final Env env;
   private final Cache<Cell,Object> memoCache;
-  private AstContext astContext;
+  private AstContext astContext; // DEPRECATED
   private static final String dashboardRequired = Dashboard.class + " required";
 
   public NockContext(Env env, AstContext astContext) {
-    this.astContext = astContext;
     this.env  = env;
+
     this.memoCache = CacheBuilder.newBuilder()
       .maximumSize(env.getOptions().get(NockOptions.MEMO_SIZE))
       .build();
@@ -46,6 +46,9 @@ public final class NockContext {
     if ( env.isPolyglotAccessAllowed() ) {
       env.exportSymbol("nock", new Bindings(this));
     }
+
+    // So deprecated. Ugh.
+    this.astContext = astContext;
   }
 
   public boolean isHostObject(Object object) {
