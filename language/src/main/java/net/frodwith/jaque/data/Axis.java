@@ -11,9 +11,7 @@ import net.frodwith.jaque.runtime.Atom;
 import net.frodwith.jaque.runtime.HoonMath;
 import net.frodwith.jaque.runtime.Equality;
 
-public final class Axis implements Iterable<Axis.Fragment> {
-  public enum Fragment { HEAD, TAIL }
-
+public final class Axis implements Iterable<Boolean> {
   public final static Axis CRASH    = new Axis(0L);
   public final static Axis IDENTITY = new Axis(1L);
   public final static Axis HEAD     = new Axis(2L);
@@ -24,7 +22,7 @@ public final class Axis implements Iterable<Axis.Fragment> {
   public final int length;
   public final Object atom;
 
-  public final class Cursor implements Iterator<Fragment> {
+  public final class Cursor implements Iterator<Boolean> {
     private int n;
     
     public Cursor() {
@@ -32,13 +30,12 @@ public final class Axis implements Iterable<Axis.Fragment> {
     }
 
     @Override
-    public boolean hasNext() {
-      return n >= 0;
+    public boolean hasNext() { return n >= 0;
     }
 
     @Override
-    public Fragment next() {
-      return Atom.getNthBit(atom, n--) ? Fragment.TAIL : Fragment.HEAD;
+    public Boolean next() {
+      return Atom.getNthBit(atom, n--);
     }
   }
   
@@ -113,7 +110,7 @@ public final class Axis implements Iterable<Axis.Fragment> {
   }
 
   @Override
-  public Iterator<Fragment> iterator() {
+  public Iterator<Boolean> iterator() {
     return new Cursor();
   }
 

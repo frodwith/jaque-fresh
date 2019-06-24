@@ -20,24 +20,24 @@ public final class AxisMap<T> {
     this.right = right;
   }
 
-  public AxisMap<T> insert(Axis index, T item) {
+  public AxisMap<T> insert(Iterable<Boolean> path, T item) {
     ArrayDeque<AxisMap<T>> maps = new ArrayDeque<>();
-    ArrayDeque<Axis.Fragment> frags = new ArrayDeque<>();
+    ArrayDeque<Boolean> parts = new ArrayDeque<>();
     AxisMap<T> cur = this;
-    for ( Axis.Fragment f : index ) {
+    for ( boolean right : path ) {
       maps.push(cur);
-      frags.push(f);
-      cur = (Axis.Fragment.HEAD == f) ? cur.left : cur.right;
+      parts.push(right);
+      cur = right ? cur.right : cur.left;
       if ( null == cur ) {
         cur = EMPTY;
       }
     }
     cur = new AxisMap<T>(item, cur.left, cur.right);
-    while (!frags.isEmpty()) {
+    while (!parts.isEmpty()) {
       AxisMap<T> parent = maps.pop();
-      cur = (Axis.Fragment.HEAD == frags.pop())
-        ? new AxisMap<T>(parent.value, cur, parent.right)
-        : new AxisMap<T>(parent.value, parent.left, cur);
+      cur = parts.pop()
+        ? new AxisMap<T>(parent.value, parent.left, cur)
+        : new AxisMap<T>(parent.value, cur, parent.right);
     }
     return cur;
   }
@@ -104,22 +104,22 @@ public final class AxisMap<T> {
     }
   }
 
-  public T get(Axis index) {
+  public T get(Iterable<Boolean> path) {
     AxisMap<T> cur = this;
-    for ( Axis.Fragment f : index ) {
-      if ( Axis.Fragment.HEAD == f ) {
-        if ( null == cur.left ) {
+    for ( boolean right : path ) {
+      if ( right ) {
+        if ( null == cur.right ) {
           return null;
         }
         else {
-          cur = cur.left;
+          cur = cur.right;
         }
       }
-      else if ( null == cur.right ) {
+      else if ( null == cur.left ) {
         return null;
       }
       else {
-        cur = cur.right;
+        cur = cur.left;
       }
     }
     return cur.value;

@@ -51,10 +51,8 @@ public final class FragmentNode extends Node {
 
   public static FragmentNode fromAxis(Axis a) {
     ArrayDeque<FragmentPartNode> tmp = new ArrayDeque<>();
-    for ( Axis.Fragment f : a ) {
-      FragmentPartNode node = ( f == Axis.Fragment.HEAD )
-        ? new HeadNode()
-        : new TailNode();
+    for ( boolean right : a ) {
+      FragmentPartNode node = right ? new TailNode() : new HeadNode();
       tmp.add(node);
     }
     return new FragmentNode(tmp.toArray(new FragmentPartNode[tmp.size()]));
