@@ -23,6 +23,131 @@ import net.frodwith.jaque.exception.ExitException;
 import net.frodwith.jaque.nodes.*;
 
 public final class FormulaParser {
+  private final NounLibrary nouns;
+  private NockLanguage language;
+
+  public FormulaParser(NockLanguage language) {
+    this.nouns = NounLibrary.getUncached();
+    this.language = language;
+  }
+
+  public static RootCallTarget parse(Object noun) throws ExitException {
+    parseExpr(noun, null, true);
+  }
+
+  private static final class AxisPart {
+    static final AxisPart EMPTY = new AxisPart(null);
+    final boolean right;
+    final AxisPart next;
+
+    AxisPart(boolean right, AxisPart next) {
+      this.right = right;
+      this.next = next;
+    }
+
+    AxisPart add(boolean right) {
+      return new AxisPart(right, this);
+    }
+
+    NockExpressionNode store(NockExpressionNode node) {
+      // parts are layed out in path order (go right, then left, then right,
+      // etc)
+      // start by putting a 1 on
+      // keep shifting left (increment if right)
+      // when you get to a full byte, add to the bytes list
+      //   we want little endian, which means we add to the end of the list
+      //   (bits get less significant as we go, the least significant bit being
+      //   the last element in the path)
+      // we need to know the length actually before we pack the suckers.
+      AxisPart p;
+      byte buf;
+      byte bits;
+      for ( bits = 1, buf = 1, p = this; p != null; p = p.next, ++bits ) {
+        if ( 8 == bits ) {
+          bits = 0;
+          bytes.append(buf);
+        }
+        buf <<= 1;
+        if ( p.right ) {
+          buf &= 1;
+        }
+      }
+
+
+
+      byte buf = 1;
+      AxisPart p = this;
+      while ( 
+
+
+      final byte[] bits = new byte[8];
+      ArrayDeque<Byte> bytes = new ArrayDeque<>();
+      int i;
+      for ( i = 0, p = this; 
+            p != null;
+            p = p.next, i = ( 7 == i ) ? 
+        bits[i] = p.right << i;
+      }
+    }
+  }
+
+  private NockExpressionNode parseExpr(Object noun, AxisPart ax, boolean tail)
+    throws ExitException {
+    Object op = nouns.head(noun),
+           arg = nouns.tail(noun);
+
+    if ( nouns.isCell(op) ) {
+      return parseCons(op, arg, axis);
+    }
+    else switch ( nouns.asInt(op) ) {
+      case 0:
+        return parseSlot(arg, axis);
+      case 1:
+        return parseQuot(arg, axis);
+      case 2:
+        return parseEval(arg, axis, tail);
+      case 3:
+        return parseDeep(arg, axis);
+      case 4:
+        return parseBump(arg, axis);
+      case 5:
+        return parseSame(arg, axis);
+      case 6:
+        return parseIf(arg, axis, tail);
+      case 7:
+        return parseComp(arg, axis, tail);
+      case 8:
+        return parsePush(arg, axis, tail);
+      case 9:
+        return parsePull(arg, axis, tail);
+      case 10:
+        return parseEdit(arg, axis, tail);
+      case 11:
+        return parseHint(arg, axis, tail);
+      //case 12:
+      //  return parseWish(arg);
+      }
+    }
+    throw new ExitException("invalid formula");
+  }
+
+
+  public static RootCallTarget parse(Object noun) throws ExitException {
+    FormulaParser p = new FormulaParser(language);
+    NockExpressionNode body = p.parseExpr(noun, null, true);
+
+    if ( !nouns.isCell(noun) ) {
+      throw new ExitException();
+    }
+    else {
+      Object op = nouns.head(noun),
+             arg = nouns.tail(noun);
+      if ( nouns.isCell(op) ) {
+
+      }
+    }
+  }
+
 
   private static NockExpressionNode axe(Axis axis, NockExpressionNode node) {
     node.setAxisInFormula(axis);
@@ -420,5 +545,118 @@ public final class FormulaParser {
         throw new RuntimeException("NockFunction.fromCell:supplier", e);
       }
     });
+  }
+
+  private final NounLibrary nouns;
+  private final NockLanguage language;
+
+  private FormulaParser(NockLanguage language) {
+    this.nouns = NounLibrary.getUncached();
+    this.language = language;
+  }
+
+  private NockExpressionNode axe(NockExpressionNode node, Axis axis) {
+    //  ... *sigh*. axis representation. it isn't a noun, so that's fine...
+    //  seems like it does need a NounLibrary to interact with its internal atom
+    //  though. need a solution here.
+    //  one solution would be to represent Axis internally as an array of
+    //  booleans, or maybe a byte array. booleans would be convenient but waste
+    //  space, a byte array would be consistent, handy, and non space-wasting.
+    //  also could use a different encoding, like a singleton for
+    //  identity/crash, and then a different packing of path elements. meh.
+
+    // like null == crash
+    // null byte[] == identity
+    // otherwise it's a byte[] that you read the bits of right-to-left.
+
+    // Could also do List<Boolean>, that would allow for easy
+    // construction/deconstruction. Doesn't make a terribly good map key, but
+    // you could use the atoms for those, presumably.
+
+    // how are we going to do non-message equality, also? just uncached
+    // libraries? (guess it depends on whether we're in a node...)
+  }
+
+  private NockExpressionNode parseCons(Object op, Object arg, Axis axis) {
+    NockExpressionNode headNode = parseExpr(op, axis.peg(2), false),
+                       tailNode = parseExpr(arg, axis.peg(3), false);
+    NockExpressionNode consNode = ConsNodeGen.create(headNode, tailNode);
+    consNode.setAxisInFormula(axis);
+    return consNode;
+  }
+
+  private static NockExpressionNode parseSlot(Object arg) throws ExitException {
+    if ( !nouns.isAtom(arg) ) {
+      throw new ExitException();
+    }
+    else if ( nouns.fitsInInt(arg) ) {
+      switch ( nouns.asInt(arg) ) {
+        case 0:
+          return new BailNode();
+        case 1:
+          return new IdentityNode();
+      }
+    }
+    return new SlotNode(FragmentNode.fromBits(noun.asBits(arg)));
+  }
+
+  private NockExpressionNode parseExpr(Object noun, Axis axis, boolean tail)
+    throws ExitException {
+    Object op = nouns.head(noun),
+           arg = nouns.tail(noun);
+
+    if ( nouns.isCell(op) ) {
+      return parseCons(op, arg, axis);
+    }
+    else if ( nouns.fitsInInt(op) ) {
+      switch ( nouns.asInt(op) ) {
+        case 0:
+          return parseSlot(arg, axis);
+        case 1:
+          return parseQuot(arg, axis);
+        case 2:
+          return parseEval(arg, axis, tail);
+        case 3:
+          return parseDeep(arg, axis);
+        case 4:
+          return parseBump(arg, axis);
+        case 5:
+          return parseSame(arg, axis);
+        case 6:
+          return parseIf(arg, axis, tail);
+        case 7:
+          return parseComp(arg, axis, tail);
+        case 8:
+          return parsePush(arg, axis, tail);
+        case 9:
+          return parsePull(arg, axis, tail);
+        case 10:
+          return parseEdit(arg, axis, tail);
+        case 11:
+          return parseHint(arg, axis, tail);
+        /*
+           case 12:
+             return parseWish(arg);
+         */
+      }
+    }
+    throw new ExitException("invalid formula");
+  }
+
+  public static RootCallTarget parse(NockLanguage language, Object noun)
+    throws ExitException {
+    FormulaParser p = new FormulaParser(language);
+    NockExpressionNode body = p.parseExpr(noun, Axis.IDENTITY, true);
+
+    if ( !nouns.isCell(noun) ) {
+      throw new ExitException();
+    }
+    else {
+      Object op = nouns.head(noun),
+             arg = nouns.tail(noun);
+      if ( nouns.isCell(op) ) {
+
+      }
+    }
   }
 }

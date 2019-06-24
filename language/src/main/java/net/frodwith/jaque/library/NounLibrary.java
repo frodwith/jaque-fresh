@@ -1,6 +1,7 @@
 package net.frodwith.jaque.library;
 
 import com.oracle.truffle.api.library.Library;
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.library.LibraryFactory;
 import com.oracle.truffle.api.library.GenerateLibrary;
 import com.oracle.truffle.api.library.GenerateLibrary.Abstract;
@@ -67,12 +68,14 @@ public abstract class NounLibrary extends Library {
   @Abstract(ifExported = "isCell")
   public Object head(Object receiver) throws ExitException {
     // TODO: assert cells don't actually exit
+    CompilerDirectives.transferToInterpreter();
     throw new ExitException("not a cell");
   }
 
   @Abstract(ifExported = "isCell")
   public Object tail(Object receiver) throws ExitException {
     // TODO: assert cells don't actually exit
+    CompilerDirectives.transferToInterpreter();
     throw new ExitException("not a cell");
   }
 

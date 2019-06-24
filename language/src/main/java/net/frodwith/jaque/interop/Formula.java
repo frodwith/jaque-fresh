@@ -36,7 +36,9 @@ public final class Formula implements TruffleObject {
     throws UnsupportedTypeException {
     Object arg = arguments[i];
     if ( arg instanceof Wrapper ) {
-      return ((Wrapper) arg).noun;
+      Object noun = ((Wrapper) arg).noun;
+      assert( nouns.isNoun(noun) ) : "wrapped argument is not a noun";
+      return noun;
     }
     else if ( nouns.isNoun(arg) ) {
       // anything implementing the noun library is ok. HostObjects don't export
@@ -82,6 +84,7 @@ public final class Formula implements TruffleObject {
     NockCallDispatchNode dispatch) throws UnsupportedTypeException {
     final Object subject = argumentsToSubject(nouns, arguments);
     final Object product = dispatch.executeCall(new NockCall(target, subject));
+    assert( nouns.isNoun(product) ) : "product is not a noun";
     return isPrimitive(product) ? product : new Wrapper(product);
   }
 
