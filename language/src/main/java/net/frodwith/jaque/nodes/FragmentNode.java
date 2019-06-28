@@ -69,8 +69,8 @@ public final class FragmentNode extends Node {
    
   public static FragmentNode fromAxis(Axis a) {
     ArrayDeque<FragmentPartNode> tmp = new ArrayDeque<>();
-    for ( Axis.Fragment f : a ) {
-      FragmentPartNode node = ( f == Axis.Fragment.HEAD )
+    for ( boolean right : a ) {
+      FragmentPartNode node = right
         ? FragmentNodeFactory.HeadNodeGen.create()
         : FragmentNodeFactory.TailNodeGen.create();
       tmp.add(node);
