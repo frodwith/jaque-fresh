@@ -32,8 +32,8 @@ public final class SourceMappedNoun {
     this.noun = noun;
   }
 
-  public SourceSection lookupAxis(Axis axis) {
-    IndexLength il = locations.get(axis);
+  public SourceSection lookupAxis(Iterable<Boolean> path) {
+    IndexLength il = locations.get(path);
     if ( null == il ) {
       return null;
     }

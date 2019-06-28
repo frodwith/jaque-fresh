@@ -39,6 +39,16 @@ final class LongExports {
   }
 
   @ExportMessage
+  static long bitLength(Long receiver) {
+    return 64 - Long.numberOfLeadingZeros(receiver);
+  }
+
+  @ExportMessage
+  static boolean testBit(Long receiver, long index) {
+    return 0 != (receiver & (1L << index));
+  }
+
+  @ExportMessage
   static int[] asIntArray(Long receiver) {
     int low = (int) (long) receiver;
     int high = (int) (receiver >>> 32);

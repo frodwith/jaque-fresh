@@ -1,5 +1,7 @@
 package net.frodwith.jaque.library;
 
+import java.util.Iterator;
+
 import com.oracle.truffle.api.library.Library;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.library.LibraryFactory;
@@ -24,6 +26,30 @@ public abstract class NounLibrary extends Library {
     return FACTORY.getUncached();
   }
 
+  public final Iterable<Boolean> axisPath(Object receiver)
+    throws ExitException {
+    final long len = NounLibrary.this.bitLength(receiver);
+    return new Iterable<Boolean>() {
+      public Iterator<Boolean> iterator() {
+        return new Iterator<Boolean>() {
+          long n = len - 1;
+          public boolean hasNext() {
+            return n > 0;
+          }
+          public Boolean next() {
+            try {
+              return NounLibrary.this.testBit(receiver, --n);
+            }
+            catch ( ExitException e ) {
+              CompilerDirectives.transferToInterpreter();
+              throw new AssertionError("testBit failed on atom");
+            }
+          }
+        };
+      }
+    };
+  }
+
   @Abstract(ifExported = {"isAtom", "isCell"})
   public boolean isNoun(Object receiver) {
     return false;
@@ -32,6 +58,16 @@ public abstract class NounLibrary extends Library {
   @Abstract(ifExported = {"fitsInInt", "fitsInLong", "asIntArray"})
   public boolean isAtom(Object receiver) {
     return false;
+  }
+
+  @Abstract(ifExported = "isAtom")
+  public long bitLength(Object receiver) throws ExitException {
+    throw new ExitException("bitLength on non-atom");
+  }
+
+  @Abstract(ifExported = "isAtom")
+  public boolean testBit(Object receiver, long index) throws ExitException {
+    throw new ExitException("testBit on non-atom");
   }
 
   @Abstract(ifExported = "isAtom")

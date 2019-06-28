@@ -36,8 +36,8 @@ public final class NockRootNode extends RootNode {
     return source;
   }
 
-  public SourceSection getChildSourceSection(Axis axis) {
-    return getSource().lookupAxis(axis);
+  public SourceSection getChildSourceSection(Iterable<Boolean> path) {
+    return getSource().lookupAxis(path);
   }
 
   @Override

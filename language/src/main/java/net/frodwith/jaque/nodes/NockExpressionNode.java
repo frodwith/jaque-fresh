@@ -1,5 +1,7 @@
 package net.frodwith.jaque.nodes;
 
+import com.oracle.truffle.api.CompilerAsserts;
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.source.SourceSection;
 import com.oracle.truffle.api.instrumentation.InstrumentableNode;
@@ -15,14 +17,16 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.BigAtom;
+import net.frodwith.jaque.exception.ExitException;
+import net.frodwith.jaque.library.NounLibrary;
 
 @GenerateWrapper
 public abstract class NockExpressionNode extends SubjectNode implements InstrumentableNode {
-  private Axis axisInFormula;
+  private Object axisInFormula;
 
   // Called by the creating code, not in a constructor because it messes with
   // GenerateWrapper etc.
-  public final void setAxisInFormula(Axis axis) {
+  public final void setAxisInFormula(Object axis) {
     this.axisInFormula = axis;
   }
 
@@ -51,7 +55,15 @@ public abstract class NockExpressionNode extends SubjectNode implements Instrume
       return null;
     }
     else {
-      return getNockRootNode().getChildSourceSection(axisInFormula);
+      CompilerAsserts.neverPartOfCompilation();
+      NounLibrary nouns = NounLibrary.getUncached();
+      try {
+        return getNockRootNode()
+          .getChildSourceSection(nouns.axisPath(axisInFormula));
+      }
+      catch ( ExitException e ) {
+        throw new AssertionError("axisInPath not axis");
+      }
     }
   }
 

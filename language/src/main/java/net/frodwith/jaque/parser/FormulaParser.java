@@ -325,17 +325,17 @@ public final class FormulaParser {
       return (c) -> axe(axis, new TossNode(large.apply(c), small.apply(c)));
     }
     else {
-      ArrayDeque<Axis.Fragment> frags = new ArrayDeque<>();
-      for ( Axis.Fragment f : editAxis ) {
+      ArrayDeque<Boolean> frags = new ArrayDeque<>();
+      for ( boolean f : editAxis ) {
         frags.push(f);
       }
       return (c) -> {
         EditPartNode chain = new EditTermNode(small.apply(c));
 
         while ( !frags.isEmpty() ) {
-          chain = ( frags.pop() == Axis.Fragment.HEAD )
-                ? new EditHeadNode(chain)
-                : new EditTailNode(chain);
+          chain = frags.pop()
+                ? new EditTailNode(chain)
+                : new EditHeadNode(chain);
         }
 
         return axe(axis,

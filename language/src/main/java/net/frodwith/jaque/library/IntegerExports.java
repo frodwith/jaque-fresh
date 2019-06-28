@@ -38,6 +38,16 @@ final class IntegerExports {
   }
 
   @ExportMessage
+  static long bitLength(Integer receiver) {
+    return 32 - Integer.numberOfLeadingZeros(receiver);
+  }
+
+  @ExportMessage
+  static boolean testBit(Integer receiver, long index) {
+    return 0 != (receiver & (1 << index));
+  }
+
+  @ExportMessage
   static int[] asIntArray(Integer receiver) {
     return new int[] { receiver };
   }

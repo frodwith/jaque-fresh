@@ -57,6 +57,7 @@ public final class FragmentNode extends Node {
     return o;
   }
 
+  /*
   public static FragmentNode fromBits(boolean[] bits) {
     FragmentPartNode[] parts = new FragmentPartNode[bits.length-1];
     for ( int part = 0, int bit = bits.length - 1; bit > 0; --bit, ++part ) {
@@ -66,6 +67,7 @@ public final class FragmentNode extends Node {
     }
     return new FragmentNode(parts);
   }
+  */
    
   public static FragmentNode fromAxis(Axis a) {
     ArrayDeque<FragmentPartNode> tmp = new ArrayDeque<>();
