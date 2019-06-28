@@ -29,6 +29,9 @@ public abstract class NounLibrary extends Library {
   public final Iterable<Boolean> axisPath(Object receiver)
     throws ExitException {
     final long len = NounLibrary.this.bitLength(receiver);
+    if ( 0 == len ) {
+      throw new ExitException("0 treated as path");
+    }
     return new Iterable<Boolean>() {
       public Iterator<Boolean> iterator() {
         return new Iterator<Boolean>() {

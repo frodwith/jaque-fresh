@@ -14,10 +14,14 @@ public final class AxisMap<T> {
   private final T value;
   public static final AxisMap EMPTY = new AxisMap(null, null, null);
 
-  private AxisMap(T value, AxisMap<T> left, AxisMap<T> right) {
+  public AxisMap(T value, AxisMap<T> left, AxisMap<T> right) {
     this.value = value;
     this.left = left;
     this.right = right;
+  }
+
+  public static <T> AxisMap<T> single(T value) {
+    return new AxisMap(value, null, null);
   }
 
   public AxisMap<T> insert(Iterable<Boolean> path, T item) {
