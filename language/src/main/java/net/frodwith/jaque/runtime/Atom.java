@@ -233,6 +233,7 @@ public final class Atom {
       return new BigAtom(words);
     }
     else {
+      // TODO: further subdivide, and store in smallest thing possible?
       return wordsToLong(words);
     }
 	}
