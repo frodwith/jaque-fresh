@@ -32,7 +32,7 @@ public abstract class UnlocatedClass extends NockClass {
 
   @Override
   public final CallTarget 
-    getArm(Axis axis, AstContext context, GetArm g)
+    getArm(Iterable<Boolean> axis, AstContext context, GetArm g)
       throws ExitException {
     return rawArm(context, g);
   }

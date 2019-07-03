@@ -9,6 +9,7 @@ import com.oracle.truffle.api.library.GenerateLibrary;
 import com.oracle.truffle.api.library.GenerateLibrary.Abstract;
 import com.oracle.truffle.api.library.GenerateLibrary.DefaultExport;
 
+import net.frodwith.jaque.util.Path;
 import net.frodwith.jaque.exception.ExitException;
 
 @GenerateLibrary(assertions=NounAsserts.class)
@@ -26,13 +27,13 @@ public abstract class NounLibrary extends Library {
     return FACTORY.getUncached();
   }
 
-  public final Iterable<Boolean> axisPath(Object receiver)
+  public final Path axisPath(Object receiver)
     throws ExitException {
     final long len = NounLibrary.this.bitLength(receiver);
     if ( 0 == len ) {
       throw new ExitException("0 treated as path");
     }
-    return new Iterable<Boolean>() {
+    return new Path() {
       public Iterator<Boolean> iterator() {
         return new Iterator<Boolean>() {
           long n = len - 1;
@@ -51,6 +52,14 @@ public abstract class NounLibrary extends Library {
         };
       }
     };
+  }
+
+  public final boolean axisInHead(Object receiver) throws ExitException {
+    return !axisInTail(receiver);
+  }
+
+  public final boolean axisInTail(Object receiver) throws ExitException {
+    return testBit(receiver, bitLength(receiver) - 2);
   }
 
   @Abstract(ifExported = {"isAtom", "isCell"})

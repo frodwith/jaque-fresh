@@ -13,6 +13,7 @@ import net.frodwith.jaque.AstContext;
 import net.frodwith.jaque.NockLanguage;
 import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.util.AxisBuilder;
+import net.frodwith.jaque.util.Path;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.Trel;
 import net.frodwith.jaque.data.Motes;
@@ -28,6 +29,15 @@ import net.frodwith.jaque.nodes.*;
 
 public final class FormulaParser {
   private static NounLibrary nouns = NounLibrary.getUncached();
+
+  private static Object needAtom(Object arg) throws ExitException {
+    if ( nouns.isAtom(arg) ) {
+      return arg;
+    }
+    else {
+      throw new ExitException("atom required");
+    }
+  }
 
   private static NockExpressionNode axe(AxisBuilder axis, NockExpressionNode node) {
     node.setAxisInFormula(axis.write());
@@ -174,16 +184,17 @@ public final class FormulaParser {
     parsePull(Object arg, AxisBuilder axis, boolean tail)
       throws ExitException {
     Cell args = Cell.require(arg);
-    Axis armAxis = Axis.require(args.head);
+    Object armAxis = args.head;
     AxisBuilder coreAxis = axis.tail().tail();
 
     Function<AstContext,NockExpressionNode> core =
       parseExpr(args.tail, coreAxis, false);
 
-    if ( armAxis.inHead() ) {
+    if ( nouns.axisInHead(armAxis) ) {
+      Path path = nouns.axisPath(armAxis);
       return (c) -> {
         NockCallLookupNode pull =
-          PullNodeGen.create(core.apply(c), armAxis, c);
+          PullNodeGen.create(core.apply(c), path, c);
 
         return axe(axis, tail
           ? new NockTailCallNode(pull)
@@ -319,10 +330,7 @@ public final class FormulaParser {
       throws ExitException {
     Cell args = Cell.require(arg);
     Cell spec = Cell.require(args.head);
-    Object editAxis = spec.head;
-    if ( !nouns.isAtom(editAxis) ) {
-      throw new ExitException("non-atomic edit axis");
-    }
+    Object editAxis = needAtom(spec.head);
     Function<AstContext,NockExpressionNode>
       small = parseExpr(spec.tail, axis.tail().head().tail(), false),
       large = parseExpr(args.tail, axis.tail().tail(), false);

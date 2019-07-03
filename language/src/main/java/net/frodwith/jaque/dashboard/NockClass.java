@@ -59,7 +59,7 @@ public abstract class NockClass {
   }
 
   protected abstract CallTarget
-    getArm(Axis axis, AstContext context, GetArm g)
+    getArm(Iterable<Boolean> axis, AstContext context, GetArm g)
       throws ExitException;
 
   protected final CallTarget 
@@ -70,14 +70,16 @@ public abstract class NockClass {
   }
  
   public final CallTarget
-    getArm(Cell core, Axis axis, AstContext context)
+    getArm(Cell core, Iterable<Boolean> axis, AstContext context)
       throws ExitException {
-    return getArm(axis, context, () -> axis.fragment(core));
+    // FIXME - creating this node here is dumb, and we can do better, but we're
+    // going to postpone until we redo some things
+    return getArm(core, axis, FragmentNode.fromPath(axis), context);
   }
 
   // if you have a FragmentNode, we can use it
   public final CallTarget
-    getArm(Cell core, Axis axis, FragmentNode fragmentNode, AstContext context)
+    getArm(Cell core, Iterable<Boolean> axis, FragmentNode fragmentNode, AstContext context)
       throws ExitException {
     return getArm(axis, context, () -> fragmentNode.executeFragment(core));
   }

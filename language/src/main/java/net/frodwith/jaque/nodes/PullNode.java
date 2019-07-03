@@ -2,6 +2,8 @@ package net.frodwith.jaque.nodes;
 
 import java.util.function.Supplier;
 
+import org.graalvm.polyglot.TypeLiteral;
+
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.dsl.Cached;
@@ -14,6 +16,7 @@ import com.oracle.truffle.api.TruffleLanguage.ContextReference;
 import com.oracle.truffle.api.CompilerDirectives;
 
 import net.frodwith.jaque.AstContext;
+import net.frodwith.jaque.util.Path;
 import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.NockCall;
@@ -28,14 +31,14 @@ import net.frodwith.jaque.exception.ExitException;
 
 @NodeChild(value="coreNode", type=NockExpressionNode.class)
 @NodeFields({
-  @NodeField(name="armAxis", type=Axis.class),
+  @NodeField(name="armAxis", type=Path.class),
   @NodeField(name="astContext", type=AstContext.class),
 })
 public abstract class PullNode extends NockCallLookupNode {
   public static final int INLINE_CACHE_SIZE = 2;
   @Child private FragmentNode fragmentNode;
   
-  public abstract Axis getArmAxis();
+  public abstract Path getArmAxis();
   protected abstract AstContext getAstContext();
 
   @Specialization(limit = "1",

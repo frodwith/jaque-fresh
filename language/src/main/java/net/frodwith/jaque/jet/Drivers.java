@@ -20,7 +20,7 @@ public final class Drivers {
     this.targets = context.getDrivers(location);
   }
 
-  public Optional<CallTarget> getDriver(Axis axis) {
+  public Optional<CallTarget> getDriver(Iterable<Boolean> axis) {
     return Optional.ofNullable(targets.get(axis));
   }
 

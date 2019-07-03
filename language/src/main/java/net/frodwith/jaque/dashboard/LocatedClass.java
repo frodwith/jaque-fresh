@@ -65,7 +65,7 @@ public final class LocatedClass extends NockClass {
 
   @Override
   public CallTarget 
-    getArm(Axis axis, AstContext context, GetArm g)
+    getArm(Iterable<Boolean> axis, AstContext context, GetArm g)
       throws ExitException {
     Optional<CallTarget> driver = getDrivers(context).getDriver(axis);
     return driver.isPresent()
