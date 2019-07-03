@@ -36,8 +36,8 @@ public final class LocatedClass extends NockClass {
   }
 
   @Override
-  public boolean copyableEdit(Axis written, Cell battery) {
-    return location.copyableEdit(written);
+  public boolean copyableEdit(Object axisWritten, Cell battery) {
+    return location.copyableEdit(axisWritten);
   }
 
   @Override

@@ -41,7 +41,7 @@ final class NounAsserts extends NounLibrary {
     return delegate.asLong(receiver);
   }
 
-  public int asInt(Object receiver) {
+  public int asInt(Object receiver) throws ExitException {
     return delegate.asInt(receiver);
   }
 

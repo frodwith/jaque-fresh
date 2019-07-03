@@ -88,9 +88,19 @@ public abstract class NounLibrary extends Library {
     throw new AssertionError("treated as long without check");
   }
 
+  @Abstract(ifExported = "isAtom")
+  public boolean fitsInBoolean(Object receiver) {
+    return false;
+  }
+
+  @Abstract(ifExported = "fitsInBoolean")
+  public boolean asBoolean(Object receiver) throws ExitException {
+    throw new ExitException("not a boolean");
+  }
+
   @Abstract(ifExported = "fitsInInt")
-  public int asInt(Object receiver) {
-    throw new AssertionError("treated as int without test");
+  public int asInt(Object receiver) throws ExitException {
+    throw new ExitException("not an int");
   }
 
   @Abstract(ifExported = "isAtom")

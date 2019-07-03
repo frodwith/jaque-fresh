@@ -10,8 +10,12 @@ import net.frodwith.jaque.data.Axis;
 public final class SlotNode extends NockExpressionNode {
   @Child private FragmentNode fragmentNode;
 
-  public SlotNode(Axis axis) {
-    this.fragmentNode = FragmentNode.fromAxis(axis);
+  private SlotNode(FragmentNode fragmentNode) {
+    this.fragmentNode = fragmentNode;
+  }
+
+  public static SlotNode fromPath(Iterable<Boolean> path) {
+    return new SlotNode(FragmentNode.fromPath(path));
   }
 
   @Override

@@ -47,8 +47,12 @@ public final class DynamicChildLocation extends Location {
   }
 
   @Override
-  public boolean copyableEdit(Axis axis) {
+  public boolean copyableEdit(Object axisWritten) {
+    return false;
+    /* FIXME: need a copyableEditNode to do non-slow-path math on axisWritten.
+       returning dummy false for now.
     return axis.inTail() && !axis.inside(toParent);
+    */
   }
 
   @Override

@@ -87,7 +87,10 @@ public final class Battery {
     }
   }
 
-  public boolean copyableEdit(Axis written, Cell battery) {
+  public boolean copyableEdit(Object axisWritten, Cell battery) {
+    return false;
+    /* FIXME: need a WritableAxisNode somewhere to use a non-slow-path
+     * NounLibrary for comparing the axes. returning dummy false until then.
     if ( written.inTail() && 
         ( !cold.isPresent() || cold.get().copyableEdit(written) ) ) {
       Optional<Registration> hot = getHot(battery);
@@ -96,5 +99,6 @@ public final class Battery {
     else {
       return false;
     }
+    */
   }
 }

@@ -83,7 +83,7 @@ public abstract class NockClass {
   }
 
   protected abstract FineCheck buildFine(Cell core) throws ExitException;
-  public abstract boolean copyableEdit(Axis written, Cell battery);
+  public abstract boolean copyableEdit(Object axisWritten, Cell battery);
   public abstract boolean locatedAt(Location location);
   public abstract Optional<Location> getLocation();
 }

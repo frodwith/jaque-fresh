@@ -84,7 +84,7 @@ public abstract class PullNode extends NockCallLookupNode {
   private FragmentNode getFragmentNode() {
     if ( null == fragmentNode ) {
       CompilerDirectives.transferToInterpreter();
-      fragmentNode = FragmentNode.fromAxis(getArmAxis());
+      fragmentNode = FragmentNode.fromPath(getArmAxis());
       insert(fragmentNode);
     }
     return fragmentNode;

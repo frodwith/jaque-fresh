@@ -26,8 +26,8 @@ public abstract class UnlocatedClass extends NockClass {
   }
 
   @Override
-  public final boolean copyableEdit(Axis written, Cell batteryCell) {
-    return battery.copyableEdit(written, batteryCell);
+  public final boolean copyableEdit(Object axisWritten, Cell batteryCell) {
+    return battery.copyableEdit(axisWritten, batteryCell);
   }
 
   @Override

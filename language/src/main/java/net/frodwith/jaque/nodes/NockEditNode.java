@@ -13,12 +13,12 @@ import net.frodwith.jaque.exception.NockException;
 public final class NockEditNode extends NockExpressionNode {
   private @Child NockExpressionNode largeNode;
   private @Child EditPartNode editNode;
-  private final Axis editAxis;
+  private final Object editAxis;
   private final Dashboard dashboard;
 
   public NockEditNode(NockExpressionNode largeNode,
                       EditPartNode editNode,
-                      Axis editAxis,
+                      Object editAxis,
                       Dashboard dashboard) {
     this.largeNode = largeNode;
     this.editNode = editNode;

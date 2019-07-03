@@ -28,7 +28,7 @@ public abstract class Location {
 
   public abstract void register(Registration registration);
 
-  public abstract boolean copyableEdit(Axis axis);
+  public abstract boolean copyableEdit(Object axis);
 
   public void audit(FastClue clue) {
     if ( !clue.name.equals(name) ) {

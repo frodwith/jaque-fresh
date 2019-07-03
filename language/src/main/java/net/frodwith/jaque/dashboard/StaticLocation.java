@@ -19,7 +19,7 @@ public abstract class StaticLocation extends Location {
   }
 
   @Override
-  public final boolean copyableEdit(Axis axis) {
+  public final boolean copyableEdit(Object axisWritten) {
     return false;
   }
 }

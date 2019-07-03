@@ -57,21 +57,9 @@ public final class FragmentNode extends Node {
     return o;
   }
 
-  /*
-  public static FragmentNode fromBits(boolean[] bits) {
-    FragmentPartNode[] parts = new FragmentPartNode[bits.length-1];
-    for ( int part = 0, int bit = bits.length - 1; bit > 0; --bit, ++part ) {
-      parts[part] = bits[bit] 
-                  ? FragmentNodeFactory.TailNodeGen.create()
-                  : FragmentNodeFactory.HeadNodeGen.create();
-    }
-    return new FragmentNode(parts);
-  }
-  */
-   
-  public static FragmentNode fromAxis(Axis a) {
+  public static FragmentNode fromPath(Iterable<Boolean> path) {
     ArrayDeque<FragmentPartNode> tmp = new ArrayDeque<>();
-    for ( boolean right : a ) {
+    for ( boolean right : path ) {
       FragmentPartNode node = right
         ? FragmentNodeFactory.HeadNodeGen.create()
         : FragmentNodeFactory.TailNodeGen.create();

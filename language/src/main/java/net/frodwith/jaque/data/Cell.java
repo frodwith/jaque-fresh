@@ -176,9 +176,9 @@ public final class Cell { //implements TruffleObject, Serializable {
   }
 
   public void
-    copyMetaToMutant(Cell mutant, Axis written, Dashboard dashboard) {
+    copyMetaToMutant(Cell mutant, Object axisWritten, Dashboard dashboard) {
     if ( meta instanceof CellMeta ) {
-      ((CellMeta) meta).copyMetaToMutant(this, mutant, written, dashboard);
+      ((CellMeta) meta).copyMetaToMutant(this, mutant, axisWritten, dashboard);
     }
   }
 

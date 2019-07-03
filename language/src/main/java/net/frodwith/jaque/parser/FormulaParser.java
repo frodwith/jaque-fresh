@@ -6,6 +6,8 @@ import java.util.function.Supplier;
 
 import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.RootCallTarget;
+import com.oracle.truffle.api.CompilerAsserts;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 
 import net.frodwith.jaque.AstContext;
 import net.frodwith.jaque.NockLanguage;
@@ -19,11 +21,13 @@ import net.frodwith.jaque.data.NockFunction;
 import net.frodwith.jaque.data.SourceMappedNoun;
 import net.frodwith.jaque.dashboard.Dashboard;
 import net.frodwith.jaque.runtime.Atom;
+import net.frodwith.jaque.library.NounLibrary;
 import net.frodwith.jaque.exception.ExitException;
 
 import net.frodwith.jaque.nodes.*;
 
 public final class FormulaParser {
+  private static NounLibrary nouns = NounLibrary.getUncached();
 
   private static NockExpressionNode axe(AxisBuilder axis, NockExpressionNode node) {
     node.setAxisInFormula(axis.write());
@@ -44,12 +48,12 @@ public final class FormulaParser {
     return (c) -> axe(axis, ConsNodeGen.create(head.apply(c), tail.apply(c)));
   }
 
-  private static NockExpressionNode parseSlot(Axis axis) {
-    return axis.isCrash()
+  private static NockExpressionNode parseSlot(Object arg) throws ExitException {
+    return !nouns.fitsInBoolean(arg)
+      ? SlotNode.fromPath(nouns.axisPath(arg))
+      : nouns.asBoolean(arg)
       ? new BailNode()
-      : axis.isIdentity()
-      ? new IdentityNode()
-      : new SlotNode(axis);
+      : new IdentityNode();
   }
 
   private static NockExpressionNode parseQuot(Object arg) {
@@ -315,19 +319,28 @@ public final class FormulaParser {
       throws ExitException {
     Cell args = Cell.require(arg);
     Cell spec = Cell.require(args.head);
-    Axis editAxis = Axis.require(spec.head);
+    Object editAxis = spec.head;
+    if ( !nouns.isAtom(editAxis) ) {
+      throw new ExitException("non-atomic edit axis");
+    }
     Function<AstContext,NockExpressionNode>
       small = parseExpr(spec.tail, axis.tail().head().tail(), false),
       large = parseExpr(args.tail, axis.tail().tail(), false);
 
-    if ( editAxis.isIdentity() ) {
-      // NockEditNode specializes to producing a cell, but edit 1 is valid
-      // and could produce an atom.
-      return (c) -> axe(axis, new TossNode(large.apply(c), small.apply(c)));
+    if ( nouns.fitsInBoolean(editAxis) ) {
+      if ( nouns.asBoolean(editAxis) ) {
+        // Editing axis 0 should rightly be regarded as a crash node like [0 0]
+        return wrap(axe(axis, new BailNode()));
+      }
+      else {
+        // NockEditNode specializes to producing a cell, but edit 1 is valid
+        // and could produce an atom.
+        return (c) -> axe(axis, new TossNode(large.apply(c), small.apply(c)));
+      }
     }
     else {
       ArrayDeque<Boolean> frags = new ArrayDeque<>();
-      for ( boolean f : editAxis ) {
+      for ( boolean f : nouns.axisPath(editAxis) ) {
         frags.push(f);
       }
       return (c) -> {
@@ -359,7 +372,7 @@ public final class FormulaParser {
       int code = Atom.requireInt(op);
       switch ( code ) {
         case 0:
-          return wrap(axe(axis,parseSlot(Axis.require(arg))));
+          return wrap(axe(axis,parseSlot(arg)));
         case 1:
           return wrap(axe(axis,parseQuot(arg)));
         case 2:
@@ -395,6 +408,7 @@ public final class FormulaParser {
   private static Function<AstContext,RootCallTarget>
     factory(Object formula, Supplier<SourceMappedNoun> sup)
       throws ExitException {
+    CompilerAsserts.neverPartOfCompilation();
     Function<AstContext,NockExpressionNode>
       exprFactory = parseExpr(formula, AxisBuilder.EMPTY, true);
 
@@ -402,12 +416,14 @@ public final class FormulaParser {
       new NockRootNode(c.language, sup, exprFactory.apply(c)));
   }
 
+  @TruffleBoundary
   public static Function<AstContext,RootCallTarget>
     parseMapped(SourceMappedNoun mapped)
       throws ExitException {
     return factory(mapped.noun, () -> mapped);
   }
 
+  @TruffleBoundary
   public static Function<AstContext,RootCallTarget>
     parse(Object formula)
       throws ExitException {

@@ -4,6 +4,7 @@ import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 
 import net.frodwith.jaque.runtime.Mug;
+import net.frodwith.jaque.exception.ExitException;
 
 @ExportLibrary(value=NounLibrary.class, receiverType=Integer.class)
 final class IntegerExports {
@@ -15,6 +16,30 @@ final class IntegerExports {
   @ExportMessage
   static boolean isAtom(Integer receiver) {
     return true;
+  }
+
+  @ExportMessage
+  static boolean fitsInBoolean(Integer receiver) {
+    switch ( receiver ) {
+      case 0:
+        return true;
+      case 1:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  @ExportMessage
+  static boolean asBoolean(Integer receiver) throws ExitException {
+    switch ( receiver ) {
+      case 0:
+        return true;
+      case 1:
+        return false;
+      default:
+        throw new ExitException("not a boolean");
+    }
   }
 
   @ExportMessage

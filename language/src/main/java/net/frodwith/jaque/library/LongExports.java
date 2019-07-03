@@ -4,6 +4,7 @@ import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 
 import net.frodwith.jaque.runtime.Mug;
+import net.frodwith.jaque.exception.ExitException;
 
 @ExportLibrary(value=NounLibrary.class, receiverType=Long.class)
 final class LongExports {
@@ -15,6 +16,24 @@ final class LongExports {
   @ExportMessage
   static boolean isAtom(Long receiver) {
     return true;
+  }
+
+  @ExportMessage
+  static boolean fitsInBoolean(Long receiver) {
+    return 0L == receiver || 1L == receiver;
+  }
+
+  @ExportMessage
+  static boolean asBoolean(Long receiver) throws ExitException {
+    if ( 0L == receiver ) {
+      return true;
+    }
+    else if ( 1L == receiver ) {
+      return false;
+    }
+    else {
+      throw new ExitException("not a boolean");
+    }
   }
 
   @ExportMessage
