@@ -30,14 +30,17 @@ import net.frodwith.jaque.nodes.*;
 public final class FormulaParser {
   private static final NounLibrary nouns = NounLibrary.getUncached();
   private final NockContext context;
+  private final Lazy<SourceMappedNoun> mapped;
 
-  public FormulaParser(NockContext context) {
+  private FormulaParser(NockContext context, Lazy<SourceMappedNoun> mapped) {
     this.context = context;
+    this.mapped = mapped;
   }
 
   private static NockExpressionNode
-    axe(AxisBuilder axis, NockExpressionNode node) {
-    node.setAxisInFormula(axis.write());
+    axe(AxisBuilder axis, NockExpressionNode node) throws ExitException {
+    final Iterable<Boolean> path = nouns.axisPath(axis.write());
+    node.setSourceSection(() -> mapped.get().lookupAxis(path));
     return node;
   }
 
@@ -59,7 +62,7 @@ public final class FormulaParser {
       : new IdentityNode();
   }
 
-  private static NockExpressionNode parseQuot(Object arg) {
+  private NockExpressionNode parseQuot(Object arg) {
     if ( nouns.isCell(arg) ) {
       return new LiteralCellNode(context.internCell(arg));
     }
@@ -333,11 +336,9 @@ public final class FormulaParser {
     }
   }
 
-  @TruffleBoundary
-  public NockExpressionNode
+  private NockExpressionNode
     parse(Object formula, AxisBuilder axis, boolean tail)
       throws ExitException {
-    CompilerAsserts.neverPartOfCompilation();
     Object op   = nouns.head(formula),
            arg  = nouns.tail(formula);
 
@@ -346,9 +347,9 @@ public final class FormulaParser {
     }
     else switch ( nouns.asInt(op) ) {
       case 0:
-        return axe(axis,parseSlot(arg));
+        return axe(axis, parseSlot(arg));
       case 1:
-        return axe(axis,parseQuot(arg));
+        return axe(axis, parseQuot(arg));
       case 2:
         return parseEval(arg, axis, tail);
       case 3:
@@ -376,8 +377,23 @@ public final class FormulaParser {
     }
   }
 
-  @TruffleBoundary
-  public NockExpressionNode parseRoot(Object formula) {
+  private NockExpressionNode parse(Object formula) {
+    CompilerAsserts.neverPartOfCompilation();
     return parse(formula, AxisBuilder.EMPTY, true);
+  }
+
+  @TruffleBoundary
+  public static NockExpressionNode
+    parse(NockContext context, SourceMappedNoun mapped) throws ExitException {
+    Lazy<SourceMappedNoun> stored = new Lazy<SourceMappedNoun>(() -> mapped);
+    return new FormulaParser(context, stored).parse(mapped.noun);
+  }
+
+  @TruffleBoundary
+  public static NockExpressionNode
+    parse(NockContext context, Object formula) throws ExitException {
+    Lazy<SourceMappedNoun> created = new Lazy<SourceMappedNoun>(() ->
+      SourceMappedNoun.create(formula));
+    return new FormulaParser(context, created).parse(formula);
   }
 }

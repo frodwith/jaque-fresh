@@ -14,6 +14,7 @@ import com.oracle.truffle.api.dsl.TypeSystemReference;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
+import net.frodwith.jaque.util.Lazy;
 import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.BigAtom;
@@ -22,48 +23,25 @@ import net.frodwith.jaque.library.NounLibrary;
 
 @GenerateWrapper
 public abstract class NockExpressionNode extends SubjectNode implements InstrumentableNode {
-  private Object axisInFormula;
-
-  // Called by the creating code, not in a constructor because it messes with
-  // GenerateWrapper etc.
-  public final void setAxisInFormula(Object axis) {
-    this.axisInFormula = axis;
-  }
-
-  protected final NockRootNode getNockRootNode() {
-    return (NockRootNode) getRootNode();
-  }
+  private Lazy<SourceSection> sourceSection;
 
   public abstract Object executeGeneric(VirtualFrame frame);
 
-  public long executeLong(VirtualFrame frame) throws UnexpectedResultException {
-    return NockTypesGen.expectLong(executeGeneric(frame));
-  }
-
-  public BigAtom executeBigAtom(VirtualFrame frame) throws UnexpectedResultException {
-    return NockTypesGen.expectBigAtom(executeGeneric(frame));
-  }
-
-  public Cell executeCell(VirtualFrame frame) throws UnexpectedResultException {
-    return NockTypesGen.expectCell(executeGeneric(frame));
+  // Called by the creating code, not in a constructor because it messes with
+  // GenerateWrapper etc.
+  public final void setSourceSection(Lazy<SourceSection> sourceSection) {
+    this.sourceSection = sourceSection;
   }
 
   @Override
   @TruffleBoundary
   public final SourceSection getSourceSection() {
-    if ( null == axisInFormula ) {
+    if ( null == sourceSection ) {
       return null;
     }
     else {
       CompilerAsserts.neverPartOfCompilation();
-      NounLibrary nouns = NounLibrary.getUncached();
-      try {
-        return getNockRootNode()
-          .getChildSourceSection(nouns.axisPath(axisInFormula));
-      }
-      catch ( ExitException e ) {
-        throw new AssertionError("axisInPath not axis");
-      }
+      return sourceSection.get();
     }
   }
 
