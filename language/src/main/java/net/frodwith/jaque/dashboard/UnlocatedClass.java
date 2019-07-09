@@ -14,6 +14,7 @@ import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.dashboard.Location;
 import net.frodwith.jaque.parser.FormulaParser;
 import net.frodwith.jaque.exception.ExitException;
+import net.frodwith.jaque.runtime.NockContext;
 
 public abstract class UnlocatedClass extends NockClass {
   protected UnlocatedClass(Battery battery, Assumption stable) {
@@ -32,9 +33,9 @@ public abstract class UnlocatedClass extends NockClass {
 
   @Override
   public final CallTarget 
-    getArm(Iterable<Boolean> axis, AstContext context, GetArm g)
+    getArm(Iterable<Boolean> axis, AstContext astContext, NockContext context, GetArm g)
       throws ExitException {
-    return rawArm(context, g);
+    return rawArm(astContext, context, g);
   }
 
   @Override

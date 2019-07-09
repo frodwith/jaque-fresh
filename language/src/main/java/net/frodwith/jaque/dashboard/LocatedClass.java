@@ -15,6 +15,7 @@ import net.frodwith.jaque.data.AxisMap;
 import net.frodwith.jaque.nodes.FragmentNode;
 import net.frodwith.jaque.parser.FormulaParser;
 import net.frodwith.jaque.exception.ExitException;
+import net.frodwith.jaque.runtime.NockContext;
 
 public final class LocatedClass extends NockClass {
   public final Location location;
@@ -65,11 +66,11 @@ public final class LocatedClass extends NockClass {
 
   @Override
   public CallTarget 
-    getArm(Iterable<Boolean> axis, AstContext context, GetArm g)
+    getArm(Iterable<Boolean> axis, AstContext astContext, NockContext context, GetArm g)
       throws ExitException {
-    Optional<CallTarget> driver = getDrivers(context).getDriver(axis);
+    Optional<CallTarget> driver = getDrivers(astContext).getDriver(axis);
     return driver.isPresent()
       ? driver.get()
-      : rawArm(context, g);
+      : rawArm(astContext, context, g);
   }
 }

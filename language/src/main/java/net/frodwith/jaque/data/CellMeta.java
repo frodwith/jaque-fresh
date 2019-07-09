@@ -111,18 +111,18 @@ public final class CellMeta {
   }
 
   public NockFunction 
-    getFunction(Cell cell, AstContext context)
+    getFunction(Cell cell, AstContext astContext, NockContext context)
       throws ExitException {
     NockFunction f;
     if ( function.isPresent() ) {
       f = function.get();
-      if ( !f.compatible(context) ) {
-        f = f.forContext(context);
+      if ( !f.compatible(astContext) ) {
+        f = f.forContext(astContext);
         function = Optional.of(f);
       }
     }
     else {
-      f = context.getFunction(cell);
+      f = astContext.getFunction(cell, context);
       function = Optional.of(f);
     }
     return f;

@@ -12,6 +12,7 @@ import net.frodwith.jaque.data.NockFunction;
 import net.frodwith.jaque.dashboard.Location;
 import net.frodwith.jaque.dashboard.Dashboard;
 import net.frodwith.jaque.exception.ExitException;
+import net.frodwith.jaque.runtime.NockContext;
 
 /* 1) Truffle really wants the TruffleLanguage to "own" any particular AST
  *
@@ -25,11 +26,13 @@ import net.frodwith.jaque.exception.ExitException;
  *  must match the AstContext we are running in.
  */
 
+
+// This whole class is DEPRECATEDDDDD
 public final class AstContext {
   public final NockLanguage language;
   public final Dashboard dashboard;
   private final Map<Location,AxisMap<CallTarget>> drivers;
-  private final Map<Cell,NockFunction> functions;
+  private final Map<Object,NockFunction> functions;
 
   public AstContext(NockLanguage language, Dashboard dashboard) {
     this.language = language;
@@ -38,10 +41,10 @@ public final class AstContext {
     this.functions = new HashMap<>();
   }
 
-  public NockFunction getFunction(Cell formula) throws ExitException {
+  public NockFunction getFunction(Object formula, NockContext context) throws ExitException {
     NockFunction f = functions.get(formula);
     if ( null == f ) {
-      f = language.getFunctionFactory(formula).apply(this);
+      f = language.getFunctionFactory(formula, context).apply(this);
       functions.put(formula, f);
     }
     return f;

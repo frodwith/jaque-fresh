@@ -59,29 +59,30 @@ public abstract class NockClass {
   }
 
   protected abstract CallTarget
-    getArm(Iterable<Boolean> axis, AstContext context, GetArm g)
+    getArm(Iterable<Boolean> axis, AstContext astContext, NockContext context, GetArm g)
       throws ExitException;
 
   protected final CallTarget 
-    rawArm(AstContext context, GetArm g)
+    rawArm(AstContext astContext, NockContext context, GetArm g)
       throws ExitException {
     Cell formula = Cell.require(g.get());
-    return formula.getMeta().getFunction(formula, context).callTarget;
+    return formula.getMeta().getFunction(formula, astContext, context).callTarget;
   }
  
   public final CallTarget
-    getArm(Cell core, Iterable<Boolean> axis, AstContext context)
+    getArm(Cell core, Iterable<Boolean> axis, AstContext astContext, NockContext context)
       throws ExitException {
     // FIXME - creating this node here is dumb, and we can do better, but we're
     // going to postpone until we redo some things
-    return getArm(core, axis, FragmentNode.fromPath(axis), context);
+    return getArm(core, axis, FragmentNode.fromPath(axis), astContext, context);
   }
 
   // if you have a FragmentNode, we can use it
   public final CallTarget
-    getArm(Cell core, Iterable<Boolean> axis, FragmentNode fragmentNode, AstContext context)
+    getArm(Cell core, Iterable<Boolean> axis, FragmentNode fragmentNode,
+        AstContext astContext, NockContext context)
       throws ExitException {
-    return getArm(axis, context, () -> fragmentNode.executeFragment(core));
+    return getArm(axis, astContext, context, () -> fragmentNode.executeFragment(core));
   }
 
   protected abstract FineCheck buildFine(Cell core) throws ExitException;

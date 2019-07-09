@@ -43,6 +43,7 @@ import net.frodwith.jaque.interop.ContextCell;
 import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.dashboard.Dashboard;
 import net.frodwith.jaque.exception.ExitException;
+import net.frodwith.jaque.nodes.NockExpressionNode;
 
 @TruffleLanguage.Registration(id = NockLanguage.ID, 
                               name = "nock",
@@ -64,25 +65,30 @@ public final class NockLanguage extends TruffleLanguage<NockContext> {
     OPTION_DESCRIPTORS = OptionDescriptors.create(options);
   }
 
-  private final Map<Dashboard,AstContext>
-    contexts = new HashMap<>();
-
-  private final Map<Cell,Function<AstContext,NockFunction>>
-    functionFactories = new HashMap<>();
-
   // for use by AstContext -- don't use directly
+  // DEPRECATED - this is just here as a shim for the moment until we can
+  // rewrite the kick path
   public Function<AstContext,NockFunction>
-    getFunctionFactory(Cell formula)
+    getFunctionFactory(Object formula, NockContext context)
       throws ExitException {
     Function<AstContext,NockFunction> f = functionFactories.get(formula);
     if ( null == f ) {
-      Function<AstContext,RootCallTarget>
-        target = FormulaParser.parse(formula);
-      f = (c) -> new NockFunction(c, target);
+      final NockExpressionNode bodyNode = FormulaParser.parse(context, formula);
+      Function<AstContext, RootCallTarget> factory = (c) -> {
+        NockRootNode rootNode = new NockRootNode(c.language, bodyNode);
+        return Truffle.getRuntime().createCallTarget(rootNode);
+      };
+      f = (c) -> new NockFunction(c, factory);
       functionFactories.put(formula, f);
     }
     return f;
   }
+
+  private final Map<Dashboard,AstContext>
+    contexts = new HashMap<>();
+
+  private final Map<Object,Function<AstContext,NockFunction>>
+    functionFactories = new HashMap<>();
 
   /* Nock's only local variable is the subject. */
   public static Object getSubject(VirtualFrame frame) {
@@ -176,18 +182,16 @@ public final class NockLanguage extends TruffleLanguage<NockContext> {
     if ( !request.getArgumentNames().isEmpty() ) {
       throw new UnsupportedOperationException("nock has no named values");
     }
+    NockContext context = getCurrentContext(NockLanguage.class);
     SourceSection whole = source.createSection(0, source.getLength());
     SourceMappedNoun mapped = CustomParser.parse(whole);
-
-    // need an ast context (for dashboard)
-    NockContext context = getCurrentContext(NockLanguage.class);
-
-    RootCallTarget target = FormulaParser.parseMapped(mapped)
-      .apply(context.getAstContext());
+    NockExpressionNode body = FormulaParser.parse(context, mapped);
+    NockRootNode root = new NockRootNode(this, body);
+    RootCallTarget target = Truffle.getRuntime().createCallTarget(root);
     Formula interop = new Formula(target);
+    RootNode constant = RootNode.createConstantNode(interop);
 
-    return Truffle.getRuntime()
-      .createCallTarget(RootNode.createConstantNode(interop));
+    return Truffle.getRuntime().createCallTarget(constant);
   }
 
   @Override

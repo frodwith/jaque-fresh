@@ -11,9 +11,11 @@ import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 
 import net.frodwith.jaque.AstContext;
 import net.frodwith.jaque.NockLanguage;
+import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.util.AxisBuilder;
 import net.frodwith.jaque.util.Path;
+import net.frodwith.jaque.util.Lazy;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.Trel;
 import net.frodwith.jaque.data.Motes;
@@ -37,10 +39,10 @@ public final class FormulaParser {
     this.mapped = mapped;
   }
 
-  private static NockExpressionNode
+  private NockExpressionNode
     axe(AxisBuilder axis, NockExpressionNode node) throws ExitException {
     final Iterable<Boolean> path = nouns.axisPath(axis.write());
-    node.setSourceSection(() -> mapped.get().lookupAxis(path));
+    node.setSourceSection(new Lazy(() -> mapped.get().lookupAxis(path)));
     return node;
   }
 
@@ -109,7 +111,7 @@ public final class FormulaParser {
   private NockExpressionNode
     parseDeep(Object arg, AxisBuilder axis)
       throws ExitException {
-    return axe(axis, DeepNodeGen.create(parseUnary(arg, axis)))
+    return axe(axis, DeepNodeGen.create(parseUnary(arg, axis)));
   }
 
   private NockExpressionNode
@@ -244,14 +246,14 @@ public final class FormulaParser {
         case Motes.MEMO: {
           nextNode = parse(nextNoun, nextAxis, false);
           ConstantCell key = context.internCell(nextNoun);
-          return axe(axis, MemoNodeGen.create(clueNode, nextNode, key);
+          return axe(axis, MemoNodeGen.create(clueNode, nextNode, key));
         }
 
         case Motes.FAST: {
           nextNode = parse(nextNoun, nextAxis, false);
           return axe(axis, context.useFastHints()
             ? FastNodeGen.create(clueNode, nextNode)
-            : new TossNode(clueNode, CoreNodeGen.create(next));
+            : new TossNode(clueNode, CoreNodeGen.create(next)));
         }
 
         /*
