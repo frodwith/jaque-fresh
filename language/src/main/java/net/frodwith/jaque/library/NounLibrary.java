@@ -27,6 +27,97 @@ public abstract class NounLibrary extends Library {
     return FACTORY.getUncached();
   }
 
+  // to avoid a chain of messages consuming stack and blowing up code
+  // complexity, structural equality occurs behind a truffle boundary. atoms
+  // which share a representation class should unify during the comparison step.
+  public enum ShallowComparison { EQUAL, NOT_EQUAL, DEEP }
+  public abstract ShallowComparison compare(Object receiver, Object other);
+
+  // receivers which "know" things (hashes, cached call targets, etc and
+  // including head/tail) should invoke various "learn" methods from this
+  // library on the other noun.
+  public void teach(Object receiver, Object other) {
+  }
+
+  public void learnHead(Object receiver, Object head) {
+  }
+
+  public void learnTail(Object receiver, Object tail) {
+  }
+  
+  public void learnFormulaTarget(Object receiver, RootCallTarget target) {
+    assert(isCell(receiver));
+  }
+
+  // something for learning core info, too...
+
+  @TruffleBoundary
+  private static boolean deepEquals(Object one, Object two) {
+    class Frame {
+      int state;
+      Object a, b;
+
+      Frame(Object a, Object b) {
+        this.a = a;
+        this.b = b;
+        this.state = 0;
+      }
+    }
+    NounLibrary nouns = getUncached();
+    ArrayDeque<Frame> stack = new ArrayDeque<>();
+    Frame top = new Frame(one, two);
+    stack.push(top);
+
+    do {
+      switch ( top.state ) {
+        case 0:
+          switch ( nouns.compare(top.a, top.b) ) {
+            case NOT_EQUAL:
+              return false;
+
+            case EQUAL:
+              top = stack.pop();
+              break;
+
+            case DEEP:
+              ++top.state;
+              top = new Frame(nouns.tail(top.a), nouns.tail(top.b));
+              stack.push(top);
+              break;
+          }
+          break;
+
+        case 1:
+          ++top.state;
+          top = new Frame(nouns.head(top.a), nouns.head(top.b));
+          stack.push(top);
+          break;
+
+       case 2:
+          // only nouns which had to be compared can learn from each other
+          nouns.teach(top.a, top.b);
+          nouns.teach(top.b, top.a);
+          top = stack.pop();
+          break;
+      }
+    } while ( !stack.isEmpty() );
+
+    return true;
+  }
+
+  public final boolean unifyEquals(Object receiver, Object giver) {
+    switch ( compare(receiver, giver) ) {
+      case NOT_EQUAL:
+        return false;
+
+      case EQUAL:
+        return true;
+
+      case DEEP:
+        return deepEquals(a, b);
+    }
+  }
+
   public final Path axisPath(Object receiver)
     throws ExitException {
     final long len = NounLibrary.this.bitLength(receiver);
