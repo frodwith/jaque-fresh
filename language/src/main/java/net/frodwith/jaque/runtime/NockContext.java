@@ -35,6 +35,9 @@ public final class NockContext {
   private final Cache<Cell,Object> memoCache;
   private AstContext astContext; // DEPRECATED
   private static final String dashboardRequired = Dashboard.class + " required";
+  private final NounMap<ConstantCell> cellPool;
+  private final NounMap<ConstantAtom> atomPool;
+  private static final NounLibrary nouns = NounLibrary.getUncached();
 
   public NockContext(Env env, AstContext astContext) {
     this.env  = env;
@@ -43,12 +46,67 @@ public final class NockContext {
       .maximumSize(env.getOptions().get(NockOptions.MEMO_SIZE))
       .build();
 
+    this.cellPool = new NounMap();
+    this.atomPool = new NounMap();
+
     if ( env.isPolyglotAccessAllowed() ) {
       env.exportSymbol("nock", new Bindings(this));
     }
 
     // So deprecated. Ugh.
     this.astContext = astContext;
+  }
+
+  // intern methods are slow-path
+  public Object internNoun(Object noun) throws ExitException {
+    CompilerAsserts.neverPartOfCompilation();
+    return nouns.isCell(noun) ? internCell(noun) : internAtom(noun);
+  }
+
+  public ConstantCell internCell(Object cell) throws ExitException {
+    CompilerAsserts.neverPartOfCompilation();
+    ConstantCell c = nouns.knownConstantCell(cell);
+    if ( null == c ) {
+      c = cellPool.get(cell);
+      if ( null == c ) {
+        final NockContext context = this;
+        final NockLanguage language = astContext.language;
+        final int mug = nouns.mug(cell);
+        final Object head = internNoun(nouns.head(cell))
+                     tail = internNoun(nouns.tail(cell))
+                     whole = new DynamicCell(head, tail, mug);
+        Lazy<Optional<RootCallTarget>> fol = new Lazy(() -> {
+          try {
+            NockExpressionNode bodyNode = FormulaParser.parse(whole, context);
+            NockRootNode root = new NockRootNode(language, bodyNode);
+            return Optional.of(Truffle.getRuntime.createCallTarget(root));
+          }
+          catch ( ExitException e ) {
+            return Optional.empty();
+          }
+        });
+        Lazy<Optional<Battery>> bat = new Lazy(() -> Optional.empty());
+        Lazy<Optional<Core>> cor = new Lazy(() -> Optional.empty());
+        c = new ConstantCell(head, tail, mug, fol, bat, cor);
+        cellPool.put(cell, c);
+      }
+      nouns.learnConstantCell(cell, c);
+    }
+    return c;
+  }
+
+  public Object internAtom(Object atom) throws ExitException {
+    CompilerAsserts.neverPartOfCompilation();
+    if ( nouns.fitsInLong(atom) ) {
+      return nouns.asLong(atom);
+    }
+    else {
+      ConstantAtom a = atomPool.get(atom);
+      if ( null == a ) {
+        atomPool.put(atom, a = new ConstantAtom(nouns.asIntArray(atom)));
+      }
+      return a;
+    }
   }
 
   public boolean isHostObject(Object object) {

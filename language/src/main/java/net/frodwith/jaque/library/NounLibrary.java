@@ -44,12 +44,15 @@ public abstract class NounLibrary extends Library {
 
   public void learnTail(Object receiver, Object tail) {
   }
-  
-  public void learnFormulaTarget(Object receiver, RootCallTarget target) {
-    assert(isCell(receiver));
+
+  public void learnMug(Object receiver, int mug) {
   }
 
-  // something for learning core info, too...
+  public void learnConstantCell(Object receiver, ConstantCell constant) {
+  }
+
+  public void learnCore(Object receiver, Core core) {
+  }
 
   @TruffleBoundary
   private static boolean deepEquals(Object one, Object two) {
@@ -228,6 +231,10 @@ public abstract class NounLibrary extends Library {
     throw new ExitException("not a cell");
   }
 
+  public ConstantCell knownConstantCell(Object receiver) {
+    return null;
+  }
+
   public Object cleanup(Object receiver) {
     // optional API to return a "better" version of yourself, so DynamicCells
     // that later learned they were cores can return a Core, etc. This isn't
@@ -238,5 +245,5 @@ public abstract class NounLibrary extends Library {
   }
 
   public abstract int mug(Object receiver);
-
+  public abstract int cachedMug(Object receiver);
 }

@@ -17,7 +17,7 @@ public final class NounMap<T> {
     hash = new HashMap<>();
   }
 
-  public void insert(Object key, T value) {
+  public void put(Object key, T value) {
     CompilerAsserts.neverPartOfCompilation();
     hash.put(new Key(key), value);
   }

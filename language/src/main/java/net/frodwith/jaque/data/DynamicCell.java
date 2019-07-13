@@ -34,6 +34,68 @@ public final class DynamicCell {
     return tail;
   }
 
+  @ExportMessage int cachedMug(
+    @CachedLibrary(limit="3") NounLibrary nouns) {
+    return ( null == meta )
+      ? 0
+      : ( meta instanceof Integer)
+      ? (int) meta
+      : nouns.cachedMug(meta);
+  }
+
+  private boolean hasMeta() {
+    return null != meta && !(meta instanceof Integer);
+  }
+
+  @ExportMessage void teach(Object other,
+    @CachedLibrary(limit="3") NounLibrary nouns) {
+    if ( hasMeta() ) {
+      nouns.teach(meta, other);
+    }
+    else {
+      nouns.learnHead(other, head);
+      nouns.learnTail(other, tail);
+      if ( null != mug ) {
+        nouns.learnMug(other, mug);
+      }
+    }
+  }
+
+  @ExportMessage void learnConstantCell(ConstantCell k,
+    @CachedLibrary(limit="3") NounLibrary nouns) {
+    head = k.head;
+    tail = k.tail;
+    if ( hasMeta() ) {
+      nouns.learnConstantCell(meta, k);
+    }
+    else {
+      meta = k;
+    }
+  }
+
+  @ExportMessage void learnHead(Object head,
+    CachedLibrary(limit="3") NounLibrary nouns) {
+    this.head = head;
+    if ( hasMeta() ) {
+      nouns.learnHead(meta, head);
+    }
+  }
+
+  @ExportMessage void learnTail(Object tail,
+    CachedLibrary(limit="3") NounLibrary nouns) {
+    this.tail = tail;
+    if ( hasMeta() ) {
+      nouns.learnTail(meta, tail);
+    }
+  }
+
+  @ExportMessage ConstantCell knownConstantCell(
+    @CachedLibrary(limit="3") NounLibrary nouns) {
+    return ( null == meta || meta instanceof Integer )
+      ? null
+      : nouns.knownConstantCell(meta);
+  }
+
   @ExportMessage int mug(@CachedLibrary(limit="3") NounLibrary nouns) {
     if ( null == meta ) {
       int mug = Mug.both(nouns.mug(head), nouns.mug(tail));
@@ -45,6 +107,16 @@ public final class DynamicCell {
     }
     else {
       return nouns.mug(meta);
+    }
+  }
+
+  @ExportMessage void learnMug(int mug,
+    @CachedLibrary(limit="3") NounLibrary nouns) {
+    if ( hasMeta() ) {
+      nouns.learnMug(meta, mug);
+    }
+    else {
+      meta = mug;
     }
   }
 
