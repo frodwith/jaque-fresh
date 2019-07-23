@@ -19,6 +19,14 @@ public final class Lazy<T> {
     return value.isPresent();
   }
 
+  public void learn(T value) {
+    if ( !value.isPresent() ) {
+      CompilerDirectives.transferToInterpreterAndInvalidate();
+      this.value = Optional.of(value);
+      compute = null;
+    }
+  }
+
   public T get() {
     if ( value.isPresent() ) {
       return value.get();

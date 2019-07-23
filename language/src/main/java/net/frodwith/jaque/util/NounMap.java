@@ -10,7 +10,6 @@ import net.frodwith.jaque.library.NounLibrary;
 // nouns as keys. It must not be included in compiled code, so all usage should
 // be put behind a TruffleBoundary.
 public final class NounMap<T> {
-  private static final NounLibrary nouns = NounLibrary.getUncached();
   private HashMap<Key,T> hash;
 
   public NounMap() {
@@ -29,9 +28,11 @@ public final class NounMap<T> {
 
   private static class Key {
     final Object noun;
+    final NounLibrary nouns;
 
     Key(Object noun) {
       this.noun = noun;
+      this.nouns = NounLibrary.getUncached(noun);
     }
 
     @Override
