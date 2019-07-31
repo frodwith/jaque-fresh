@@ -17,15 +17,19 @@ import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
+import net.frodwith.jaque.util.NounMap;
 import net.frodwith.jaque.NockLanguage;
 import net.frodwith.jaque.AstContext;
 import net.frodwith.jaque.NockOptions;
 import net.frodwith.jaque.data.Cell;
+import net.frodwith.jaque.data.ConstantCell;
+import net.frodwith.jaque.data.ConstantAtom;
 import net.frodwith.jaque.data.AxisMap;
 import net.frodwith.jaque.data.NockFunction;
 import net.frodwith.jaque.parser.FormulaParser;
 import net.frodwith.jaque.interop.Bindings;
 import net.frodwith.jaque.exception.ExitException;
+import net.frodwith.jaque.library.NounLibrary;
 
 import net.frodwith.jaque.dashboard.Location;
 import net.frodwith.jaque.dashboard.Dashboard;
@@ -69,26 +73,11 @@ public final class NockContext {
     if ( null == c ) {
       c = cellPool.get(cell);
       if ( null == c ) {
-        final NockContext context = this;
-        final NockLanguage language = astContext.language;
-        final int mug = nouns.mug(cell);
-        final Object head = internNoun(nouns.head(cell))
-                     tail = internNoun(nouns.tail(cell))
-                     whole = new DynamicCell(head, tail, mug);
-        Lazy<Optional<RootCallTarget>> fol = new Lazy(() -> {
-          try {
-            NockExpressionNode bodyNode = FormulaParser.parse(whole, context);
-            NockRootNode root = new NockRootNode(language, bodyNode);
-            return Optional.of(Truffle.getRuntime.createCallTarget(root));
-          }
-          catch ( ExitException e ) {
-            return Optional.empty();
-          }
-        });
-        Lazy<Optional<Battery>> bat = new Lazy(() -> Optional.empty());
-        Lazy<Optional<Core>> cor = new Lazy(() -> Optional.empty());
-        c = new ConstantCell(head, tail, mug, fol, bat, cor);
-        cellPool.put(cell, c);
+        c = new ConstantCell(this, 
+          internNoun(nouns.head(cell)),
+          internNoun(nouns.tail(cell)),
+          nouns.mug(cell));
+        cellPool.put(c, c);
       }
       nouns.learnConstantCell(cell, c);
     }

@@ -10,6 +10,8 @@ import com.oracle.truffle.api.library.GenerateLibrary.Abstract;
 import com.oracle.truffle.api.library.GenerateLibrary.DefaultExport;
 
 import net.frodwith.jaque.util.Path;
+import net.frodwith.jaque.data.Core;
+import net.frodwith.jaque.data.ConstantCell;
 import net.frodwith.jaque.exception.ExitException;
 
 @GenerateLibrary(assertions=NounAsserts.class)
@@ -176,12 +178,10 @@ public abstract class NounLibrary extends Library {
     throw new ExitException("testBit on non-atom");
   }
 
-  @Abstract(ifExported = "isAtom")
   public boolean fitsInInt(Object receiver) {
     return false;
   }
 
-  @Abstract(ifExported = "isAtom")
   public boolean fitsInLong(Object receiver) {
     return false;
   }
@@ -191,7 +191,6 @@ public abstract class NounLibrary extends Library {
     throw new AssertionError("treated as long without check");
   }
 
-  @Abstract(ifExported = "isAtom")
   public boolean fitsInBoolean(Object receiver) {
     return false;
   }

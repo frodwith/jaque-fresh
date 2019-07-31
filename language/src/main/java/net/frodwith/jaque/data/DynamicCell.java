@@ -74,7 +74,7 @@ public final class DynamicCell {
   }
 
   @ExportMessage void learnHead(Object head,
-    CachedLibrary(limit="3") NounLibrary nouns) {
+    @CachedLibrary(limit="3") NounLibrary nouns) {
     this.head = head;
     if ( hasMeta() ) {
       nouns.learnHead(meta, head);
@@ -82,7 +82,7 @@ public final class DynamicCell {
   }
 
   @ExportMessage void learnTail(Object tail,
-    CachedLibrary(limit="3") NounLibrary nouns) {
+    @CachedLibrary(limit="3") NounLibrary nouns) {
     this.tail = tail;
     if ( hasMeta() ) {
       nouns.learnTail(meta, tail);

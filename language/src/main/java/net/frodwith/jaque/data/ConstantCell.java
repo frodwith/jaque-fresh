@@ -1,5 +1,21 @@
 package net.frodwith.jaque.data;
 
+import java.util.Optional;
+
+import com.oracle.truffle.api.source.SourceSection;
+import com.oracle.truffle.api.RootCallTarget;
+import com.oracle.truffle.api.library.ExportLibrary;
+
+import com.google.common.hash.Hashing;
+import com.google.common.hash.HashCode;
+import com.google.common.hash.HashFunction;
+
+import net.frodwith.jaque.util.Lazy;
+import net.frodwith.jaque.runtime.NockContext;
+import net.frodwith.jaque.library.NounLibrary;
+import net.frodwith.jaque.exception.ExitException;
+import net.frodwith.jaque.nodes.NockExpressionNode;
+
 // a constant noun is a either a constant cell or a constant atom
 // a constant cell a ConstantCell with constant nouns in its head/tail
 // a constant atom is either a long or a ConstantAtom
@@ -10,16 +26,18 @@ package net.frodwith.jaque.data;
 public final class ConstantCell {
   final static HashFunction hashFunction = Hashing.sha256();
 
+  final NockContext context;
   final Object head, tail;
   final int mug;
   final Lazy<HashCode> strongHash;
   final Lazy<Optional<Formula>> formula;
   final Lazy<Optional<Core>> core;
 
-  public ConstantCell(NockLanguage language, Object head, Object tail) {
+  public ConstantCell(NockContext context, Object head, Object tail, int mug) {
+    this.context = context;
     this.head = head;
     this.tail = tail;
-    this.mug = Mug.both(subMug(head), subMug(tail));
+    this.mug = mug;
     this.strongHash = buildHashCode();
     this.formula = buildFormula();
     this.core = buildCore();
@@ -70,11 +88,7 @@ public final class ConstantCell {
   }
 
   public RootCallTarget getFormulaTarget() throws ExitException {
-    return lazyGet(formula, "formula").
-  }
-
-  public Battery getBattery() throws ExitException {
-    return lazyGet(battery, "battery");
+    return lazyGet(formula, "formula");
   }
 
   @ExportMessage
@@ -212,7 +226,7 @@ public final class ConstantCell {
   static final class Formula {
     final NodeBuilder builder;
     final Lazy<Battery> battery;
-    final Lazy<RootCallTarget> target; // the "bare" call target (no source map)
+    final Lazy<RootCallTarget> target; // the nock call target (no source map)
 
     Formula(NodeBuilder builder,
             Lazy<RootCallTarget> target,
@@ -227,9 +241,80 @@ public final class ConstantCell {
     }
   }
 
+  static abstract class CorePattern {
+    final ConstantCell battery;
+    CorePattern(ConstantCell battery) {
+      this.battery = battery;
+    }
+  }
+
+  static final class RootPattern extends CorePattern {
+    final Object payload;
+    RootPattern(ConstantCell battery, Object payload) {
+      super(battery);
+      this.payload = payload;
+    }
+  }
+
+  static final class ChildPattern extends CorePattern {
+    final Path toParent;
+    final CorePattern parent;
+    ChildPattern(ConstantCell battery, Path toParent, CorePattern parent) {
+      super(battery);
+      this.toParent = toParent;
+      this.parent = parent;
+    }
+  }
+
+  final class Battery {
+    Assumption stable;
+    @CompilationFinal AxisMap<RootCallTarget> arms;
+    @CompilationFinal(dimensions=1) CorePattern[] patterns;
+
+    Battery() {
+      stable = TruffleRuntime.createAssumption();
+      arms = AxisMap.EMPTY;
+      patterns = new Registration[0];
+    }
+
+    RootCallTarget getArm(Path axisInBattery) throws ExitException {
+      RootCallTarget t = arms.get(axis);
+      if ( null == t ) {
+        CompilerDirectives.transferToInterpreterAndInvalidate();
+        ConstantCell c = ConstantCell.this;
+        for ( boolean tail : axisInBattery ) {
+          c = cell(i.next() ? c.tail : c.head);
+        }
+        NockExpressionNode body = c.formula().builder.build(
+          new NBArgs(context, buildSourceMap(), AxisBuilder.EMPTY, true));
+        ArmRootNode root = new ArmRootNode(context.getLanguage(),
+          this, axis, body);
+        t = Truffle.getRuntime().createCallTarget(root);
+        arms = arms.put(t);
+      }
+      return t;
+    }
+
+    void register(CorePattern pattern) {
+      CompilerDirectives.transferToInterpreterAndInvalidate();
+      stable.invalidate();
+      int end = registrations.length;
+      registrations = Arrays.copyOf(registrations, end+1);
+      registrations[end] = pattern;
+    }
+
+    void registerRoot(Object payload) {
+      addPattern(new RootPattern(ConstantCell.this, payload));
+    }
+
+    void registerChild(Path axis, CorePattern parent) {
+      addPattern(new ChildPattern(ConstantCell.this, axis, parent));
+    }
+  }
+
   // making it possible to manufacture a call target with a genuine source map
-  public Optional<RootCallTarget> mappedTarget(NockContext context, 
-    SourceSection section, AxisMap<IndexLength> locations) {
+  public Optional<RootCallTarget> mappedTarget(SourceSection section,
+    AxisMap<SourceMappedNoun.IndexLength> locations) {
     if ( !formula.isPresent() ) {
       return Optional.empty();
     }
@@ -264,7 +349,7 @@ public final class ConstantCell {
     });
   }
 
-  private Lazy<Optional<Formula>> buildFormula(NockContext context) {
+  private Lazy<Optional<Formula>> buildFormula() {
     return new Lazy(() -> {
       try {
         NodeBuilder builder = parse();
@@ -273,7 +358,7 @@ public final class ConstantCell {
         Lazy<RootCallTarget> target = new Lazy(() -> 
           Truffle.getRuntime().createCallTarget(
             new NockRootNode(language, builder.build(rootArgs))));
-        Lazy<Battery> battery = new Lazy(() -> null);
+        Lazy<Battery> battery = new Lazy(() -> new Battery());
         return Optional.of(new Formula(builder, target, battery));
       }
       catch ( ExitException e ) {
@@ -281,24 +366,18 @@ public final class ConstantCell {
       }
     });
   }
-
+  
+  // this should be something besides Core, because of course it has a final
+  // tail. CoreInfo?
   private Lazy<Optional<Core>> buildCore() {
     return new Lazy(() -> {
       try {
-        return Optional.of(formula(head).battery.get().attachPayload(tail));
+        return Optional.of(new Core(cell(head), tail), this);
       }
       catch ( ExitException e ) {
         return Optional.empty();
       }
     });
-  }
-
-  private static int subMug(Object noun) {
-    return ( noun instanceof ConstantCell )
-      ? ((ConstantCell) noun).mug;
-      : ( noun instanceof ConstantAtom )
-      ? ((ConstantAtom) noun).mug;
-      : Mug.get((long) noun);
   }
 
   private static HashCode subHash(Object noun) {
@@ -368,7 +447,7 @@ public final class ConstantCell {
     final FormulaPair pair = formulas();
     return (a) -> {
       NodePair nodes = pair.productNodes(a);
-      return axe(a, ConsNodeGen.create(nodes.head, nodes.tail);
+      return axe(a, ConsNodeGen.create(nodes.head, nodes.tail));
     };
   }
 
@@ -506,7 +585,7 @@ public final class ConstantCell {
       return (a) -> {
         NBArgs args = a.tail();
         NockExpressionNode
-          subject = axe(args.tail(), new IdentityNode())
+          subject = axe(args.tail(), new IdentityNode()),
           formula = axe(args.head(), slotNode(armAxis));
 
         NockFunctionLookupNode
@@ -521,7 +600,7 @@ public final class ConstantCell {
                : new NockTailCallNode(eval));
 
         return axe(a, new ComposeNode(core, call));
-      }
+      };
     }
   }
 
