@@ -420,7 +420,7 @@ public final class Atom {
 
   public static byte[] toByteArray(Object atom, boolean endian) {
     if ( (atom instanceof Long) && (0L == (long)atom) ) {
-      return new byte[1];
+      return new byte[0];
     }
     return wordsToBytes(words(atom), HoonMath.met((byte) 3, atom), endian);
   }
