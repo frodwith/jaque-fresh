@@ -104,5 +104,10 @@
       <version>0.8.2</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>de.greenrobot</groupId>
+      <artifactId>java-common</artifactId>
+      <version>2.3.1</version>
+    </dependency>
   </dependencies>
 </project>
