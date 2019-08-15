@@ -8,27 +8,16 @@ import static org.junit.Assert.assertNotEquals;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.BigAtom;
 import net.frodwith.jaque.runtime.Atom;
+import net.frodwith.jaque.runtime.Cords;
 import net.frodwith.jaque.runtime.HoonMath;
 import net.frodwith.jaque.runtime.Murmug;
 
 public class MurmugTest {
-
-  //  XX put this somewhere
-  //
-  public Object fromString(String s) {
-    try {
-      return Atom.fromByteArray(s.getBytes("UTF-8"));
-    }
-    catch (java.io.UnsupportedEncodingException e) {
-      return 0L;
-    }
-  }
-
   @Test
   public void testStrings() {
-    assertEquals(0x4d441035, Murmug.get(fromString("Hello, world!")));
+    assertEquals(0x4d441035, Murmug.get(Cords.fromString("Hello, world!")));
     assertEquals(0x64dfda5c,
-      Murmug.get(fromString("xxxxxxxxxxxxxxxxxxxxxxxxxxxx")));
+      Murmug.get(Cords.fromString("xxxxxxxxxxxxxxxxxxxxxxxxxxxx")));
   }
 
   @Test
@@ -44,7 +33,7 @@ public class MurmugTest {
 
     a = (BigAtom)HoonMath.lsh((byte)3, 1,
       HoonMath.add(new BigAtom((int[])HoonMath.bex(212L)),
-                   fromString("abcdefjhijklmnopqrstuvwxyz"))
+                   Cords.fromString("abcdefjhijklmnopqrstuvwxyz"))
     );
     assertEquals(0x34d08717, Murmug.get(a));
   }
