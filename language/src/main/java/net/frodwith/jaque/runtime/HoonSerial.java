@@ -221,54 +221,105 @@ public final class HoonSerial {
     return new Cell(p, q);
   }
 
-  private static Cell cue(Map<Object,Object> m, Object a, Object b) throws ExitException {
-    Object p, q;
-
-    if ( Atom.isZero(HoonMath.cut((byte) 0, b, 1L, a)) ) {
-      Object x = HoonMath.increment(b);
-      Cell   c = rub(x, a);
-
-      p = HoonMath.increment(c.head);
-      q = c.tail;
-      m.put(b, q);
-    }
-    else {
-      Object c = HoonMath.add(2L, b),
-             l = HoonMath.increment(b);
-
-      if ( Atom.isZero(HoonMath.cut((byte) 0, l, 1L, a)) ) {
-        Cell u, v;
-        Object w, x, y;
-
-        u = cue(m, a, c);
-        x = HoonMath.add(u.head, c);
-        v = cue(m, a, x);
-        w = new Cell(
-            Cell.require(u.tail).head,
-            Cell.require(v.tail).head);
-        y = HoonMath.add(u.head, v.head);
-        p = HoonMath.add(2L, y);
-        q = w;
-        m.put(b, q);
-      }
-      else {
-        Cell d = rub(c, a);
-        Object x = m.get(d.tail);
-
-        if ( null == x ) {
-          throw new ExitException("cue-bad-pointer");
-        }
-
-        p = HoonMath.add(2L, d.head);
-        q = x;
-      }
-    }
-    return new Cell(p, new Cell(q, 0L));
-  }
+  private enum CueFrameType { CUE_HEAD, CUE_TAIL };
 
   @TruffleBoundary
   public static Object cue(Object a) throws ExitException {
-    Cell x = cue(new HashMap<>(), a, 0L);
-    return Cell.require(x.tail).head;
+    final class Frame {
+      public CueFrameType type;
+      public Object cur;
+      public Object wid;
+      public Object hed;
+
+      public Frame(CueFrameType type, Object cur, Object wid, Object hed) {
+        this.type = type;
+        this.cur  = cur;
+        this.wid  = wid;
+        this.hed  = hed;
+      }
+    }
+
+    ArrayDeque<Frame> stack = new ArrayDeque<>();
+    Map<Object,Object>    m = new HashMap<>();
+    Object cur = 0L;
+    Object wid, pro;
+
+    //  read from atom at cursor
+    //
+    advance:
+    while ( true ) {
+      long tag = (long)HoonMath.cut((byte) 0, cur, 1L, a);
+
+      //  low bit unset, (1 + cur) points to an atom
+      //
+      if ( 0L == tag ) {
+        Cell bur = rub(HoonMath.increment(cur), a);
+        pro = bur.tail;
+        wid = HoonMath.increment(bur.head);
+        m.put(cur, pro);
+        // goto retreat
+      }
+      else {
+        tag = (long)HoonMath.cut((byte) 0, HoonMath.increment(cur), 1L, a);
+
+        //  next bit set, (2 + cur) points to a backref
+        //
+        if ( 1L == tag ) {
+          Cell bur = rub(HoonMath.add(2L, cur), a);
+          pro = m.get(bur.tail);
+
+          if ( null == pro ) {
+            throw new ExitException("cue-bad-pointer");
+          }
+
+          wid = HoonMath.add(2L, bur.head);
+          // goto retreat
+        }
+        //  next bit unset, (2 + cur) points to the head of a cell
+        //
+        else {
+          stack.push(new Frame(CueFrameType.CUE_HEAD, cur, null, null));
+          cur = HoonMath.add(2L, cur);
+          continue advance;
+        }
+      }
+
+      //  consume: popped stack frame, .wid and .pro from above.
+      //
+      retreat:
+      while ( true ) {
+        if ( stack.isEmpty() ) {
+          return pro;
+        }
+        else {
+          Frame top = stack.pop();
+
+          switch ( top.type ) {
+            //  XX default panic?
+
+            //  .wid and .pro are the head of the cell at top.cur.
+            //  save them (and the cell cursor) in a TAIL frame,
+            //  set the cursor to the tail and read there.
+            //
+            case CUE_HEAD: {
+              stack.push(new Frame(CueFrameType.  CUE_TAIL, top.cur, wid, pro));
+              cur = HoonMath.add(2L, HoonMath.add(wid, top.cur));
+              continue advance;
+            }
+
+            //  .wid and .pro are the tail of the cell at top.cur,
+            //  construct the cell, memoize it, and produce it along with
+            //  its total width (as if it were a read from above).
+            //
+            case CUE_TAIL: {
+              pro = new Cell(top.hed, pro);
+              m.put(top.cur, pro);
+              wid = HoonMath.add(2L, HoonMath.add(wid, top.wid));
+              continue retreat;
+            }
+          }
+        }
+      }
+    }
   }
 }
