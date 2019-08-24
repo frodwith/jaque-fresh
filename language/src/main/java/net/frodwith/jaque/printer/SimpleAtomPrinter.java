@@ -25,6 +25,11 @@ public final class SimpleAtomPrinter {
         size = len,
         doc  = 0;
 
+    if ( 0 == len ) {
+      out.write('0');
+      return 1;
+    }
+
     cur = Arrays.copyOf(cur, len);
 
     while ( true ) {
