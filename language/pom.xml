@@ -109,5 +109,10 @@
       <artifactId>java-common</artifactId>
       <version>2.3.1</version>
     </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-jdk14</artifactId>
+      <version>1.7.27</version>
+    </dependency>
   </dependencies>
 </project>
