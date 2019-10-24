@@ -6,7 +6,9 @@
     <artifactId>jaque-parent</artifactId>
     <version>0.1-SNAPSHOT</version>
   </parent>
+  <groupId>net.frodwith</groupId>
   <artifactId>nock-language</artifactId>
+  <packaging>jar</packaging>
   <build>
     <plugins>
       <plugin>
