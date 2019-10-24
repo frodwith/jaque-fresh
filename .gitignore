@@ -1,0 +1,3 @@
+# Maven build directories
+language/target/*
+serf/target/*
