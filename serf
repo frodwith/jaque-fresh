@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+VERSION="0.1"
+
+SCRIPT_HOME="$(cd "$(dirname "$0")" && pwd -P)"
+
+LANGUAGE_PATH="$SCRIPT_HOME/language/target/nock-language.jar"
+LAUNCHER_PATH="$SCRIPT_HOME/launcher/target/serf-$VERSION-SNAPSHOT.jar"
+MAIN_CLASS="net.frodwith.jaque.Serf"
+
+java -Dtruffle.class.path.append="$LANGUAGE_PATH" -cp "$LAUNCHER_PATH" "$MAIN_CLASS" $@

@@ -12,6 +12,6 @@
   <packaging>pom</packaging>
   <modules>
     <module>language</module>
-    <module>serf</module>
+    <module>launcher</module>
   </modules>
 </project>
