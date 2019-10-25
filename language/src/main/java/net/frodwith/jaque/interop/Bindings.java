@@ -17,6 +17,8 @@ import net.frodwith.jaque.dashboard.Dashboard;
 public final class Bindings implements TruffleObject {
   private final NockContext context;
   static final TruffleObject toNoun = new Marshall();
+  static final TruffleObject jam = new InteropJam();
+  static final TruffleObject cue = new InteropCue();
 
   public Bindings(NockContext context) {
     this.context = context;
@@ -29,18 +31,22 @@ public final class Bindings implements TruffleObject {
 
   @ExportMessage
   public Object getMembers(boolean includeInternal) {
-    return new InteropArray("setDashboard", "toNoun");
+    return new InteropArray("setDashboard", "toNoun", "jam", "cue");
   }
 
   @ExportMessage
   public boolean isMemberInvocable(String member) {
     return member.equals("setDashboard")
-      || member.equals("toNoun");
+        || member.equals("toNoun")
+        || member.equals("jam")
+        || member.equals("cue");
   }
 
   @ExportMessage
   public boolean isMemberReadable(String member) {
-    return member.equals("toNoun");
+    return member.equals("toNoun")
+        || member.equals("jam")
+        || member.equals("cue");
   }
 
   @ExportMessage
@@ -49,6 +55,12 @@ public final class Bindings implements TruffleObject {
            UnknownIdentifierException {
     if ( member.equals("toNoun") ) {
       return toNoun;
+    }
+    else if ( member.equals("jam") ) {
+      return jam;
+    }
+    else if ( member.equals("cue") ) {
+      return cue;
     }
     else if ( member.equals("setDashboard") ) {
       throw UnsupportedMessageException.create();
@@ -59,8 +71,12 @@ public final class Bindings implements TruffleObject {
   }
 
   @ExportMessage
-  public Object invokeMember(String member, Object[] arguments,
-    @CachedLibrary("toNoun") InteropLibrary marshalls)
+  public Object invokeMember(
+      String member,
+      Object[] arguments,
+      @CachedLibrary("toNoun") InteropLibrary marshallsNoun,
+      @CachedLibrary("jam") InteropLibrary marshallsJam,
+      @CachedLibrary("cue") InteropLibrary marshallsCue)
     throws ArityException,
            UnsupportedTypeException,
            UnsupportedMessageException,
@@ -75,7 +91,13 @@ public final class Bindings implements TruffleObject {
       }
     }
     else if ( member.equals("toNoun") ) {
-      return marshalls.execute(toNoun, arguments);
+      return marshallsNoun.execute(toNoun, arguments);
+    }
+    else if ( member.equals("jam") ) {
+      return marshallsJam.execute(jam, arguments);
+    }
+    else if ( member.equals("cue") ) {
+      return marshallsCue.execute(cue, arguments);
     }
     else {
       throw UnknownIdentifierException.create(member);
