@@ -58,6 +58,10 @@ public class Serf
     Value jammed = nock.invokeMember("jam", v);
     System.out.println(jammed.toString());
 
+    Value vBytes = nock.invokeMember("toBytes", jammed);
+    byte[] bytes = vBytes.as(byte[].class);
+    System.out.println(bytes);
+
     // TODO: During boot, we send a play event back to the king.
   }
 
