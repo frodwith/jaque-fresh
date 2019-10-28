@@ -6,6 +6,9 @@ import net.frodwith.jaque.runtime.HoonSerial;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 import java.util.Set;
 
@@ -22,14 +25,19 @@ public class Serf
 {
   public static long C3__PLAY = 2_036_427_888L;
 
+  private final Context truffleContext;
+  private final Value nockRuntime;
+
+  private final DataInputStream inputStream;
+  private final DataOutputStream outputStream;
+
   public static void main( String[] args )
+      throws IOException
   {
     if (args.length != 4) {
       System.out.println("serf must be started with four arguments.");
       System.exit(-1);
     }
-
-    fixupFileDescriptors();
 
     String pierDir = args[0];
     // args[1] (argv[2]) doesn't matter; it's the dead encryption key, and it's
@@ -39,28 +47,35 @@ public class Serf
     // args[2] (argv[3]) doesn't matter for now, it's the packed interpreter
     // options thing, most of which will be ignored.
 
-    // OK, so actually we can't access any of the internals of a truffle
-    // language from here and must purely use the Context api. Great.
+    Serf serf = new Serf();
+    serf.run(pierDir);
+  }
 
-    Context context = Context
-                      .newBuilder("nock")
-                      .allowAllAccess(true)
-                      .build();
-    context.initialize("nock");
+  public Serf() {
+    this.truffleContext = Context
+                        .newBuilder("nock")
+                        .allowAllAccess(true)
+                        .build();
+    this.truffleContext.initialize("nock");
+    this.nockRuntime = this.truffleContext
+                     .getPolyglotBindings()
+                     .getMember("nock");
 
-    Value nock = context
-                 .getPolyglotBindings()
-                 .getMember("nock");
+    // Build data readers around System.{in,out} to read higher level binary
+    // structures.
+    this.inputStream = new DataInputStream(System.in);
+    this.outputStream = new DataOutputStream(System.out);
+    fixupFileDescriptors();
+  }
 
-    Value v = nock.invokeMember("toNoun", C3__PLAY, 0L);
-    System.out.println(v.toString());
+  public void run(String pierDir) throws IOException {
+    Value v = nockRuntime.invokeMember("toNoun", C3__PLAY, 0L);
+    System.err.println(v.toString());
 
-    Value jammed = nock.invokeMember("jam", v);
-    System.out.println(jammed.toString());
+    Value jammed = nockRuntime.invokeMember("jam", v);
+    System.err.println(jammed.toString());
 
-    Value vBytes = nock.invokeMember("toBytes", jammed);
-    byte[] bytes = vBytes.as(byte[].class);
-    System.out.println(bytes);
+    writeAtom(jammed);
 
     // TODO: During boot, we send a play event back to the king.
   }
@@ -91,4 +106,14 @@ public class Serf
   // private static Value poke(Value gate, Value ovo) {
 
   // }
+
+  /**
+   * Writes the length of the serialized atom bytes and the bytes themselves.
+   */
+  private void writeAtom(Value jammedValue) throws IOException {
+    Value vBytes = nockRuntime.invokeMember("toBytes", jammedValue);
+    byte[] bytes = vBytes.as(byte[].class);
+    outputStream.writeLong(bytes.length);
+    outputStream.write(bytes, 0, bytes.length);
+  }
 }
