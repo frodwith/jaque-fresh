@@ -129,37 +129,37 @@ public final class Atom {
     return compareWords(a.words, b.words);
   }
 
-	public static int compare(long a, long b) {
-		return Long.compareUnsigned(a, b);
-	}
+  public static int compare(long a, long b) {
+    return Long.compareUnsigned(a, b);
+  }
 
-	// -1, 0, 1 for less than, equal, or greater than respectively
-	public static int compare(Object a, Object b) {
-		if ( a instanceof Long ) {
-			if ( b instanceof Long ) {
-				return compare((long) a, (long) b);
-			}
-			else {
-				return -1;
-			}
-		}
-		else if ( b instanceof Long ) {
-			return 1;
-		}
-		else {
-			return compare((BigAtom) a, (BigAtom) b);
-		}
-	}
+  // -1, 0, 1 for less than, equal, or greater than respectively
+  public static int compare(Object a, Object b) {
+    if ( a instanceof Long ) {
+      if ( b instanceof Long ) {
+        return compare((long) a, (long) b);
+      }
+      else {
+        return -1;
+      }
+    }
+    else if ( b instanceof Long ) {
+      return 1;
+    }
+    else {
+      return compare((BigAtom) a, (BigAtom) b);
+    }
+  }
 
-	public static Object require(Object o) throws ExitException {
-		if ( o instanceof Long || o instanceof BigAtom ) {
-			return o;
-		}
-		else {
-			CompilerDirectives.transferToInterpreter();
-			throw new ExitException("atom required");
-		}
-	}
+  public static Object require(Object o) throws ExitException {
+    if ( o instanceof Long || o instanceof BigAtom ) {
+      return o;
+    }
+    else {
+      CompilerDirectives.transferToInterpreter();
+      throw new ExitException("atom required");
+    }
+  }
 
   // see requireInt
   public static long requireLong(Object o) throws ExitException {
@@ -172,45 +172,45 @@ public final class Atom {
     }
   }
 
-	// IMPORTANT: you may in fact want to FAIL unless you get an int,
-	//            this is EXIT unless given an int.
-	public static int requireInt(Object o) throws ExitException {
-		if ( o instanceof Long ) {
-			long atom = (long) o;
-			if ( 1 != Long.compareUnsigned(atom, 0xFFFFFFFFL) ) {
-				return (int) atom;
-			}
-		}
-		CompilerDirectives.transferToInterpreter();
-		throw new ExitException("expected int");
-	}
+  // IMPORTANT: you may in fact want to FAIL unless you get an int,
+  //            this is EXIT unless given an int.
+  public static int requireInt(Object o) throws ExitException {
+    if ( o instanceof Long ) {
+      long atom = (long) o;
+      if ( 1 != Long.compareUnsigned(atom, 0xFFFFFFFFL) ) {
+        return (int) atom;
+      }
+    }
+    CompilerDirectives.transferToInterpreter();
+    throw new ExitException("expected int");
+  }
 
-	public static int[] words(long l) {
-		int low  = (int) l,
-				high = (int) (l >>> 32);
+  public static int[] words(long l) {
+    int low  = (int) l,
+        high = (int) (l >>> 32);
 
-		return ( high == 0 )
-			? new int[] { low }
-		: new int[] { low, high };
-	}
+    return ( high == 0 )
+        ? new int[] { low }
+    : new int[] { low, high };
+  }
 
-	public static int[] words(BigAtom a) {
-		return a.words;
-	}
+  public static int[] words(BigAtom a) {
+    return a.words;
+  }
 
-	public static int[] words(Object o) {
-		return ( o instanceof BigAtom ) 
-			? words((BigAtom) o)
-			: words((long) o);
-	}
+  public static int[] words(Object o) {
+    return ( o instanceof BigAtom ) 
+        ? words((BigAtom) o)
+        : words((long) o);
+  }
 
   public static long wordsToLong(int[] words) {
     return (words.length == 1)
-      ? words[0] & 0xffffffffL
-      : ((words[1] & 0xffffffffL) << 32) | (words[0] & 0xffffffffL);
+        ? words[0] & 0xffffffffL
+        : ((words[1] & 0xffffffffL) << 32) | (words[0] & 0xffffffffL);
   }
 
-	public static Object malt(int[] words) {
+  public static Object malt(int[] words) {
     int bad = 0;
 
     for ( int i = words.length - 1; i >= 0; --i) {
@@ -235,134 +235,134 @@ public final class Atom {
     else {
       return wordsToLong(words);
     }
-	}
+  }
 
-	public static int[] slaq(byte bloq, int len) {
-		int big = ((len << bloq) + 31) >>> 5;
-		return new int[big];
-	}
+  public static int[] slaq(byte bloq, int len) {
+    int big = ((len << bloq) + 31) >>> 5;
+    return new int[big];
+  }
 
-	public static void chop(byte met, int fum, int wid, int tou, int[] dst, Object src) {
-		int[] buf = words(src);
-		int   len = buf.length, i;
+  public static void chop(byte met, int fum, int wid, int tou, int[] dst, Object src) {
+    int[] buf = words(src);
+    int   len = buf.length, i;
 
-		if (met < 5) {
-			int san = 1 << met,
-					mek = ((1 << san) - 1),
-					baf = fum << met,
-					bat = tou << met;
+    if (met < 5) {
+      int san = 1 << met,
+          mek = ((1 << san) - 1),
+          baf = fum << met,
+          bat = tou << met;
 
-			for (i = 0; i < wid; ++i) {
-				int waf = baf >>> 5,
-						raf = baf & 31,
-						wat = bat >>> 5,
-						rat = bat & 31,
-						hop;
+      for (i = 0; i < wid; ++i) {
+        int waf = baf >>> 5,
+            raf = baf & 31,
+            wat = bat >>> 5,
+            rat = bat & 31,
+                  hop;
 
-				hop = (waf >= len) ? 0 : buf[waf];
-				hop = (hop >>> raf) & mek;
-				dst[wat] ^= hop << rat;
-				baf += san;
-				bat += san;
-			}
-		}
-		else {
-			int hut = met - 5,
-					san = 1 << hut,
-					j;
+        hop = (waf >= len) ? 0 : buf[waf];
+        hop = (hop >>> raf) & mek;
+        dst[wat] ^= hop << rat;
+        baf += san;
+        bat += san;
+      }
+    }
+    else {
+      int hut = met - 5,
+          san = 1 << hut,
+                j;
 
-			for (i = 0; i < wid; ++i) {
-				int wuf = (fum + i) << hut,
-						wut = (tou + i) << hut;
+      for (i = 0; i < wid; ++i) {
+        int wuf = (fum + i) << hut,
+            wut = (tou + i) << hut;
 
-				for (j = 0; j < san; ++j) {
-					dst[wut + j] ^= ((wuf + j) >= len)
-						? 0
-						: buf[wuf + j];
-				}
-			}
-		}
-	}
+        for (j = 0; j < san; ++j) {
+          dst[wut + j] ^= ((wuf + j) >= len)
+                          ? 0
+                          : buf[wuf + j];
+        }
+      }
+    }
+  }
 
-	public static boolean getNthBit(long atom, int n) {
-		if ( n > 63 ) {
-			return false;
-		}
-		else {
-			return ((atom & (1L << n)) != 0);
-		}
-	}
+  public static boolean getNthBit(long atom, int n) {
+    if ( n > 63 ) {
+      return false;
+    }
+    else {
+      return ((atom & (1L << n)) != 0);
+    }
+  }
 
-	public static boolean getNthBit(Object atom, int n) {
-		if ( atom instanceof Long ) {
-			return getNthBit((long) atom, n);
-		}
-		else {
-			return getNthBit((BigAtom) atom, n);
-		}
-	}
+  public static boolean getNthBit(Object atom, int n) {
+    if ( atom instanceof Long ) {
+      return getNthBit((long) atom, n);
+    }
+    else {
+      return getNthBit((BigAtom) atom, n);
+    }
+  }
 
-	public static boolean getNthBit(BigAtom atom, int n) {
-		int pix = n >> 5;
+  public static boolean getNthBit(BigAtom atom, int n) {
+    int pix = n >> 5;
 
-		if ( pix >= atom.words.length ) {
-			return false;
-		}
-		else {
-			return (1 & (atom.words[pix] >>> (n & 31))) != 0;
-		}
-	}
+    if ( pix >= atom.words.length ) {
+      return false;
+    }
+    else {
+      return (1 & (atom.words[pix] >>> (n & 31))) != 0;
+    }
+  }
 
-	public static Object fromByteArray(byte[] pill) {
-		return fromByteArray(pill, LITTLE_ENDIAN);
-	}
+  public static Object fromByteArray(byte[] pill) {
+    return fromByteArray(pill, LITTLE_ENDIAN);
+  }
 
-	/* IN-PLACE */
-	private static byte[] reverse(byte[] a) {
-		int i, j;
-		byte b;
-		for (i = 0, j = a.length - 1; j > i; ++i, --j) {
-			b = a[i];
-			a[i] = a[j];
-			a[j] = b;
-		}
-		return a;
-	}
+  /* IN-PLACE */
+  private static byte[] reverse(byte[] a) {
+    int i, j;
+    byte b;
+    for (i = 0, j = a.length - 1; j > i; ++i, --j) {
+      b = a[i];
+      a[i] = a[j];
+      a[j] = b;
+    }
+    return a;
+  }
 
-	public static Object fromByteArray(byte[] pill, boolean endian) {
-		int len  = pill.length;
-		int trim = len % 4;
+  public static Object fromByteArray(byte[] pill, boolean endian) {
+    int len  = pill.length;
+    int trim = len % 4;
 
-		if (endian == BIG_ENDIAN) {
-			pill = Arrays.copyOf(pill, len);
-			reverse(pill);
-		}
+    if (endian == BIG_ENDIAN) {
+      pill = Arrays.copyOf(pill, len);
+      reverse(pill);
+    }
 
-		if (trim > 0) {
-			int    nlen = len + (4-trim);
-			byte[] npil = new byte[nlen];
-			System.arraycopy(pill, 0, npil, 0, len);
-			pill = npil;
-			len = nlen;
-		}
+    if (trim > 0) {
+      int    nlen = len + (4-trim);
+      byte[] npil = new byte[nlen];
+      System.arraycopy(pill, 0, npil, 0, len);
+      pill = npil;
+      len = nlen;
+    }
 
-		int   size  = len / 4;
-		int[] words = new int[size];
-		int i, b, w;
-		for (i = 0, b = 0; i < size; ++i) {
-			w =  (pill[b++] << 0)  & 0x000000FF;
-			w ^= (pill[b++] << 8)  & 0x0000FF00;
-			w ^= (pill[b++] << 16) & 0x00FF0000;
-			w ^= (pill[b++] << 24) & 0xFF000000;
-			words[i] = w;
-		}
+    int   size  = len / 4;
+    int[] words = new int[size];
+    int i, b, w;
+    for (i = 0, b = 0; i < size; ++i) {
+      w =  (pill[b++] << 0)  & 0x000000FF;
+      w ^= (pill[b++] << 8)  & 0x0000FF00;
+      w ^= (pill[b++] << 16) & 0x00FF0000;
+      w ^= (pill[b++] << 24) & 0xFF000000;
+      words[i] = w;
+    }
 
-		return malt(words);
-	}
+    return malt(words);
+  }
 
-	public static byte[] toByteArray(Object a) {
-		return toByteArray(a, LITTLE_ENDIAN);
-	}
+  public static byte[] toByteArray(Object a) {
+    return toByteArray(a, LITTLE_ENDIAN);
+  }
 
   public static byte[] wordsToBytes(int[] wor, int bel, boolean endian) {
     int    w, i, b;
@@ -431,7 +431,7 @@ public final class Atom {
 
   public static Object parseOption(Object option) {
     return (option instanceof BigInteger)
-      ? Atom.fromBigInteger((BigInteger) option)
-      : (long) option;
+        ? Atom.fromBigInteger((BigInteger) option)
+        : (long) option;
   }
 }
