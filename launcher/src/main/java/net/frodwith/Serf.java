@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.EOFException;
 
 import java.util.Set;
 
@@ -106,6 +107,17 @@ public class Serf
   // private static Value poke(Value gate, Value ovo) {
 
   // }
+
+  /**
+   * Reads an atom from the input stream and returns it.
+   */
+  private Value readAtom() throws IOException, EOFException {
+    int length = (int)inputStream.readLong();
+    byte[] bytes = new byte[length];
+    inputStream.readFully(bytes, 0, length);
+
+    return nockRuntime.invokeMember("fromBytes", bytes);
+  }
 
   /**
    * Writes the length of the serialized atom bytes and the bytes themselves.

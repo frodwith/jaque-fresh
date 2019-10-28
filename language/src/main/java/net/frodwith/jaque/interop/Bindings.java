@@ -20,6 +20,7 @@ public final class Bindings implements TruffleObject {
   static final TruffleObject jam = new InteropJam();
   static final TruffleObject cue = new InteropCue();
   static final TruffleObject toBytes = new InteropToBytes();
+  static final TruffleObject fromBytes = new InteropFromBytes();
 
   public Bindings(NockContext context) {
     this.context = context;
@@ -32,12 +33,14 @@ public final class Bindings implements TruffleObject {
 
   @ExportMessage
   public Object getMembers(boolean includeInternal) {
-    return new InteropArray("setDashboard", "toBytes", "toNoun", "jam", "cue");
+    return new InteropArray("setDashboard", "fromBytes", "toBytes", "toNoun",
+                            "jam", "cue");
   }
 
   @ExportMessage
   public boolean isMemberInvocable(String member) {
     return member.equals("setDashboard")
+        || member.equals("fromBytes")
         || member.equals("toBytes")
         || member.equals("toNoun")
         || member.equals("jam")
@@ -46,7 +49,8 @@ public final class Bindings implements TruffleObject {
 
   @ExportMessage
   public boolean isMemberReadable(String member) {
-    return member.equals("toBytes")
+    return member.equals("fromBytes")
+        || member.equals("toBytes")
         || member.equals("toNoun")
         || member.equals("jam")
         || member.equals("cue");
@@ -56,6 +60,9 @@ public final class Bindings implements TruffleObject {
   public Object readMember(String member)
     throws UnsupportedMessageException,
            UnknownIdentifierException {
+    if ( member.equals("fromBytes") ) {
+      return fromBytes;
+    }
     if ( member.equals("toBytes") ) {
       return toBytes;
     }
@@ -80,6 +87,7 @@ public final class Bindings implements TruffleObject {
   public Object invokeMember(
       String member,
       Object[] arguments,
+      @CachedLibrary("fromBytes") InteropLibrary marshallsFromBytes,
       @CachedLibrary("toBytes") InteropLibrary marshallsToBytes,
       @CachedLibrary("toNoun") InteropLibrary marshallsNoun,
       @CachedLibrary("jam") InteropLibrary marshallsJam,
@@ -96,6 +104,9 @@ public final class Bindings implements TruffleObject {
       else {
         throw ArityException.create(1, arguments.length);
       }
+    }
+    else if ( member.equals("fromBytes") ) {
+      return marshallsToBytes.execute(fromBytes, arguments);
     }
     else if ( member.equals("toBytes") ) {
       return marshallsToBytes.execute(toBytes, arguments);
