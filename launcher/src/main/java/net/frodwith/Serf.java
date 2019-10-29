@@ -63,6 +63,10 @@ public class Serf
   private final DataInputStream inputStream;
   private final DataOutputStream outputStream;
 
+  private Value who;
+  private boolean isFake = false;
+  private long bootSequenceLength = 0;
+
   public static void main( String[] args )
       throws IOException
   {
@@ -105,18 +109,18 @@ public class Serf
     //
     System.err.println("About to send boot");
 
-    workerSendBoot();
+    sendBoot();
     System.err.println("Send boot");
 
     // Read until EOF
     try {
       boolean done = false;
       while (!done) {
-        Value v = readNoun();
+        Value message = readNoun();
 
-        long tag = getHeadTag(v);
+        long tag = getHeadTag(message);
         if (tag == C3__BOOT) {
-          System.err.println("poke boot");
+          onBootMessage(message);
         } else if (tag == C3__WORK) {
           System.err.println("poke work");
         } else if (tag == C3__EXIT) {
@@ -152,6 +156,32 @@ public class Serf
     // before we fixed up the filedescriptors.
   }
 
+  private void onBootMessage(Value message)
+      throws NounShapeException
+  {
+    try {
+      Value tail = message.getArrayElement(1);
+      Value who = tail.getArrayElement(0);
+      tail = tail.getArrayElement(1);
+      Value fake = tail.getArrayElement(0);
+      Value bootSequenceLength = tail.getArrayElement(1);
+
+      // When we boot up, we save these values.
+      this.who = who;
+      this.isFake = fake.asLong() == 0 ? true : false;
+
+      // The boot sequence length is 1 with solid pills and 5 with brass pills.
+      this.bootSequenceLength = bootSequenceLength.asLong();
+
+      System.err.println("poke boot: who=" + this.who + ", isFake=" +
+                         this.isFake + ", bootLen=" + this.bootSequenceLength);
+    } catch (UnsupportedOperationException e) {
+      throw new NounShapeException("Couldn't unpack boot message", e);
+    } catch (ArrayIndexOutOfBoundsException e) {
+      throw new NounShapeException("Couldn't unpack boot message", e);
+    }
+  }
+
   /**
    * Sends the initial [%play ~] atom to the king to specify that we're ready
    * for pleas.
@@ -159,11 +189,11 @@ public class Serf
    * TODO: This hard codes sending `[%play ~]` instead of sending the state
    * after we've loaded a snapshot. We don't have snapshots yet.
    */
-  private void workerSendBoot() throws IOException {
+  private void sendBoot() throws IOException {
     writeNoun(nockRuntime.invokeMember("toNoun", C3__PLAY, 0L));
   }
 
-  private void workerSendDone(long event, long mug, Value effects) throws IOException {
+  private void sendDone(long event, long mug, Value effects) throws IOException {
     writeNoun(nockRuntime.invokeMember("toNoun", C3__DONE, event, mug, effects));
   }
 
