@@ -61,8 +61,8 @@ public class Serf
   private final Context truffleContext;
   private final Value nockRuntime;
 
-  private final DataInputStream inputStream;
-  private final DataOutputStream outputStream;
+  private DataInputStream inputStream;
+  private DataOutputStream outputStream;
 
   private Value who;
   private boolean isFake = false;
@@ -103,10 +103,6 @@ public class Serf
                      .getPolyglotBindings()
                      .getMember("nock");
 
-    // Build data readers around System.{in,out} to read higher level binary
-    // structures.
-    this.inputStream = new DataInputStream(System.in);
-    this.outputStream = new DataOutputStream(System.out);
     fixupFileDescriptors();
 
     // Several of our values need to be truffle values, even if they start off
@@ -158,14 +154,13 @@ public class Serf
    * serialized events and stdout is a binary stream of . To make sure uses
    * of System.out don't interfere with this, we set
    */
-  private static void fixupFileDescriptors() {
-    // In JDK11, we could do the following. But graal everything is JDK8.
-    //
-    // System.setIn(InputStream.nullInputStream());
-    // System.setOut(OutputStream.nullOutputStream());
+  private void fixupFileDescriptors() {
+    this.inputStream = new DataInputStream(System.in);
+    this.outputStream = new DataOutputStream(System.out);
 
-    // TODO: I'm punting on this for now. We (mostly) worked for a long time
-    // before we fixed up the filedescriptors.
+    // TODO: Do something nicer with System.in.
+    System.setIn(null);
+    System.setOut(System.err);
   }
 
   private void onBootMessage(Value message)
