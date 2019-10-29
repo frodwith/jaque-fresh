@@ -13,6 +13,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.lang.ArrayIndexOutOfBoundsException;
 import java.lang.UnsupportedOperationException;
+import java.lang.StringBuilder;
 import java.util.Set;
 
 import org.graalvm.polyglot.Value;
@@ -67,6 +68,11 @@ public class Serf
   private boolean isFake = false;
   private long bootSequenceLength = 0;
 
+  private Value lifecycleFormulas;     // u3_noun roe;
+  private long lastEventRequested = 0; // c3_d sen_d;
+  private long lastEventProcessed = 0; // c3_d dun_d;
+  private long currentMug = 0;         // c3_l mug_l;
+
   public static void main( String[] args )
       throws IOException
   {
@@ -102,6 +108,11 @@ public class Serf
     this.inputStream = new DataInputStream(System.in);
     this.outputStream = new DataOutputStream(System.out);
     fixupFileDescriptors();
+
+    // Several of our values need to be truffle values, even if they start off
+    // as 0.
+    this.who = this.truffleContext.asValue(0L);
+    this.lifecycleFormulas = this.truffleContext.asValue(0L);
   }
 
   public void run(String pierDir) throws IOException {
@@ -122,7 +133,7 @@ public class Serf
         if (tag == C3__BOOT) {
           onBootMessage(message);
         } else if (tag == C3__WORK) {
-          System.err.println("poke work");
+          onWorkMessage(message);
         } else if (tag == C3__EXIT) {
           System.err.println("poke exit");
           // TODO: Exit immediately.
@@ -136,6 +147,7 @@ public class Serf
       }
     } catch (NounShapeException e) {
       System.err.println("(noun shape exception; shutting down)");
+      e.printStackTrace(System.err);
     }
   }
 
@@ -169,10 +181,9 @@ public class Serf
       // When we boot up, we save these values.
       this.who = who;
       this.isFake = fake.asLong() == 0 ? true : false;
-
-      // The boot sequence length is 1 with solid pills and 5 with brass pills.
       this.bootSequenceLength = bootSequenceLength.asLong();
 
+      // The boot sequence length is 1 with solid pills and 5 with brass pills.
       System.err.println("poke boot: who=" + this.who + ", isFake=" +
                          this.isFake + ", bootLen=" + this.bootSequenceLength);
     } catch (UnsupportedOperationException e) {
@@ -180,6 +191,61 @@ public class Serf
     } catch (ArrayIndexOutOfBoundsException e) {
       throw new NounShapeException("Couldn't unpack boot message", e);
     }
+  }
+
+  private void onWorkMessage(Value message)
+      throws NounShapeException, IOException
+  {
+    try {
+      Value tail = message.getArrayElement(1);
+      long eventNum = tail.getArrayElement(0).asLong();
+      Value jammedValue = tail.getArrayElement(1);
+
+      // Unpack the packed work format.
+      Value mugDateOvum = nockRuntime.invokeMember("cue", jammedValue);
+      long expectedMug = mugDateOvum.getArrayElement(0).asLong();
+      tail = mugDateOvum.getArrayElement(1);
+      Value date = tail.getArrayElement(0);
+      Value job = tail.getArrayElement(1);
+
+      if (expectedMug != this.currentMug) {
+        StringBuilder b = new StringBuilder();
+        b.append("Work message for event #");
+        b.append(eventNum);
+        b.append(" expects mug ");
+        b.append(expectedMug);
+        b.append(" but current state has mug ");
+        b.append(this.currentMug);
+        throw new NounShapeException(b.toString());
+      }
+
+      if (eventNum <= bootSequenceLength) {
+        doWorkBoot(eventNum, job);
+      } else {
+        // doWorkLive();
+      }
+    } catch (UnsupportedOperationException e) {
+      throw new NounShapeException("Couldn't unpack work message", e);
+    } catch (ArrayIndexOutOfBoundsException e) {
+      throw new NounShapeException("Couldn't unpack work message", e);
+    }
+  }
+
+  private void doWorkBoot(long eventNum, Value job)
+      throws NounShapeException, IOException
+  {
+    if (eventNum != this.lastEventRequested + 1L) {
+      StringBuilder b = new StringBuilder();
+      b.append("Boot message specifies event #");
+      b.append(eventNum);
+      b.append(" but lastEventRequested was ");
+      b.append(this.lastEventRequested);
+      throw new NounShapeException(b.toString());
+    }
+
+    this.lastEventRequested = eventNum;
+
+    sendDone(eventNum, this.currentMug, this.truffleContext.asValue(0L));
   }
 
   /**
