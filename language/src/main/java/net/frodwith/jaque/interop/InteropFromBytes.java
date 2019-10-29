@@ -36,10 +36,8 @@ public final class InteropFromBytes implements TruffleObject {
       throw ArityException.create(2, arguments.length);
     }
     else {
-      //
       NockContext context = (NockContext)arguments[0];
       Object[] origArguments = (Object[])arguments[1];
-
       return fromByteArray(context.asHostObject(origArguments[0]));
     }
   }

@@ -4,14 +4,15 @@ import net.frodwith.jaque.NockLanguage;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.runtime.HoonSerial;
 
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.IOException;
 import java.io.EOFException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintStream;
-
+import java.lang.ArrayIndexOutOfBoundsException;
+import java.lang.UnsupportedOperationException;
 import java.util.Set;
 
 import org.graalvm.polyglot.Value;
@@ -19,13 +20,42 @@ import org.graalvm.polyglot.Source;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.PolyglotAccess;
 
+class NounShapeException extends Exception {
+  public NounShapeException(String msg) {
+    super(msg);
+  }
+
+  public NounShapeException(String msg, Throwable cause) {
+    super(msg, cause);
+  }
+}
+
 /**
  * Subordinate Nock interpreter that's connected to a separate daemon control
  * process.
  */
 public class Serf
 {
-  public static long C3__PLAY = 2_036_427_888L;
+  // Mote definitions:
+  //
+  public final static long C3__PLAY = 2_036_427_888L;
+  public final static long C3__BOOT = 1_953_460_066L;
+  public final static long C3__WORK = 1_802_661_751L;
+  public final static long C3__DONE = 1_701_736_292L;
+  public final static long C3__STDR = 1_919_186_035L;
+  public final static long C3__SLOG = 1_735_355_507L;
+  public final static long C3__HEAR = 1_918_985_576L;
+  public final static long C3__EXIT = 1_953_069_157L;
+  public final static long C3__HOLE = 1_701_605_224L;
+  public final static long C3__CRUD = 1_685_418_595L;
+  public final static long C3__LEAF = 1_717_658_988L;
+  public final static long C3__ARVO = 1_870_033_505L;
+  public final static long C3__WARN = 1_852_989_815L;
+  public final static long C3__MASS = 1_936_941_421L;
+  public final static long C3__VEGA = 1_634_166_134L;
+  public final static long C3__BELT = 1_953_260_898L;
+  public final static long C3__TRIM = 1_835_627_124L;
+  public final static long C3__SAVE = 1_702_257_011L;
 
   private final Context truffleContext;
   private final Value nockRuntime;
@@ -75,17 +105,34 @@ public class Serf
     //
     System.err.println("About to send boot");
 
-    sendWorkerBoot();
+    workerSendBoot();
     System.err.println("Send boot");
 
-    Value v = readAtom();
-    System.err.println(v.toString());
-    Value cued = nockRuntime.invokeMember("cue", v);
-    System.err.println(cued.toString());
+    // Read until EOF
+    try {
+      boolean done = false;
+      while (!done) {
+        Value v = readNoun();
 
-    System.err.flush();
-
-    // TODO: During boot, we send a play event back to the king.
+        long tag = getHeadTag(v);
+        if (tag == C3__BOOT) {
+          System.err.println("poke boot");
+        } else if (tag == C3__WORK) {
+          System.err.println("poke work");
+        } else if (tag == C3__EXIT) {
+          System.err.println("poke exit");
+          // TODO: Exit immediately.
+        } else if (tag == C3__SAVE) {
+          System.err.println("poke save");
+          // TODO: I have no idea at all.
+        } else {
+          // TODO: long -> String
+          throw new NounShapeException("Invalid request tag: " + tag);
+        }
+      }
+    } catch (NounShapeException e) {
+      System.err.println("(noun shape exception; shutting down)");
+    }
   }
 
   /**
@@ -105,16 +152,6 @@ public class Serf
     // before we fixed up the filedescriptors.
   }
 
-  //  private static void workerSend(
-
-  // private static Dashboard makeDashboard(boolean fast, boolean hash) {
-
-  // }
-
-  // private static Value poke(Value gate, Value ovo) {
-
-  // }
-
   /**
    * Sends the initial [%play ~] atom to the king to specify that we're ready
    * for pleas.
@@ -122,31 +159,48 @@ public class Serf
    * TODO: This hard codes sending `[%play ~]` instead of sending the state
    * after we've loaded a snapshot. We don't have snapshots yet.
    */
-  private void sendWorkerBoot() throws IOException {
-    Value v = nockRuntime.invokeMember("toNoun", C3__PLAY, 0L);
-    Value jammed = nockRuntime.invokeMember("jam", v);
-    writeAtom(jammed);
+  private void workerSendBoot() throws IOException {
+    writeNoun(nockRuntime.invokeMember("toNoun", C3__PLAY, 0L));
+  }
+
+  private void workerSendDone(long event, long mug, Value effects) throws IOException {
+    writeNoun(nockRuntime.invokeMember("toNoun", C3__DONE, event, mug, effects));
+  }
+
+  /**
+   * Fetches the head tag, assuming that v is a cell where the head is an atom
+   * that will fit in a long.
+   */
+  private long getHeadTag(Value v) throws NounShapeException {
+    try {
+      Value head = v.getArrayElement(0);
+      return head.asLong();
+    } catch (UnsupportedOperationException e) {
+      throw new NounShapeException("v doesn't appear to be a Cell", e);
+    } catch (ArrayIndexOutOfBoundsException e) {
+      throw new NounShapeException("Couldn't access head", e);
+    }
   }
 
   /**
    * Reads an atom from the input stream and returns it.
    */
-  private Value readAtom() throws IOException, EOFException {
+  private Value readNoun() throws IOException, EOFException {
     int length = (int)Long.reverseBytes(inputStream.readLong());
-    System.err.println("Read length " + length);
     byte[] bytes = new byte[length];
     inputStream.readFully(bytes, 0, length);
 
-    return nockRuntime.invokeMember("fromBytes", bytes);
+    Value atom = nockRuntime.invokeMember("fromBytes", bytes);
+    return nockRuntime.invokeMember("cue", atom);
   }
 
   /**
    * Writes the length of the serialized atom bytes and the bytes themselves.
    */
-  private void writeAtom(Value jammedValue) throws IOException {
+  private void writeNoun(Value arbitraryNoun) throws IOException {
+    Value jammedValue = nockRuntime.invokeMember("jam", arbitraryNoun);
     Value vBytes = nockRuntime.invokeMember("toBytes", jammedValue);
     byte[] bytes = vBytes.as(byte[].class);
-    System.err.println("Writing bytes of length " + bytes.length + " to stream");
     outputStream.writeLong(Long.reverseBytes(bytes.length));
     outputStream.write(bytes, 0, bytes.length);
     outputStream.flush();
