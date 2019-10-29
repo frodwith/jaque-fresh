@@ -78,4 +78,8 @@ public final class NockContext {
   public void recordMemo(Object subject, Cell formula, Object product) {
     memoCache.put(new Cell(subject, formula), product);
   }
+
+  public Object asHostObject(Object polyHostObject) {
+    return env.asHostObject(polyHostObject);
+  }
 }

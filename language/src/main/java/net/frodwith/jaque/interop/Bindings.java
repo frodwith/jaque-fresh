@@ -106,7 +106,10 @@ public final class Bindings implements TruffleObject {
       }
     }
     else if ( member.equals("fromBytes") ) {
-      return marshallsToBytes.execute(fromBytes, arguments);
+      // This is kinda hacky, but it looks like the easiest way to get the
+      // context into the specific, local, implementation class.
+      Object[] toPass = new Object[]{context, arguments};
+      return marshallsFromBytes.execute(fromBytes, toPass);
     }
     else if ( member.equals("toBytes") ) {
       return marshallsToBytes.execute(toBytes, arguments);

@@ -20,7 +20,7 @@ import net.frodwith.jaque.data.Cell;
 public final class InteropToBytes implements TruffleObject {
   @TruffleBoundary
   private static byte[] toByteArray(Object obj) {
-    return Atom.toByteArray(obj, Atom.BIG_ENDIAN);
+    return Atom.toByteArray(obj, Atom.LITTLE_ENDIAN);
   }
 
   @ExportMessage

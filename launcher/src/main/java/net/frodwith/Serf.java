@@ -10,6 +10,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.EOFException;
+import java.io.PrintStream;
 
 import java.util.Set;
 
@@ -35,8 +36,8 @@ public class Serf
   public static void main( String[] args )
       throws IOException
   {
-    if (args.length != 4) {
-      System.out.println("serf must be started with four arguments.");
+    if (args.length != 3) {
+      System.err.println("serf must be started with three arguments.");
       System.exit(-1);
     }
 
@@ -70,13 +71,19 @@ public class Serf
   }
 
   public void run(String pierDir) throws IOException {
-    Value v = nockRuntime.invokeMember("toNoun", C3__PLAY, 0L);
+    // TODO: load the pier directory and do the equivalent of u3m_boot().
+    //
+    System.err.println("About to send boot");
+
+    sendWorkerBoot();
+    System.err.println("Send boot");
+
+    Value v = readAtom();
     System.err.println(v.toString());
+    Value cued = nockRuntime.invokeMember("cue", v);
+    System.err.println(cued.toString());
 
-    Value jammed = nockRuntime.invokeMember("jam", v);
-    System.err.println(jammed.toString());
-
-    writeAtom(jammed);
+    System.err.flush();
 
     // TODO: During boot, we send a play event back to the king.
   }
@@ -109,10 +116,24 @@ public class Serf
   // }
 
   /**
+   * Sends the initial [%play ~] atom to the king to specify that we're ready
+   * for pleas.
+   *
+   * TODO: This hard codes sending `[%play ~]` instead of sending the state
+   * after we've loaded a snapshot. We don't have snapshots yet.
+   */
+  private void sendWorkerBoot() throws IOException {
+    Value v = nockRuntime.invokeMember("toNoun", C3__PLAY, 0L);
+    Value jammed = nockRuntime.invokeMember("jam", v);
+    writeAtom(jammed);
+  }
+
+  /**
    * Reads an atom from the input stream and returns it.
    */
   private Value readAtom() throws IOException, EOFException {
-    int length = (int)inputStream.readLong();
+    int length = (int)Long.reverseBytes(inputStream.readLong());
+    System.err.println("Read length " + length);
     byte[] bytes = new byte[length];
     inputStream.readFully(bytes, 0, length);
 
@@ -125,7 +146,9 @@ public class Serf
   private void writeAtom(Value jammedValue) throws IOException {
     Value vBytes = nockRuntime.invokeMember("toBytes", jammedValue);
     byte[] bytes = vBytes.as(byte[].class);
-    outputStream.writeLong(bytes.length);
+    System.err.println("Writing bytes of length " + bytes.length + " to stream");
+    outputStream.writeLong(Long.reverseBytes(bytes.length));
     outputStream.write(bytes, 0, bytes.length);
+    outputStream.flush();
   }
 }
