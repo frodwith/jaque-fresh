@@ -68,7 +68,7 @@ public class Serf
   private boolean isFake = false;
   private long bootSequenceLength = 0;
 
-  private Value lifecycleFormulas;     // u3_noun roe;
+  private Array<Value> lifecycleFormulas;     // u3_noun roe;
   private long lastEventRequested = 0; // c3_d sen_d;
   private long lastEventProcessed = 0; // c3_d dun_d;
   private long currentMug = 0;         // c3_l mug_l;
@@ -108,7 +108,7 @@ public class Serf
     // Several of our values need to be truffle values, even if they start off
     // as 0.
     this.who = this.truffleContext.asValue(0L);
-    this.lifecycleFormulas = this.truffleContext.asValue(0L);
+    this.lifecycleFormulas = new ArrayList<Value>();
   }
 
   public void run(String pierDir) throws IOException {
@@ -239,12 +239,19 @@ public class Serf
     }
 
     this.lastEventRequested = eventNum;
-    this.lifecycleFormulas =
-        nockRuntime.invokeMember("toNoun", job, this.lifecycleFormulas);
+    this.lifecycleFormulas.add(job);
+    //        nockRuntime.invokeMember("toNoun", job, this.lifecycleFormulas);
 
     // TODO: A lot more work here!
 
     if ( this.bootSequenceLength == eventNum ) {
+      // Reverse the list
+      this.lifecycleFormulas.reverse();
+      Value eve = nockRuntime.invokeMember("toNoun", this.lifecycleFormulas);
+      this.lifecycleFormulas = new ArrayList<Value>();
+
+      
+
       // todo: will need a flop!
       // todo: will need the vortex soon!
     } else {
