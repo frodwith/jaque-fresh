@@ -15,6 +15,8 @@ import java.lang.ArrayIndexOutOfBoundsException;
 import java.lang.UnsupportedOperationException;
 import java.lang.StringBuilder;
 import java.util.Set;
+import java.util.ArrayList;
+import java.util.Collections;
 
 import org.graalvm.polyglot.Value;
 import org.graalvm.polyglot.Source;
@@ -58,17 +60,24 @@ public class Serf
   public final static long C3__TRIM = 1_835_627_124L;
   public final static long C3__SAVE = 1_702_257_011L;
 
+  private final static String LIFECYCLE_SOURCE_STRING = "[2 [0 3] [0 2]]";
+  private final static Source lifecycleSource =
+      Source.newBuilder("nock", LIFECYCLE_SOURCE_STRING, "lifecycle.nock")
+      .buildLiteral();
+
   private final Context truffleContext;
   private final Value nockRuntime;
 
   private DataInputStream inputStream;
   private DataOutputStream outputStream;
 
+  // Corresponds to u3v_arvo in include/noun/vortex.h.
   private Value who;
   private boolean isFake = false;
   private long bootSequenceLength = 0;
 
-  private Array<Value> lifecycleFormulas;     // u3_noun roe;
+  // Corresponds to u3V in worker/main.c.
+  private ArrayList<Value> lifecycleFormulas;     // u3_noun roe;
   private long lastEventRequested = 0; // c3_d sen_d;
   private long lastEventProcessed = 0; // c3_d dun_d;
   private long currentMug = 0;         // c3_l mug_l;
@@ -240,28 +249,44 @@ public class Serf
 
     this.lastEventRequested = eventNum;
     this.lifecycleFormulas.add(job);
-    //        nockRuntime.invokeMember("toNoun", job, this.lifecycleFormulas);
-
-    // TODO: A lot more work here!
 
     if ( this.bootSequenceLength == eventNum ) {
-      // Reverse the list
-      this.lifecycleFormulas.reverse();
-      Value eve = nockRuntime.invokeMember("toNoun", this.lifecycleFormulas);
+      // Turn the list of jobs into a reversed, null-terminated hoon list.
+      Collections.reverse(this.lifecycleFormulas);
+      this.lifecycleFormulas.add(this.truffleContext.asValue(0L));
+      Value eve = nockRuntime.invokeMember("toNoun", this.lifecycleFormulas.toArray());
       this.lifecycleFormulas = new ArrayList<Value>();
 
-      
-
-      // todo: will need a flop!
-      // todo: will need the vortex soon!
-    } else {
-      // When we get the noun library,
+      // "u3v_boot()"
       //
-      // todo: need an accessible mug function!
+      // TODO: A call to performBoot() should go here.
+
+      this.lastEventProcessed = eventNum;
+
+      //this.currentMug = mug u3A->roc
+      //u3A->ent_d = u3V.dun_d;
+    } else {
+      // Prior to the evaluation of the entire lifecycle sequence, we simply
+      // use the mug of the formula as the kernel mug.
       this.currentMug = nockRuntime.invokeMember("mug", job).asLong();
     }
 
     sendDone(eventNum, this.currentMug, this.truffleContext.asValue(0L));
+  }
+
+
+  /**
+   * Given the boot sequence eve, apply the lifecycle function to it.
+   */
+  private Value performBoot(Value eve) {
+    /*
+    Value lifeCycle = context.eval(lifecycleSource).execute();
+    Value gat = ;
+
+    //    u3x_at(7, gat);
+    */
+    // TODO: Committing to share where I am.
+    return eve;
   }
 
   /**
