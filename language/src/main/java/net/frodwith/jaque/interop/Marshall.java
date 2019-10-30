@@ -12,6 +12,7 @@ import com.oracle.truffle.api.interop.InvalidArrayIndexException;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 
+import net.frodwith.jaque.data.BigAtom;
 import net.frodwith.jaque.data.Cell;
 
 @ExportLibrary(InteropLibrary.class)
@@ -20,7 +21,13 @@ public final class Marshall implements TruffleObject {
   @TruffleBoundary
   private static Object objectToNoun(Object obj, InteropLibrary interop) {
     try {
-      if ( interop.fitsInLong(obj) ) {
+      if ( obj instanceof BigAtom ) {
+        return obj;
+      }
+      else if ( obj instanceof Cell ) {
+        return obj;
+      }
+      else if ( interop.fitsInLong(obj) ) {
         return interop.asLong(obj);
       }
       else if ( interop.hasArrayElements(obj) ) {

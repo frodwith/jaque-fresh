@@ -239,6 +239,20 @@ public class Serf
     }
 
     this.lastEventRequested = eventNum;
+    this.lifecycleFormulas =
+        nockRuntime.invokeMember("toNoun", job, this.lifecycleFormulas);
+
+    // TODO: A lot more work here!
+
+    if ( this.bootSequenceLength == eventNum ) {
+      // todo: will need a flop!
+      // todo: will need the vortex soon!
+    } else {
+      // When we get the noun library,
+      //
+      // todo: need an accessible mug function!
+      this.currentMug = nockRuntime.invokeMember("mug", job).asLong();
+    }
 
     sendDone(eventNum, this.currentMug, this.truffleContext.asValue(0L));
   }

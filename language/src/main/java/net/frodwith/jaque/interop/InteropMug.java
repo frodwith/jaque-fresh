@@ -14,14 +14,25 @@ import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 
 import net.frodwith.jaque.data.BigAtom;
 import net.frodwith.jaque.data.Cell;
-import net.frodwith.jaque.runtime.Atom;
-import net.frodwith.jaque.runtime.NockContext;
+import net.frodwith.jaque.runtime.Murmug;
+import net.frodwith.jaque.exception.ExitException;
 
 @ExportLibrary(InteropLibrary.class)
-public final class InteropFromBytes implements TruffleObject {
+public final class InteropMug implements TruffleObject {
   @TruffleBoundary
-  private static Object fromByteArray(Object bytes) {
-      return Atom.fromByteArray((byte[])bytes, Atom.LITTLE_ENDIAN);
+  private static int mug(Object obj) {
+    // TODO: The problem with this implementation is that we aren't caching the
+    // mugs on the cell object or BigAtom objects. I assume this will be fixed
+    // in the new data representation where we're able to call `value.mug()` on
+    // value classes.
+    if (obj instanceof BigAtom) {
+      return ((BigAtom)obj).getMug();
+    } else if (obj instanceof Cell) {
+      return ((Cell)obj).mug();
+    } else {
+      // Fallback
+      return Murmug.get(obj);
+    }
   }
 
   @ExportMessage
@@ -31,14 +42,12 @@ public final class InteropFromBytes implements TruffleObject {
 
   @ExportMessage
   public Object execute(Object[] arguments)
-      throws ArityException, UnsupportedTypeException {
-    if ( 2 != arguments.length ) {
-      throw ArityException.create(2, arguments.length);
+      throws ArityException {
+    if ( 1 != arguments.length ) {
+      throw ArityException.create(1, arguments.length);
     }
     else {
-      NockContext context = (NockContext)arguments[0];
-      Object[] origArguments = (Object[])arguments[1];
-      return fromByteArray(context.asHostObject(origArguments[0]));
+      return mug(arguments[0]);
     }
   }
 }

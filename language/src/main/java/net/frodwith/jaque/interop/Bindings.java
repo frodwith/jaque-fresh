@@ -19,6 +19,7 @@ public final class Bindings implements TruffleObject {
   static final TruffleObject toNoun = new Marshall();
   static final TruffleObject jam = new InteropJam();
   static final TruffleObject cue = new InteropCue();
+  static final TruffleObject mug = new InteropMug();
   static final TruffleObject toBytes = new InteropToBytes();
   static final TruffleObject fromBytes = new InteropFromBytes();
 
@@ -34,7 +35,7 @@ public final class Bindings implements TruffleObject {
   @ExportMessage
   public Object getMembers(boolean includeInternal) {
     return new InteropArray("setDashboard", "fromBytes", "toBytes", "toNoun",
-                            "jam", "cue");
+                            "jam", "cue", "mug");
   }
 
   @ExportMessage
@@ -44,7 +45,8 @@ public final class Bindings implements TruffleObject {
         || member.equals("toBytes")
         || member.equals("toNoun")
         || member.equals("jam")
-        || member.equals("cue");
+        || member.equals("cue")
+        || member.equals("mug");
   }
 
   @ExportMessage
@@ -53,7 +55,8 @@ public final class Bindings implements TruffleObject {
         || member.equals("toBytes")
         || member.equals("toNoun")
         || member.equals("jam")
-        || member.equals("cue");
+        || member.equals("cue")
+        || member.equals("mug");
   }
 
   @ExportMessage
@@ -75,6 +78,9 @@ public final class Bindings implements TruffleObject {
     else if ( member.equals("cue") ) {
       return cue;
     }
+    else if ( member.equals("mug") ) {
+      return mug;
+    }
     else if ( member.equals("setDashboard") ) {
       throw UnsupportedMessageException.create();
     }
@@ -91,7 +97,8 @@ public final class Bindings implements TruffleObject {
       @CachedLibrary("toBytes") InteropLibrary marshallsToBytes,
       @CachedLibrary("toNoun") InteropLibrary marshallsNoun,
       @CachedLibrary("jam") InteropLibrary marshallsJam,
-      @CachedLibrary("cue") InteropLibrary marshallsCue)
+      @CachedLibrary("cue") InteropLibrary marshallsCue,
+      @CachedLibrary("mug") InteropLibrary marshallsMug)
     throws ArityException,
            UnsupportedTypeException,
            UnsupportedMessageException,
@@ -122,6 +129,9 @@ public final class Bindings implements TruffleObject {
     }
     else if ( member.equals("cue") ) {
       return marshallsCue.execute(cue, arguments);
+    }
+    else if ( member.equals("mug") ) {
+      return marshallsMug.execute(mug, arguments);
     }
     else {
       throw UnknownIdentifierException.create(member);
