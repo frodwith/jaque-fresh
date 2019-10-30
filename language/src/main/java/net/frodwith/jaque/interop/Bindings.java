@@ -34,13 +34,14 @@ public final class Bindings implements TruffleObject {
 
   @ExportMessage
   public Object getMembers(boolean includeInternal) {
-    return new InteropArray("setDashboard", "fromBytes", "toBytes", "toNoun",
-                            "jam", "cue", "mug");
+    return new InteropArray("installArvoJets", "setDashboard", "fromBytes", "toBytes",
+                            "toNoun", "jam", "cue", "mug");
   }
 
   @ExportMessage
   public boolean isMemberInvocable(String member) {
-    return member.equals("setDashboard")
+    return member.equals("installArvoJets")
+        || member.equals("setDashboard")
         || member.equals("fromBytes")
         || member.equals("toBytes")
         || member.equals("toNoun")
@@ -103,7 +104,19 @@ public final class Bindings implements TruffleObject {
            UnsupportedTypeException,
            UnsupportedMessageException,
            UnknownIdentifierException {
-    if ( member.equals("setDashboard") ) {
+    if ( member.equals("installArvoJets") ) {
+      if ( arguments.length == 0 ) {
+        // It would be great if we could set the jet dashboard from the
+        // launcher, but we cannot access any of the classes in net.f.j.nodes.*
+        // from that context.
+        context.setDashboard(ArvoJetDashboard.build());
+        return true;
+      }
+      else {
+        throw ArityException.create(0, arguments.length);
+      }
+    }
+    else if ( member.equals("setDashboard") ) {
       if ( arguments.length == 1 ) {
         context.setDashboard(context.asDashboard(arguments[0]));
         return true;

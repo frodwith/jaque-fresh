@@ -112,6 +112,8 @@ public class Serf
                      .getPolyglotBindings()
                      .getMember("nock");
 
+    this.nockRuntime.invokeMember("installArvoJets");
+
     fixupFileDescriptors();
 
     // Several of our values need to be truffle values, even if they start off
@@ -259,6 +261,8 @@ public class Serf
 
       // "u3v_boot()"
       //
+      Value v = performBoot(eve);
+      System.err.println(v.toString());
       // TODO: A call to performBoot() should go here.
 
       this.lastEventProcessed = eventNum;
@@ -279,14 +283,12 @@ public class Serf
    * Given the boot sequence eve, apply the lifecycle function to it.
    */
   private Value performBoot(Value eve) {
-    /*
-    Value lifeCycle = context.eval(lifecycleSource).execute();
-    Value gat = ;
-
-    //    u3x_at(7, gat);
-    */
-    // TODO: Committing to share where I am.
-    return eve;
+    System.err.println("about to evaluate source");
+    Value lifeCycle = this.truffleContext.eval(lifecycleSource);
+    System.err.println("about to execute lifecycle");
+    Value gat = lifeCycle.execute(eve);
+    System.err.println("finished lifecycle");
+    return gat.getArrayElement(1).getArrayElement(1);
   }
 
   /**
