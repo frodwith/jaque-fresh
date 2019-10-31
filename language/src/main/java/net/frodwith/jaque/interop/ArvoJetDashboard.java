@@ -21,8 +21,13 @@ import net.frodwith.jaque.dashboard.BatteryHash;
 
 import net.frodwith.jaque.nodes.SlotNode;
 import net.frodwith.jaque.nodes.SubjectNode;
-import net.frodwith.jaque.nodes.jet.DecNodeGen;
 import net.frodwith.jaque.nodes.jet.AddNodeGen;
+import net.frodwith.jaque.nodes.jet.DecNodeGen;
+import net.frodwith.jaque.nodes.jet.DivNodeGen;
+import net.frodwith.jaque.nodes.jet.LteNodeGen;
+import net.frodwith.jaque.nodes.jet.LthNodeGen;
+import net.frodwith.jaque.nodes.jet.ModNodeGen;
+import net.frodwith.jaque.nodes.jet.MulNodeGen;
 
 
 /**
@@ -46,11 +51,32 @@ public class ArvoJetDashboard {
                     new JetArm[0],
                     new JetHook[0],
                     new ChildCore[] {
-                      gate("dec", (c, ax) ->
-                           DecNodeGen.create(new SlotNode(Axis.SAMPLE))),
                       gate("add", (c, ax) ->
                            AddNodeGen.create(new SlotNode(Axis.get(12L)),
-                                             new SlotNode(Axis.get(13L))))});  //,
+                                             new SlotNode(Axis.get(13L)))),
+                      gate("dec", (c, ax) ->
+                           DecNodeGen.create(new SlotNode(Axis.SAMPLE))),
+                      gate("div", (c, ax) ->
+                           DivNodeGen.create(new SlotNode(Axis.get(12L)),
+                                             new SlotNode(Axis.get(13L)))),
+                      // Skipping +dvr since it's just a call to div and mod.
+                      // +gte is just !lth
+                      // +gth is just !lte
+                      gate("lte", (c, ax) ->
+                           LteNodeGen.create(new SlotNode(Axis.get(12L)),
+                                             new SlotNode(Axis.get(13L)))),
+                      gate("lth", (c, ax) ->
+                           LthNodeGen.create(new SlotNode(Axis.get(12L)),
+                                             new SlotNode(Axis.get(13L)))),
+                      // +max is just a call to +gth
+                      // +min is just a call to +lth
+                      gate("mod", (c, ax) ->
+                           ModNodeGen.create(new SlotNode(Axis.get(12L)),
+                                             new SlotNode(Axis.get(13L)))),
+                      gate("mul", (c, ax) ->
+                           MulNodeGen.create(new SlotNode(Axis.get(12L)),
+                                             new SlotNode(Axis.get(13L)))),
+                    });  //,
               // new ChildCore("two",
               //   Axis.TAIL,
               //   new HashCode[0],
