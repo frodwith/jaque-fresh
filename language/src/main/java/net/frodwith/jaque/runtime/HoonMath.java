@@ -452,6 +452,14 @@ public final class HoonMath {
     }
   }
 
+  public static long cap(Object atom) throws ExitException {
+    int b = met(atom);
+    if ( b < 2 ) {
+      throw new ExitException("cap b < 2");
+    }
+    return Atom.getNthBit(atom, b - 2) ? 3 : 2;
+  }
+
   public static long mas(long atom) {
     int  b = 64 - Long.numberOfLeadingZeros(atom);
     long c = 1 << (b - 1),

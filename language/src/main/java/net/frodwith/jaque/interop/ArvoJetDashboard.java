@@ -22,12 +22,18 @@ import net.frodwith.jaque.dashboard.BatteryHash;
 import net.frodwith.jaque.nodes.SlotNode;
 import net.frodwith.jaque.nodes.SubjectNode;
 import net.frodwith.jaque.nodes.jet.AddNodeGen;
+import net.frodwith.jaque.nodes.jet.BexNodeGen;
+import net.frodwith.jaque.nodes.jet.CapNodeGen;
+import net.frodwith.jaque.nodes.jet.CutNodeGen;
 import net.frodwith.jaque.nodes.jet.DecNodeGen;
 import net.frodwith.jaque.nodes.jet.DivNodeGen;
 import net.frodwith.jaque.nodes.jet.LteNodeGen;
 import net.frodwith.jaque.nodes.jet.LthNodeGen;
+import net.frodwith.jaque.nodes.jet.MasNodeGen;
 import net.frodwith.jaque.nodes.jet.ModNodeGen;
 import net.frodwith.jaque.nodes.jet.MulNodeGen;
+import net.frodwith.jaque.nodes.jet.PegNodeGen;
+import net.frodwith.jaque.nodes.jet.SubNodeGen;
 
 
 /**
@@ -43,6 +49,26 @@ public class ArvoJetDashboard {
         new JetHook[0],
         new ChildCore[0]);
   }
+
+  private static final ChildCore jetLayerTwo =
+      new ChildCore("two",
+                    Axis.TAIL,
+                    new HashCode[0],
+                    new JetArm[0],
+                    new JetHook[0],
+                    new ChildCore[] {
+                      gate("bex",  (c, ax) ->
+                           BexNodeGen.create(new SlotNode(Axis.SAMPLE))),
+                      // +can: No math implementation of it yet.
+                      // +cat: No math implementation of it yet
+                      gate("cut", (c, ax) ->
+                           CutNodeGen.create(new SlotNode(Axis.get(12L)),
+                                             new SlotNode(Axis.get(52L)),
+                                             new SlotNode(Axis.get(53L)),
+                                             new SlotNode(Axis.get(27L)))),
+                      // +end: No math implementation of it yet.
+                    });
+
 
   private static final ChildCore jetLayerOne =
       new ChildCore("one",
@@ -76,6 +102,17 @@ public class ArvoJetDashboard {
                       gate("mul", (c, ax) ->
                            MulNodeGen.create(new SlotNode(Axis.get(12L)),
                                              new SlotNode(Axis.get(13L)))),
+                      gate("sub", (c, ax) ->
+                           SubNodeGen.create(new SlotNode(Axis.get(12L)),
+                                             new SlotNode(Axis.get(13L)))),
+                      gate("cap", (c, ax) ->
+                           CapNodeGen.create(new SlotNode(Axis.SAMPLE))),
+                      gate("mas", (c, ax) ->
+                           MasNodeGen.create(new SlotNode(Axis.SAMPLE))),
+                      gate("peg", (c, ax) ->
+                           PegNodeGen.create(new SlotNode(Axis.get(12L)),
+                                             new SlotNode(Axis.get(13L)))),
+                      jetLayerTwo
                     });  //,
               // new ChildCore("two",
               //   Axis.TAIL,
