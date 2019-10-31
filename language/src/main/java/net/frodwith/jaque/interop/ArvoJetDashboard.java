@@ -24,11 +24,13 @@ import net.frodwith.jaque.nodes.SubjectNode;
 import net.frodwith.jaque.nodes.jet.AddNodeGen;
 import net.frodwith.jaque.nodes.jet.BexNodeGen;
 import net.frodwith.jaque.nodes.jet.CapNodeGen;
+import net.frodwith.jaque.nodes.jet.CatNodeGen;
 import net.frodwith.jaque.nodes.jet.ConNodeGen;
 import net.frodwith.jaque.nodes.jet.CueNodeGen;
 import net.frodwith.jaque.nodes.jet.CutNodeGen;
 import net.frodwith.jaque.nodes.jet.DecNodeGen;
 import net.frodwith.jaque.nodes.jet.DivNodeGen;
+import net.frodwith.jaque.nodes.jet.EndNodeGen;
 import net.frodwith.jaque.nodes.jet.LshNodeGen;
 import net.frodwith.jaque.nodes.jet.LteNodeGen;
 import net.frodwith.jaque.nodes.jet.LthNodeGen;
@@ -82,14 +84,19 @@ public class ArvoJetDashboard {
                       gate("bex", (c, ax) ->
                            BexNodeGen.create(new SlotNode(Axis.SAMPLE))),
                       // +can: No math implementation of it yet.
-                      // +cat: No math implementation of it yet
+                      gate("cat", (c, ax) ->
+                           CatNodeGen.create(new SlotNode(Axis.get(12L)),
+                                             new SlotNode(Axis.get(26L)),
+                                             new SlotNode(Axis.get(27L)))),
                       gate("cut", (c, ax) ->
                            CutNodeGen.create(new SlotNode(Axis.get(12L)),
                                              new SlotNode(Axis.get(52L)),
                                              new SlotNode(Axis.get(53L)),
                                              new SlotNode(Axis.get(27L)))),
-                      // +end: No math implementation of it yet.
-                      // +fil: ""
+                      gate("end", (c, ax) ->
+                           EndNodeGen.create(new SlotNode(Axis.get(12L)),
+                                             new SlotNode(Axis.get(26L)),
+                                             new SlotNode(Axis.get(27L)))),
                       gate("lsh", (c, ax) ->
                            LshNodeGen.create(new SlotNode(Axis.get(12L)),
                                              new SlotNode(Axis.get(26L)),
@@ -110,8 +117,6 @@ public class ArvoJetDashboard {
                       // +dis: no math impl
                       // +mix: no math impl
 
-                      // OK, mug is actually going to be hard because the
-                      // mug->murmug transition looks like it was incomplete.
                       gate("mug", (c, ax) ->
                           MugNodeGen.create(new SlotNode(Axis.SAMPLE))),
 
@@ -169,14 +174,6 @@ public class ArvoJetDashboard {
                                              new SlotNode(Axis.get(13L)))),
                       jetLayerTwo
                     });  //,
-              // new ChildCore("two",
-              //   Axis.TAIL,
-              //   new HashCode[0],
-              //   new JetArm[0],
-              //   new JetHook[0],
-              //   new ChildCore[] {
-              //     gate("fib", (c, ax) ->
-              //       new CountNockNode(c, ax, "fib"))})})})})
 
   private static final JetTree jetTree =
       new JetTree(new RootCore[] {

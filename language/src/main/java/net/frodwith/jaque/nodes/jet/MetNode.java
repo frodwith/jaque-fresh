@@ -18,7 +18,7 @@ import net.frodwith.jaque.exception.NockException;
 })
 public abstract class MetNode extends SubjectNode {
   @Specialization
-  protected Object met(Object a, Object b) {
+  protected long met(Object a, Object b) {
     try {
       int ai = Atom.requireInt(a);
       if (ai < 256) {

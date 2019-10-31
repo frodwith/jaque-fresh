@@ -14,31 +14,25 @@ import net.frodwith.jaque.runtime.HoonMath;
 import net.frodwith.jaque.runtime.Murmug;
 import net.frodwith.jaque.exception.NockException;
 
-// TODO: Verify these get called.
-//
 @NodeChild(value="sample", type=SlotNode.class)
 public abstract class MugNode extends SubjectNode {
   @Specialization
   protected long mug(long l) {
-    System.err.println("mug(long)");
     return Murmug.get(l);
   }
 
   @Specialization
   protected long mug(BigAtom ba) {
-    System.err.println("mug(BigAtom)");
     return ba.getMug();
   }
 
   @Specialization
   protected long mug(Cell c) {
-    System.err.println("mug(Cell)");
     return c.mug();
   }
 
   @Fallback
-  protected Object mug(Object sample) {
-    System.err.println("mug(fallback)");
+  protected long mug(Object sample) {
     return Murmug.get(sample);
   }
 }

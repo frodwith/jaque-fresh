@@ -189,7 +189,6 @@ public final class Equality {
       return a.equals(b);
     }
     else {
-      System.out.println("end equals");
       return false;
     }
   }

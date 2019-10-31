@@ -17,7 +17,7 @@ import net.frodwith.jaque.exception.NockException;
 })
 public abstract class SubNode extends SubjectNode {
   @Specialization
-  protected Object sub(long a, long b) {
+  protected long sub(long a, long b) {
     try {
       return HoonMath.sub(a, b);
     }

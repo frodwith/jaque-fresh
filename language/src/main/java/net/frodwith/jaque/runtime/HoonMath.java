@@ -491,6 +491,25 @@ public final class HoonMath {
       : mas((BigAtom) atom);
   }
 
+  public static Object cat(byte a, Object b, Object c)
+      throws ExitException {
+    int lew = met(a, b),
+        ler = met(a, c),
+        all = lew + ler;
+
+    if ( 0 == all ) {
+      return 0L;
+    }
+    else {
+      int[] sal = Atom.slaq(a, all);
+
+      Atom.chop(a, 0, lew, 0, sal, b);
+      Atom.chop(a, 0, ler, lew, sal, c);
+
+      return Atom.malt(sal);
+    }
+  }
+
   public static Object
     cut(byte a, Object b, Object c, Object d)
       throws ExitException {
@@ -520,6 +539,29 @@ public final class HoonMath {
       Atom.chop(a,  bi, ci, 0, sal, d);
       return Atom.malt(sal);
     }
+  }
+
+  public static Object end(byte a, Object b, Object c) {
+    int bi;
+
+    try {
+      bi = Atom.requireInt(b);
+    }
+    catch ( ExitException e ) {
+      throw new FailError("end too large");
+    }
+    if ( 0 == bi ) {
+      return 0L;
+    }
+
+    int len = met(a, c);
+    if ( bi >= len ) {
+      return c;
+    }
+
+    int[] sal = Atom.slaq(a, bi);
+    Atom.chop(a, 0, bi, 0, sal, c);
+    return Atom.malt(sal);
   }
 
   @TruffleBoundary

@@ -24,8 +24,6 @@ public abstract class RshNode extends SubjectNode {
       int ai = Atom.requireInt(a);
       int bi = Atom.requireInt(b);
       if (ai < 256) {
-        // TODO: Verify this is ever called.
-        System.err.println("rsh");
         return HoonMath.rsh((byte)ai, bi, c);
       } else {
         throw new NockException("rsh bloq too large", this);

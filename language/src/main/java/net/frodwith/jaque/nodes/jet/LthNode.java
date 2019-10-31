@@ -20,7 +20,7 @@ public abstract class LthNode extends SubjectNode {
   }
 
   @Fallback
-  protected Object lth(Object a, Object b) {
+  protected long lth(Object a, Object b) {
     return (Atom.compare(a, b) == -1) ? Atom.YES : Atom.NO;
   }
 }
