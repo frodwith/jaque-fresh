@@ -8,11 +8,11 @@ import net.frodwith.jaque.runtime.Atom;
 
 public final class Murmug {
   public static int get(Cell c) {
-    return calculate(c);
+    return c.mug();
   }
 
   public static int get(BigAtom a) {
-    return calculate(a);
+    return a.getMug();
   }
 
   public static int get(long l) {

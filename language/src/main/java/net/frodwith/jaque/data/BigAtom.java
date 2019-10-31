@@ -12,7 +12,7 @@ import com.oracle.truffle.api.library.ExportMessage;
 
 import com.google.common.hash.HashCode;
 
-import net.frodwith.jaque.runtime.Mug;
+import net.frodwith.jaque.runtime.Murmug;
 import net.frodwith.jaque.runtime.Atom;
 import net.frodwith.jaque.runtime.Equality;
 import net.frodwith.jaque.runtime.HoonMath;
@@ -37,12 +37,12 @@ public final class BigAtom implements TruffleObject, Serializable {
 
   public int getMug() {
     if ( meta instanceof BigAtomMeta ) {
-      return ((BigAtomMeta) meta).getMug(words);
+      return ((BigAtomMeta) meta).getMug(asByteArray());
     }
     else {
       int mug = (int) meta;
       if ( 0 == mug ) {
-        mug = Mug.words(words);
+        mug = Murmug.bytes(asByteArray());
         meta = mug;
       }
       return mug;

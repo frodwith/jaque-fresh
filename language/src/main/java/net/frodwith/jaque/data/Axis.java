@@ -6,7 +6,7 @@ import com.oracle.truffle.api.nodes.ExplodeLoop;
 import net.frodwith.jaque.exception.ExitException;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 
-import net.frodwith.jaque.runtime.Mug;
+import net.frodwith.jaque.runtime.Murmug;
 import net.frodwith.jaque.runtime.Atom;
 import net.frodwith.jaque.runtime.HoonMath;
 import net.frodwith.jaque.runtime.Equality;
@@ -185,7 +185,7 @@ public final class Axis implements Iterable<Boolean> {
 
   @Override
   public int hashCode() {
-    return Mug.get(atom);
+    return Murmug.get(atom);
   }
 
   public boolean inside(Axis parent) {

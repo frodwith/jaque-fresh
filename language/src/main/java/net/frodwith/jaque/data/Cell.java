@@ -12,7 +12,7 @@ import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 
 import net.frodwith.jaque.AstContext;
-import net.frodwith.jaque.runtime.Mug;
+import net.frodwith.jaque.runtime.Murmug;
 import net.frodwith.jaque.runtime.GrainSilo;
 import net.frodwith.jaque.runtime.Equality;
 import net.frodwith.jaque.runtime.NockContext;
@@ -54,7 +54,7 @@ public final class Cell implements TruffleObject, Serializable {
   public int mug() {
     int mug;
     if ( null == meta ) {
-      meta = mug = Mug.calculate(this);
+      meta = mug = Murmug.calculate(this);
     }
     else if ( meta instanceof Integer ) {
       mug = (int) meta;

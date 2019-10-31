@@ -5,7 +5,7 @@ import java.util.Objects;
 
 import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.data.FastClue;
-import net.frodwith.jaque.runtime.Mug;
+import net.frodwith.jaque.runtime.Murmug;
 import net.frodwith.jaque.runtime.Equality;
 
 public final class RootLocation extends StaticLocation {
@@ -34,7 +34,7 @@ public final class RootLocation extends StaticLocation {
 
   @Override
   public int hashCode() {
-    return Objects.hash(name, hooks) ^ Mug.get(payload);
+    return Objects.hash(name, hooks) ^ Murmug.get(payload);
   }
 
   @Override

@@ -6,7 +6,7 @@ import com.google.common.hash.Hashing;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.HashFunction;
 
-import net.frodwith.jaque.runtime.Mug;
+import net.frodwith.jaque.runtime.Murmug;
 import net.frodwith.jaque.runtime.Atom;
 import net.frodwith.jaque.runtime.GrainSilo;
 
@@ -22,9 +22,9 @@ public final class BigAtomMeta {
     this.mug = mug;
   }
 
-  public int getMug(int[] words) {
+  public int getMug(byte[] words) {
     if ( 0 == mug ) {
-      mug = Mug.words(words);
+      mug = Murmug.bytes(words);
     }
     return mug;
   }

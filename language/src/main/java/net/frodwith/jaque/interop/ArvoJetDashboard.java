@@ -34,6 +34,7 @@ import net.frodwith.jaque.nodes.jet.LthNodeGen;
 import net.frodwith.jaque.nodes.jet.MasNodeGen;
 import net.frodwith.jaque.nodes.jet.MetNodeGen;
 import net.frodwith.jaque.nodes.jet.ModNodeGen;
+import net.frodwith.jaque.nodes.jet.MugNodeGen;
 import net.frodwith.jaque.nodes.jet.MulNodeGen;
 import net.frodwith.jaque.nodes.jet.PegNodeGen;
 import net.frodwith.jaque.nodes.jet.RshNodeGen;
@@ -94,8 +95,8 @@ public class ArvoJetDashboard {
 
                       // OK, mug is actually going to be hard because the
                       // mug->murmug transition looks like it was incomplete.
-                      // gate("mug", (c, ax) ->
-                      //     MugNodeGen.create(new SlotNode(Axis.SAMPLE))),
+                      gate("mug", (c, ax) ->
+                          MugNodeGen.create(new SlotNode(Axis.SAMPLE))),
                     });
 
 

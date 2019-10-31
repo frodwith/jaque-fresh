@@ -11,7 +11,7 @@ import com.oracle.truffle.api.TruffleLanguage.ContextReference;
 
 import net.frodwith.jaque.AstContext;
 import net.frodwith.jaque.jet.Drivers;
-import net.frodwith.jaque.runtime.Mug;
+import net.frodwith.jaque.runtime.Murmug;
 import net.frodwith.jaque.runtime.GrainSilo;
 import net.frodwith.jaque.runtime.NockContext;
 
@@ -74,7 +74,7 @@ public final class CellMeta {
   // mugs (cached hashes)
   public int mug(Cell cell) {
     if ( 0 == mug ) {
-      mug = Mug.calculate(cell);
+      mug = Murmug.calculate(cell);
     }
     return mug;
   }
