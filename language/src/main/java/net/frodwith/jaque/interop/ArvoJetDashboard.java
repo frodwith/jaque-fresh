@@ -24,15 +24,19 @@ import net.frodwith.jaque.nodes.SubjectNode;
 import net.frodwith.jaque.nodes.jet.AddNodeGen;
 import net.frodwith.jaque.nodes.jet.BexNodeGen;
 import net.frodwith.jaque.nodes.jet.CapNodeGen;
+import net.frodwith.jaque.nodes.jet.ConNodeGen;
 import net.frodwith.jaque.nodes.jet.CutNodeGen;
 import net.frodwith.jaque.nodes.jet.DecNodeGen;
 import net.frodwith.jaque.nodes.jet.DivNodeGen;
+import net.frodwith.jaque.nodes.jet.LshNodeGen;
 import net.frodwith.jaque.nodes.jet.LteNodeGen;
 import net.frodwith.jaque.nodes.jet.LthNodeGen;
 import net.frodwith.jaque.nodes.jet.MasNodeGen;
+import net.frodwith.jaque.nodes.jet.MetNodeGen;
 import net.frodwith.jaque.nodes.jet.ModNodeGen;
 import net.frodwith.jaque.nodes.jet.MulNodeGen;
 import net.frodwith.jaque.nodes.jet.PegNodeGen;
+import net.frodwith.jaque.nodes.jet.RshNodeGen;
 import net.frodwith.jaque.nodes.jet.SubNodeGen;
 
 
@@ -57,7 +61,7 @@ public class ArvoJetDashboard {
                     new JetArm[0],
                     new JetHook[0],
                     new ChildCore[] {
-                      gate("bex",  (c, ax) ->
+                      gate("bex", (c, ax) ->
                            BexNodeGen.create(new SlotNode(Axis.SAMPLE))),
                       // +can: No math implementation of it yet.
                       // +cat: No math implementation of it yet
@@ -67,6 +71,31 @@ public class ArvoJetDashboard {
                                              new SlotNode(Axis.get(53L)),
                                              new SlotNode(Axis.get(27L)))),
                       // +end: No math implementation of it yet.
+                      // +fil: ""
+                      gate("lsh", (c, ax) ->
+                           LshNodeGen.create(new SlotNode(Axis.get(12L)),
+                                             new SlotNode(Axis.get(26L)),
+                                             new SlotNode(Axis.get(27L)))),
+                      gate("met", (c, ax) ->
+                           MetNodeGen.create(new SlotNode(Axis.get(12L)),
+                                             new SlotNode(Axis.get(13L)))),
+                      // +rap: no math impl
+                      // +rep: no math impl
+                      // +rip: no math impl
+                      gate("rsh", (c, ax) ->
+                           RshNodeGen.create(new SlotNode(Axis.get(12L)),
+                                             new SlotNode(Axis.get(26L)),
+                                             new SlotNode(Axis.get(27L)))),
+                      gate("con", (c, ax) ->
+                           ConNodeGen.create(new SlotNode(Axis.get(12L)),
+                                             new SlotNode(Axis.get(13L)))),
+                      // +dis: no math impl
+                      // +mix: no math impl
+
+                      // OK, mug is actually going to be hard because the
+                      // mug->murmug transition looks like it was incomplete.
+                      // gate("mug", (c, ax) ->
+                      //     MugNodeGen.create(new SlotNode(Axis.SAMPLE))),
                     });
 
 
