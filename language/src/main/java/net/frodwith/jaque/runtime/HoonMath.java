@@ -1,8 +1,11 @@
 package net.frodwith.jaque.runtime;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
 import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 
 import gnu.math.MPN;
 
@@ -517,5 +520,31 @@ public final class HoonMath {
       Atom.chop(a,  bi, ci, 0, sal, d);
       return Atom.malt(sal);
     }
+  }
+
+  @TruffleBoundary
+  private static byte[] doSha(String algo, byte[] bytes) throws ExitException {
+    try {
+      return MessageDigest.getInstance(algo).digest(bytes);
+    }
+    catch (NoSuchAlgorithmException e) {
+      throw new ExitException("No such sha algorithm " + algo);
+    }
+  }
+
+  private static Object sha_help(Object len, Object atom, String algo)
+      throws ExitException {
+    int leni = Atom.requireInt(len);
+    byte[] in = Atom.toByteArray(atom);
+    return Atom.fromByteArray(doSha(algo, in));
+  }
+
+  public static Object shal(Object len, Object atom) throws ExitException {
+    return sha_help(len, atom, "SHA-512");
+  }
+
+  public static Object shan(Object atom) throws ExitException {
+    byte[] in = Atom.toByteArray(atom);
+    return Atom.fromByteArray(doSha("SHA-1", in), Atom.BIG_ENDIAN);
   }
 }

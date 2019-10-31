@@ -25,6 +25,7 @@ import net.frodwith.jaque.nodes.jet.AddNodeGen;
 import net.frodwith.jaque.nodes.jet.BexNodeGen;
 import net.frodwith.jaque.nodes.jet.CapNodeGen;
 import net.frodwith.jaque.nodes.jet.ConNodeGen;
+import net.frodwith.jaque.nodes.jet.CueNodeGen;
 import net.frodwith.jaque.nodes.jet.CutNodeGen;
 import net.frodwith.jaque.nodes.jet.DecNodeGen;
 import net.frodwith.jaque.nodes.jet.DivNodeGen;
@@ -38,6 +39,8 @@ import net.frodwith.jaque.nodes.jet.MugNodeGen;
 import net.frodwith.jaque.nodes.jet.MulNodeGen;
 import net.frodwith.jaque.nodes.jet.PegNodeGen;
 import net.frodwith.jaque.nodes.jet.RshNodeGen;
+import net.frodwith.jaque.nodes.jet.ShalNodeGen;
+import net.frodwith.jaque.nodes.jet.ShanNodeGen;
 import net.frodwith.jaque.nodes.jet.SubNodeGen;
 
 
@@ -54,6 +57,20 @@ public class ArvoJetDashboard {
         new JetHook[0],
         new ChildCore[0]);
   }
+
+  private static final ChildCore jetLayerThree =
+      new ChildCore("tri",
+                    Axis.TAIL,
+                    new HashCode[0],
+                    new JetArm[0],
+                    new JetHook[0],
+                    new ChildCore[] {
+                      gate("shal", (c, ax) ->
+                           ShalNodeGen.create(new SlotNode(Axis.get(12L)),
+                                              new SlotNode(Axis.get(13L)))),
+                      gate("shan", (c, ax) ->
+                           ShanNodeGen.create(new SlotNode(Axis.SAMPLE))),
+                    });
 
   private static final ChildCore jetLayerTwo =
       new ChildCore("two",
@@ -97,6 +114,14 @@ public class ArvoJetDashboard {
                       // mug->murmug transition looks like it was incomplete.
                       gate("mug", (c, ax) ->
                           MugNodeGen.create(new SlotNode(Axis.SAMPLE))),
+
+                      // ???????
+
+                      gate("cue", (c, ax) ->
+                           CueNodeGen.create(new SlotNode(Axis.SAMPLE))),
+                      // +jam
+
+                      jetLayerThree
                     });
 
 
