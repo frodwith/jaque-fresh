@@ -12,6 +12,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.lang.ArrayIndexOutOfBoundsException;
+import java.io.FileOutputStream;
+import java.io.FileNotFoundException;
 import java.lang.UnsupportedOperationException;
 import java.lang.StringBuilder;
 import java.util.Set;
@@ -37,7 +39,7 @@ class NounShapeException extends Exception {
  * Subordinate Nock interpreter that's connected to a separate daemon control
  * process.
  */
-public class Serf
+public class Serf implements Thread.UncaughtExceptionHandler
 {
   // Mote definitions:
   //
@@ -75,6 +77,7 @@ public class Serf
   private Value who;
   private boolean isFake = false;
   private long bootSequenceLength = 0;
+  private Value kernelCore; // c3_noun roc;
 
   // Corresponds to u3V in worker/main.c.
   private ArrayList<Value> lifecycleFormulas;     // u3_noun roe;
@@ -102,7 +105,7 @@ public class Serf
     serf.run(pierDir);
   }
 
-  public Serf() {
+  public Serf() throws FileNotFoundException {
     this.truffleContext = Context
                         .newBuilder("nock")
                         .allowAllAccess(true)
@@ -120,6 +123,7 @@ public class Serf
     // as 0.
     this.who = this.truffleContext.asValue(0L);
     this.lifecycleFormulas = new ArrayList<Value>();
+    this.kernelCore = this.truffleContext.asValue(0L);
   }
 
   public void run(String pierDir) throws IOException {
@@ -134,12 +138,15 @@ public class Serf
     try {
       boolean done = false;
       while (!done) {
+        System.err.println("Waiting for message...");
         Value message = readNoun();
 
         long tag = getHeadTag(message);
         if (tag == C3__BOOT) {
+          System.err.println("poke boot");
           onBootMessage(message);
         } else if (tag == C3__WORK) {
+          System.err.println("poke work");
           onWorkMessage(message);
         } else if (tag == C3__EXIT) {
           System.err.println("poke exit");
@@ -155,6 +162,8 @@ public class Serf
     } catch (NounShapeException e) {
       System.err.println("(noun shape exception; shutting down)");
       e.printStackTrace(System.err);
+    } catch (Throwable e) {
+      e.printStackTrace(System.err);
     }
   }
 
@@ -165,13 +174,17 @@ public class Serf
    * serialized events and stdout is a binary stream of . To make sure uses
    * of System.out don't interfere with this, we set
    */
-  private void fixupFileDescriptors() {
+  private void fixupFileDescriptors() throws FileNotFoundException {
+    Thread.setDefaultUncaughtExceptionHandler(this);
+
     this.inputStream = new DataInputStream(System.in);
     this.outputStream = new DataOutputStream(System.out);
 
     // TODO: Do something nicer with System.in.
     System.setIn(null);
-    System.setOut(System.err);
+    // FileOutputStream f = new FileOutputStream("serf.txt");
+    // System.setErr(new PrintStream(f));
+    System.setOut(null);
   }
 
   private void onBootMessage(Value message)
@@ -228,6 +241,7 @@ public class Serf
       if (eventNum <= bootSequenceLength) {
         doWorkBoot(eventNum, job);
       } else {
+        System.err.println("do work live");
         // doWorkLive();
       }
     } catch (UnsupportedOperationException e) {
@@ -262,9 +276,8 @@ public class Serf
       // "u3v_boot()"
       //
       Value v = performBoot(eve);
-      System.err.println(v.toString());
-      // TODO: A call to performBoot() should go here.
-
+      this.kernelCore = v;
+      this.currentMug = nockRuntime.invokeMember("mug", this.kernelCore).asLong();
       this.lastEventProcessed = eventNum;
 
       //this.currentMug = mug u3A->roc
@@ -283,7 +296,6 @@ public class Serf
    * Given the boot sequence eve, apply the lifecycle function to it.
    */
   private Value performBoot(Value eve) {
-    System.err.println("about to evaluate source");
     Value lifeCycle = this.truffleContext.eval(lifecycleSource);
     System.err.println("about to execute lifecycle");
     Value gat = lifeCycle.execute(eve);
@@ -303,6 +315,7 @@ public class Serf
   }
 
   private void sendDone(long event, long mug, Value effects) throws IOException {
+    System.err.println("Sending DONE(" + event + ", " + mug + ")");
     writeNoun(nockRuntime.invokeMember("toNoun", C3__DONE, event, mug, effects));
   }
 
@@ -343,5 +356,12 @@ public class Serf
     outputStream.writeLong(Long.reverseBytes(bytes.length));
     outputStream.write(bytes, 0, bytes.length);
     outputStream.flush();
+  }
+
+  @Override
+  public void uncaughtException(Thread t, Throwable e) {
+    // We mustn't write to stdout ever.
+    e.printStackTrace(System.err);
+    System.exit(-1);
   }
 }

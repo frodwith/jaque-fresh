@@ -8,4 +8,5 @@ LANGUAGE_PATH="$SCRIPT_HOME/language/target/nock-language.jar"
 LAUNCHER_PATH="$SCRIPT_HOME/launcher/target/serf-$VERSION-SNAPSHOT.jar"
 MAIN_CLASS="net.frodwith.jaque.Serf"
 
-java -Dtruffle.class.path.append="$LANGUAGE_PATH" -cp "$LAUNCHER_PATH" "$MAIN_CLASS" $@
+
+java -Dgraal.LogFile=graal-log.txt -Dtruffle.class.path.append="$LANGUAGE_PATH" -cp "$LAUNCHER_PATH" "$MAIN_CLASS" $@
