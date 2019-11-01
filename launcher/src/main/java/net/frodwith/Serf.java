@@ -1,8 +1,6 @@
 package net.frodwith.jaque;
 
 import net.frodwith.jaque.NockLanguage;
-import net.frodwith.jaque.data.Cell;
-import net.frodwith.jaque.runtime.HoonSerial;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -12,6 +10,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.lang.ArrayIndexOutOfBoundsException;
+import java.io.StringWriter;
 import java.io.FileOutputStream;
 import java.io.FileNotFoundException;
 import java.lang.UnsupportedOperationException;
@@ -62,9 +61,17 @@ public class Serf implements Thread.UncaughtExceptionHandler
   public final static long C3__TRIM = 1_835_627_124L;
   public final static long C3__SAVE = 1_702_257_011L;
 
-  private final static String LIFECYCLE_SOURCE_STRING = "[2 [0 3] [0 2]]";
+  private final static String LIFECYCLE_SOURCE_STRING = "[7 [2 [0 3] [0 2]] 0 7]";
   private final static Source lifecycleSource =
       Source.newBuilder("nock", LIFECYCLE_SOURCE_STRING, "lifecycle.nock")
+      .buildLiteral();
+
+  private final static String CALL_POKE_SOURCE_STRING =
+      //      "[9 47 0 1]";
+      "[9 2 10 [6 0 3] 9 47 0 2]";
+  private final static Source callPokeSource =
+      Source.newBuilder("nock", CALL_POKE_SOURCE_STRING,
+                        "call-poke.nock")
       .buildLiteral();
 
   private final Context truffleContext;
@@ -72,6 +79,8 @@ public class Serf implements Thread.UncaughtExceptionHandler
 
   private DataInputStream inputStream;
   private DataOutputStream outputStream;
+
+  private Value callPoke = null;
 
   // Corresponds to u3v_arvo in include/noun/vortex.h.
   private Value who;
@@ -241,8 +250,7 @@ public class Serf implements Thread.UncaughtExceptionHandler
       if (eventNum <= bootSequenceLength) {
         doWorkBoot(eventNum, job);
       } else {
-        System.err.println("do work live");
-        // doWorkLive();
+        doWorkLive(eventNum, job);
       }
     } catch (UnsupportedOperationException e) {
       throw new NounShapeException("Couldn't unpack work message", e);
@@ -275,8 +283,13 @@ public class Serf implements Thread.UncaughtExceptionHandler
 
       // "u3v_boot()"
       //
+      // TODO: OK, u3m_soft() in vere could return error listings. We'd want to
+      // rebuild that functionality here.
+      //
       Value v = performBoot(eve);
+      System.err.println("after perform boot " + v.toString());
       this.kernelCore = v;
+
       this.currentMug = nockRuntime.invokeMember("mug", this.kernelCore).asLong();
       this.lastEventProcessed = eventNum;
 
@@ -291,7 +304,6 @@ public class Serf implements Thread.UncaughtExceptionHandler
     sendDone(eventNum, this.currentMug, this.truffleContext.asValue(0L));
   }
 
-
   /**
    * Given the boot sequence eve, apply the lifecycle function to it.
    */
@@ -299,8 +311,54 @@ public class Serf implements Thread.UncaughtExceptionHandler
     Value lifeCycle = this.truffleContext.eval(lifecycleSource);
     System.err.println("about to execute lifecycle");
     Value gat = lifeCycle.execute(eve);
-    System.err.println("finished lifecycle");
-    return gat.getArrayElement(1).getArrayElement(1);
+    System.err.println("finished lifecycle" + gat.toString());
+    return gat; //.getArrayElement(1).getArrayElement(1);
+  }
+
+  /**
+   * Handle each normal event.
+   */
+  private void doWorkLive(long eventNum, Value job)
+      throws NounShapeException, IOException
+  {
+    // We perform a poke with the current ovo. Performing a poke first computes
+    // a function gate where we grab the poke arm with a context of the rest of
+    // roc. Then we actually slam that produced function with [date ovo]. And
+    // interpret the return of it.
+    if (this.callPoke == null) {
+      // Lazily compile the poke function
+      this.callPoke = this.truffleContext.eval(callPokeSource);
+    }
+
+    if (eventNum != this.lastEventProcessed + 1L) {
+      StringBuilder b = new StringBuilder();
+      b.append("Work message specifies event #");
+      b.append(eventNum);
+      b.append(" but lastEventRequested was ");
+      b.append(this.lastEventRequested);
+      throw new NounShapeException(b.toString());
+    }
+
+    this.lastEventRequested = eventNum;
+
+    // In vere, _worker_work_live() takes a job noun, immediately unpacks it
+    // into [now ovo], and indirectly passes ovo to _cv_nock_poke(), which
+    // reconstructs sam out of [now ovo]. I believe there's no reason for that.
+    //
+    System.err.println("Running poke call");
+    Value product = this.callPoke.execute(this.kernelCore, job);
+    System.err.println("Finished: " + product);
+
+    // Now that we have the product, we
+    Value listOvum = product.getArrayElement(0);
+    this.kernelCore = product.getArrayElement(1);
+
+    this.lastEventProcessed = eventNum;
+    this.currentMug = nockRuntime.invokeMember("mug", this.kernelCore).asLong();
+
+    sendDone(eventNum, this.currentMug, listOvum);
+
+    System.err.println("TODO: We'll do it live!");
   }
 
   /**

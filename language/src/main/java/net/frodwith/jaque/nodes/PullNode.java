@@ -97,6 +97,7 @@ public abstract class PullNode extends NockCallLookupNode {
         .getArm(core, getArmAxis(), getFragmentNode(), c);
     }
     catch ( ExitException e ) {
+      e.printStackTrace(System.err);
       throw new NockException("fail to fetch arm from battery", e, this);
     }
   }

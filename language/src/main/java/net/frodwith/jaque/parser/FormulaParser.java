@@ -386,7 +386,7 @@ public final class FormulaParser {
                return parseWish(arg);
            */
         default:
-          throw new ExitException("bad opcode");
+          throw new ExitException("bad opcode: " + code);
       }
     }
   }
