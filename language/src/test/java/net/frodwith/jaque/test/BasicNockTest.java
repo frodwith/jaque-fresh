@@ -194,6 +194,41 @@ public class BasicNockTest {
     assertTrue(bails.isGuestException());
   }
 
+  @Test
+  public void testValidSpotHint() {
+    Value spot = context.eval("nock", "[11 [1.953.460.339 1 [1.685.027.454 1.701.670.760 164.266.780.346.346.260.696.372.364.564.576.299.602.085.886.061.464.870.561.264.254 0] [1 73] 1 74] 1 33]");
+    Cell subject = new Cell(2L, 3L);
+    assertEquals(33L, spot.execute(subject).as(Number.class));
+  }
+
+  @Test
+  public void testInvalidHintNumberValidCode() {
+    Value spot = context.eval("nock", "[11 [339 [1 0]] 1 33]");
+    Cell subject = new Cell(2L, 3L);
+    assertEquals(33L, spot.execute(subject).as(Number.class));
+  }
+
+  // TODO: Figure out how to build a straight wrong value at compile time so we
+  // can test runtime exceptions later.
+  /*
+  @Test
+  public void testInvalidValidSpotHintInvalidCode() {
+    // We can't even parse a noun which is invalid like this.
+    Value spot = context.eval("nock", "[11 [339 [89 0]] 1 33]");
+    Cell subject = new Cell(2L, 3L);
+
+    // In the above, we should fail with a bad nock opcode 87
+    RuntimeException bails = null;
+    try {
+      spot.execute(subject);
+    }
+    catch (RuntimeException e) {
+      bails = e;
+    }
+    assertNotNull(bails);
+  }
+  */
+
   @After
   public void dispose() {
     context.close();
