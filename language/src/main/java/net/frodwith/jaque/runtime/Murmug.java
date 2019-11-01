@@ -6,19 +6,25 @@ import net.frodwith.jaque.data.BigAtom;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.runtime.Atom;
 
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+
 public final class Murmug {
+  @TruffleBoundary
   public static int get(Cell c) {
     return c.mug();
   }
 
+  @TruffleBoundary
   public static int get(BigAtom a) {
     return a.getMug();
   }
 
+  @TruffleBoundary
   public static int get(long l) {
     return bytes(Atom.toByteArray(l));
   }
 
+  @TruffleBoundary
   public static int get(Object noun) {
     return ( noun instanceof Cell )
       ? get((Cell) noun)
