@@ -6,6 +6,8 @@ import com.google.common.collect.Interners;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.BigAtom;
 
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+
 public final class GrainSilo {
   private final Interner<BigAtom> atoms;
   private final Interner<Cell> cells;
@@ -15,6 +17,7 @@ public final class GrainSilo {
     this.cells = Interners.newWeakInterner();
   }
 
+  @TruffleBoundary
   public Cell getCellGrain(Cell cell) {
     if ( !cell.inSilo(this) ) {
       cell = cells.intern(cell);
@@ -23,6 +26,7 @@ public final class GrainSilo {
     return cell;
   }
 
+  @TruffleBoundary
   public BigAtom getAtomGrain(BigAtom atom) {
     if ( !atom.inSilo(this) ) {
       atom = atoms.intern(atom);
