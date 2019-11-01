@@ -32,6 +32,7 @@ import net.frodwith.jaque.nodes.jet.DecNodeGen;
 import net.frodwith.jaque.nodes.jet.DisNodeGen;
 import net.frodwith.jaque.nodes.jet.DivNodeGen;
 import net.frodwith.jaque.nodes.jet.EndNodeGen;
+import net.frodwith.jaque.nodes.jet.JamNodeGen;
 import net.frodwith.jaque.nodes.jet.LshNodeGen;
 import net.frodwith.jaque.nodes.jet.LteNodeGen;
 import net.frodwith.jaque.nodes.jet.LthNodeGen;
@@ -131,12 +132,11 @@ public class ArvoJetDashboard {
 
                       // ???????
 
+                      gate("jam", (c, ax) ->
+                           JamNodeGen.create(new SlotNode(Axis.SAMPLE))),
                       gate("cue", (c, ax) ->
                            CueNodeGen.create(new SlotNode(Axis.SAMPLE))),
-                      // +jam
 
-                      
-                      
                       jetLayerThree
                     });
 

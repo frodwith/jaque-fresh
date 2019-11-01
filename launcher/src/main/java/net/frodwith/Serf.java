@@ -287,9 +287,7 @@ public class Serf implements Thread.UncaughtExceptionHandler
       // TODO: OK, u3m_soft() in vere could return error listings. We'd want to
       // rebuild that functionality here.
       //
-      Value v = performBoot(eve);
-      System.err.println("after perform boot " + v.toString());
-      this.kernelCore = v;
+      this.kernelCore = performBoot(eve);
 
       this.currentMug = nockRuntime.invokeMember("mug", this.kernelCore).asLong();
       this.lastEventProcessed = eventNum;
