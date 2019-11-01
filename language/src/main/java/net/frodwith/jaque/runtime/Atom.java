@@ -109,6 +109,10 @@ public final class Atom {
     return (a instanceof Long) && (1L == ((long) a));
   }
 
+  public static boolean isAtom(Object noun) {
+    return (noun instanceof Long) || (noun instanceof BigAtom);
+  }
+
   public static boolean requireLoobean(Object a) throws ExitException {
     switch ( requireInt(a) ) {
       case 0:

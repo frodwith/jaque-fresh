@@ -13,6 +13,7 @@ import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.BigAtom;
 import net.frodwith.jaque.exception.ExitException;
 import net.frodwith.jaque.exception.FailError;
+import net.frodwith.jaque.runtime.Equality;
 
 public final class HoonMath {
   public static int met(byte bloq, Object atom) {
@@ -604,6 +605,30 @@ public final class HoonMath {
       }
     }
     return pir;
+  }
+
+  @TruffleBoundary
+  public static long dor(Object a, Object b) throws ExitException {
+    if ( Atom.isAtom(a) ) {
+      if ( Atom.isAtom(b) ) {
+        return (Atom.compare(a, b) == -1) ? Atom.YES : Atom.NO;
+      }
+      else {
+        return Atom.YES;
+      }
+    }
+    else if ( Atom.isAtom(b) ) {
+      return Atom.NO;
+    }
+    else {
+      Cell ac = Cell.require(a),
+           bc = Cell.require(b);
+      return a.equals(b)
+          ? Atom.YES
+          : Equality.equals(ac.head, bc.head)
+          ? dor(ac.tail, bc.tail)
+          : dor(ac.head, bc.head);
+    }
   }
 
   public static long dis(long a, long b) {
