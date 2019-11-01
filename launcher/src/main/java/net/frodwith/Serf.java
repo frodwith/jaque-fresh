@@ -61,13 +61,14 @@ public class Serf implements Thread.UncaughtExceptionHandler
   public final static long C3__TRIM = 1_835_627_124L;
   public final static long C3__SAVE = 1_702_257_011L;
 
+  // The lifecycle function with an additional axis lookup of +7 instead of
+  // just doing .tail.tail in code.
   private final static String LIFECYCLE_SOURCE_STRING = "[7 [2 [0 3] [0 2]] 0 7]";
   private final static Source lifecycleSource =
       Source.newBuilder("nock", LIFECYCLE_SOURCE_STRING, "lifecycle.nock")
       .buildLiteral();
 
   private final static String CALL_POKE_SOURCE_STRING =
-      //      "[9 47 0 1]";
       "[9 2 10 [6 0 3] 9 47 0 2]";
   private final static Source callPokeSource =
       Source.newBuilder("nock", CALL_POKE_SOURCE_STRING,
@@ -312,7 +313,7 @@ public class Serf implements Thread.UncaughtExceptionHandler
     System.err.println("about to execute lifecycle");
     Value gat = lifeCycle.execute(eve);
     System.err.println("finished lifecycle" + gat.toString());
-    return gat; //.getArrayElement(1).getArrayElement(1);
+    return gat;
   }
 
   /**
@@ -357,8 +358,6 @@ public class Serf implements Thread.UncaughtExceptionHandler
     this.currentMug = nockRuntime.invokeMember("mug", this.kernelCore).asLong();
 
     sendDone(eventNum, this.currentMug, listOvum);
-
-    System.err.println("TODO: We'll do it live!");
   }
 
   /**

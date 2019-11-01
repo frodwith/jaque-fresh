@@ -36,6 +36,7 @@ import net.frodwith.jaque.nodes.jet.LteNodeGen;
 import net.frodwith.jaque.nodes.jet.LthNodeGen;
 import net.frodwith.jaque.nodes.jet.MasNodeGen;
 import net.frodwith.jaque.nodes.jet.MetNodeGen;
+import net.frodwith.jaque.nodes.jet.MixNodeGen;
 import net.frodwith.jaque.nodes.jet.ModNodeGen;
 import net.frodwith.jaque.nodes.jet.MugNodeGen;
 import net.frodwith.jaque.nodes.jet.MulNodeGen;
@@ -115,7 +116,9 @@ public class ArvoJetDashboard {
                            ConNodeGen.create(new SlotNode(Axis.get(12L)),
                                              new SlotNode(Axis.get(13L)))),
                       // +dis: no math impl
-                      // +mix: no math impl
+                      gate("mix", (c, ax) ->
+                           MixNodeGen.create(new SlotNode(Axis.get(12L)),
+                                             new SlotNode(Axis.get(13L)))),
 
                       gate("mug", (c, ax) ->
                           MugNodeGen.create(new SlotNode(Axis.SAMPLE))),
