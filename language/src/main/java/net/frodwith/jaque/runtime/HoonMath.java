@@ -564,6 +564,33 @@ public final class HoonMath {
     return Atom.malt(sal);
   }
 
+  public static long dis(long a, long b) {
+    return a & b;
+  }
+
+  public static Object dis(Object a, Object b) {
+    byte w   = 5;
+    int  lna = met(w, a);
+    int  lnb = met(w, b);
+
+    if ( (0 == lna) && (0 == lnb) ) {
+      return 0L;
+    }
+    else {
+      int i, len = Math.max(lna, lnb);
+      int[] sal  = new int[len];
+      int[] bow  = Atom.words(b);
+
+      Atom.chop(w, 0, lna, 0, sal, a);
+
+      for ( i = 0; i < len; i++ ) {
+        sal[i] &= (i >= lnb) ? 0 : bow[i];
+      }
+
+      return Atom.malt(sal);
+    }
+  }
+
   public static long mix(long a, long b) {
     return a ^ b;
   }
