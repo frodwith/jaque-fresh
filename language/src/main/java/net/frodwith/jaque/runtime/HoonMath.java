@@ -564,6 +564,48 @@ public final class HoonMath {
     return Atom.malt(sal);
   }
 
+  public static Object rip(byte a, Object b) {
+    int[] words = Atom.words(b);
+    Object pir = 0L;
+    if ( a < 5 ) {
+      int met = met(a, b),
+          mek = ((1 << (1 << a)) - 1);
+
+      for ( int i = 0; i < met; ++i ) {
+        int pat = met - (i + 1),
+            bit = pat << a,
+            wor = bit >>> 5,
+            sif = bit & 31,
+            src = words[wor],
+            rip = (src >> sif) & mek;
+
+        pir = new Cell((long) rip, pir);
+      }
+    }
+    else {
+      byte sang = (byte) (a - 5);
+      int met = met(a, b),
+          len = met((byte) 5, b),
+          san = 1 << sang,
+          dif = (met << sang) - len,
+          tub = (0 == dif) ? san : san - dif;
+
+      for ( int i = 0; i < met; ++i ) {
+        int pat = met - (i + 1),
+            wut = pat << sang,
+            sap = ((0 == i) ? tub : san);
+        int[] sal = new int[sap];
+
+        for ( int j = 0; j < sap; ++j ) {
+          sal[j] = words[wut + j];
+        }
+
+        pir = new Cell(Atom.malt(sal), pir);
+      }
+    }
+    return pir;
+  }
+
   public static long dis(long a, long b) {
     return a & b;
   }
