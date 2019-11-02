@@ -71,8 +71,7 @@ public class Serf implements Thread.UncaughtExceptionHandler
   private final static String CALL_POKE_SOURCE_STRING =
       "[9 2 10 [6 0 3] 9 47 0 2]";
   private final static Source callPokeSource =
-      Source.newBuilder("nock", CALL_POKE_SOURCE_STRING,
-                        "call-poke.nock")
+      Source.newBuilder("nock", CALL_POKE_SOURCE_STRING, "call-poke.nock")
       .buildLiteral();
 
   private final Context truffleContext;
@@ -339,6 +338,32 @@ public class Serf implements Thread.UncaughtExceptionHandler
     }
 
     this.lastEventRequested = eventNum;
+
+
+
+
+
+    // TODO: OK, maybe the problem is elsewhere? What if axis 47 really is the
+    // string '~zod'? Naively, if we were to assume that there was a major
+    // issue with nock interpretation, I'd assume that it'd show up on the
+    // first event, not on the second one!
+    //
+    // If we just dump the axis number we're pulling, the first time we pull,
+    // we pull on 47 and that's the pull which has the bad opcode failure!
+    //
+    // Things to check on Monday:
+    //
+    // - Is the kernel shape actually what I believe it to be? Joe advised me
+    //   to just roll the +7 axis lookup into the lifecycle function. Maybe
+    //   that got screwed up?
+    //
+    // - Maybe the callPoke is wrong and isn't actually calling the internal
+    // - +poke arm correctly?
+    //
+    // - Some other kernel shape issue???
+
+
+
 
     // In vere, _worker_work_live() takes a job noun, immediately unpacks it
     // into [now ovo], and indirectly passes ovo to _cv_nock_poke(), which
