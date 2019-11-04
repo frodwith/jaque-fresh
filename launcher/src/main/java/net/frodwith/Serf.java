@@ -362,7 +362,9 @@ public class Serf implements Thread.UncaughtExceptionHandler
     //
     // - Some other kernel shape issue???
 
-
+    // Debugging facts:
+    //
+    // - [0 47] applied to the kernel returns a cell.
 
 
     // In vere, _worker_work_live() takes a job noun, immediately unpacks it
@@ -371,7 +373,9 @@ public class Serf implements Thread.UncaughtExceptionHandler
     //
     System.err.println("Running poke call");
     Value product = this.callPoke.execute(this.kernelCore, job);
+    nockRuntime.invokeMember("debugDump", product);
     System.err.println("Finished: " + product);
+
 
     // Now that we have the product, we
     Value listOvum = product.getArrayElement(0);
