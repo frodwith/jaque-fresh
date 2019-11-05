@@ -150,6 +150,9 @@ public class Serf implements Thread.UncaughtExceptionHandler
         System.err.println("Waiting for message...");
         Value message = readNoun();
 
+        long jobMug = nockRuntime.invokeMember("mug", message).asLong();
+        System.err.println("raw jar mug: " + Long.toHexString(jobMug));
+
         long tag = getHeadTag(message);
         if (tag == C3__BOOT) {
           System.err.println("poke boot");
@@ -230,11 +233,9 @@ public class Serf implements Thread.UncaughtExceptionHandler
       Value jammedValue = tail.getArrayElement(1);
 
       // Unpack the packed work format.
-      Value mugDateOvum = nockRuntime.invokeMember("cue", jammedValue);
-      long expectedMug = mugDateOvum.getArrayElement(0).asLong();
-      tail = mugDateOvum.getArrayElement(1);
-      Value date = tail.getArrayElement(0);
-      Value job = tail.getArrayElement(1);
+      Value mugOvum = nockRuntime.invokeMember("cue", jammedValue);
+      long expectedMug = mugOvum.getArrayElement(0).asLong();
+      Value job = mugOvum.getArrayElement(1);
 
       if (expectedMug != this.currentMug) {
         StringBuilder b = new StringBuilder();
@@ -271,15 +272,23 @@ public class Serf implements Thread.UncaughtExceptionHandler
       throw new NounShapeException(b.toString());
     }
 
+    long jobMug = nockRuntime.invokeMember("mug", job).asLong();
+    System.err.println("boot / job mug: " + Long.toHexString(jobMug));
+
     this.lastEventRequested = eventNum;
     this.lifecycleFormulas.add(job);
 
     if ( this.bootSequenceLength == eventNum ) {
-      // Turn the list of jobs into a reversed, null-terminated hoon list.
+      // TODO: Wait, do we have to reverse this to work? In the solid case this
+      // is a no-op. In the brass case, since we're using a list we can add to
+      // the end, does this actually break the ordering we need?
       Collections.reverse(this.lifecycleFormulas);
       this.lifecycleFormulas.add(this.truffleContext.asValue(0L));
       Value eve = nockRuntime.invokeMember("toNoun", this.lifecycleFormulas.toArray());
       this.lifecycleFormulas = new ArrayList<Value>();
+
+      long eveMug = nockRuntime.invokeMember("mug", eve).asLong();
+      System.err.println("pill / eve mug: " + Long.toHexString(eveMug));
 
       // "u3v_boot()"
       //
@@ -290,6 +299,8 @@ public class Serf implements Thread.UncaughtExceptionHandler
 
       this.currentMug = nockRuntime.invokeMember("mug", this.kernelCore).asLong();
       this.lastEventProcessed = eventNum;
+
+      System.err.println("core mug: " + Long.toHexString(this.currentMug));
 
       //this.currentMug = mug u3A->roc
       //u3A->ent_d = u3V.dun_d;
@@ -309,7 +320,7 @@ public class Serf implements Thread.UncaughtExceptionHandler
     Value lifeCycle = this.truffleContext.eval(lifecycleSource);
     System.err.println("about to execute lifecycle");
     Value gat = lifeCycle.execute(eve);
-    System.err.println("finished lifecycle" + gat.toString());
+    System.err.println("finished lifecycle " + gat.toString());
     return gat;
   }
 
@@ -339,43 +350,13 @@ public class Serf implements Thread.UncaughtExceptionHandler
 
     this.lastEventRequested = eventNum;
 
-
-
-
-
-    // TODO: OK, maybe the problem is elsewhere? What if axis 47 really is the
-    // string '~zod'? Naively, if we were to assume that there was a major
-    // issue with nock interpretation, I'd assume that it'd show up on the
-    // first event, not on the second one!
-    //
-    // If we just dump the axis number we're pulling, the first time we pull,
-    // we pull on 47 and that's the pull which has the bad opcode failure!
-    //
-    // Things to check on Monday:
-    //
-    // - Is the kernel shape actually what I believe it to be? Joe advised me
-    //   to just roll the +7 axis lookup into the lifecycle function. Maybe
-    //   that got screwed up?
-    //
-    // - Maybe the callPoke is wrong and isn't actually calling the internal
-    // - +poke arm correctly?
-    //
-    // - Some other kernel shape issue???
-
-    // Debugging facts:
-    //
-    // - [0 47] applied to the kernel returns a cell.
-
-
     // In vere, _worker_work_live() takes a job noun, immediately unpacks it
     // into [now ovo], and indirectly passes ovo to _cv_nock_poke(), which
     // reconstructs sam out of [now ovo]. I believe there's no reason for that.
     //
     System.err.println("Running poke call");
     Value product = this.callPoke.execute(this.kernelCore, job);
-    nockRuntime.invokeMember("debugDump", product);
     System.err.println("Finished: " + product);
-
 
     // Now that we have the product, we
     Value listOvum = product.getArrayElement(0);
