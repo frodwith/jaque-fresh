@@ -26,7 +26,7 @@ import net.frodwith.jaque.exception.ExitException;
 @ExportLibrary(InteropLibrary.class)
 public final class InteropDebugDump implements TruffleObject {
   @TruffleBoundary
-  private static void debugDump(Writer out, Object noun, boolean tail,
+  public static void debugDump(Writer out, Object noun, boolean tail,
                                 int depth, int maxDepth)
       throws IOException
   {

@@ -50,6 +50,7 @@ import net.frodwith.jaque.nodes.jet.ShalNodeGen;
 import net.frodwith.jaque.nodes.jet.ShanNodeGen;
 import net.frodwith.jaque.nodes.jet.SubNodeGen;
 
+import net.frodwith.jaque.nodes.jet.ut.MintNodeGen;
 
 /**
  * A jet tree which represents the vital numeric jets in arvo
@@ -65,6 +66,40 @@ public class ArvoJetDashboard {
         new ChildCore[0]);
   }
 
+  private static final ChildCore jetUtCore =
+      new ChildCore("ut",
+                    Axis.TAIL,
+                    new HashCode[0],
+                    new JetArm[0],
+                    new JetHook[0],
+                    new ChildCore[] {
+                      gate("mint", (c, ax) ->
+                           MintNodeGen.create(new SlotNode(Axis.IDENTITY),
+                                              new SlotNode(Axis.SAM_2),
+                                              new SlotNode(Axis.SAM_3),
+                                              new SlotNode(Axis.CONTEXT))),
+                    });
+
+  private static final ChildCore jetLayerFive =
+      new ChildCore("pen",
+                    Axis.TAIL,
+                    new HashCode[0],
+                    new JetArm[0],
+                    new JetHook[0],
+                    new ChildCore[] {
+                      jetUtCore
+                    });
+
+  private static final ChildCore jetLayerFour =
+      new ChildCore("qua",
+                    Axis.TAIL,
+                    new HashCode[0],
+                    new JetArm[0],
+                    new JetHook[0],
+                    new ChildCore[] {
+                      jetLayerFive
+                    });
+
   private static final ChildCore jetLayerThree =
       new ChildCore("tri",
                     Axis.TAIL,
@@ -73,10 +108,12 @@ public class ArvoJetDashboard {
                     new JetHook[0],
                     new ChildCore[] {
                       gate("shal", (c, ax) ->
-                           ShalNodeGen.create(new SlotNode(Axis.get(12L)),
-                                              new SlotNode(Axis.get(13L)))),
+                           ShalNodeGen.create(new SlotNode(Axis.SAM_2),
+                                              new SlotNode(Axis.SAM_3))),
                       gate("shan", (c, ax) ->
                            ShanNodeGen.create(new SlotNode(Axis.SAMPLE))),
+
+                      jetLayerFour
                     });
 
   private static final ChildCore jetLayerTwo =
@@ -90,50 +127,50 @@ public class ArvoJetDashboard {
                            BexNodeGen.create(new SlotNode(Axis.SAMPLE))),
                       // +can: No math implementation of it yet.
                       gate("cat", (c, ax) ->
-                           CatNodeGen.create(new SlotNode(Axis.get(12L)),
-                                             new SlotNode(Axis.get(26L)),
-                                             new SlotNode(Axis.get(27L)))),
+                           CatNodeGen.create(new SlotNode(Axis.SAM_2),
+                                             new SlotNode(Axis.SAM_6),
+                                             new SlotNode(Axis.SAM_7))),
                       gate("cut", (c, ax) ->
-                           CutNodeGen.create(new SlotNode(Axis.get(12L)),
-                                             new SlotNode(Axis.get(52L)),
-                                             new SlotNode(Axis.get(53L)),
-                                             new SlotNode(Axis.get(27L)))),
+                           CutNodeGen.create(new SlotNode(Axis.SAM_2),
+                                             new SlotNode(Axis.SAM_12),
+                                             new SlotNode(Axis.SAM_13),
+                                             new SlotNode(Axis.SAM_7))),
                       gate("end", (c, ax) ->
-                           EndNodeGen.create(new SlotNode(Axis.get(12L)),
-                                             new SlotNode(Axis.get(26L)),
-                                             new SlotNode(Axis.get(27L)))),
+                           EndNodeGen.create(new SlotNode(Axis.SAM_2),
+                                             new SlotNode(Axis.SAM_6),
+                                             new SlotNode(Axis.SAM_7))),
                       gate("lsh", (c, ax) ->
-                           LshNodeGen.create(new SlotNode(Axis.get(12L)),
-                                             new SlotNode(Axis.get(26L)),
-                                             new SlotNode(Axis.get(27L)))),
+                           LshNodeGen.create(new SlotNode(Axis.SAM_2),
+                                             new SlotNode(Axis.SAM_6),
+                                             new SlotNode(Axis.SAM_7))),
                       gate("met", (c, ax) ->
-                           MetNodeGen.create(new SlotNode(Axis.get(12L)),
-                                             new SlotNode(Axis.get(13L)))),
+                           MetNodeGen.create(new SlotNode(Axis.SAM_2),
+                                             new SlotNode(Axis.SAM_3))),
                       // +rap: no math impl
                       // +rep: no math impl
                       gate("rip", (c, ax) ->
-                           RipNodeGen.create(new SlotNode(Axis.get(12L)),
-                                             new SlotNode(Axis.get(13L)))),
+                           RipNodeGen.create(new SlotNode(Axis.SAM_2),
+                                             new SlotNode(Axis.SAM_3))),
                       gate("rsh", (c, ax) ->
-                           RshNodeGen.create(new SlotNode(Axis.get(12L)),
-                                             new SlotNode(Axis.get(26L)),
-                                             new SlotNode(Axis.get(27L)))),
+                           RshNodeGen.create(new SlotNode(Axis.SAM_2),
+                                             new SlotNode(Axis.SAM_6),
+                                             new SlotNode(Axis.SAM_7))),
                       gate("con", (c, ax) ->
-                           ConNodeGen.create(new SlotNode(Axis.get(12L)),
-                                             new SlotNode(Axis.get(13L)))),
+                           ConNodeGen.create(new SlotNode(Axis.SAM_2),
+                                             new SlotNode(Axis.SAM_3))),
                       gate("dis", (c, ax) ->
-                           DisNodeGen.create(new SlotNode(Axis.get(12L)),
-                                             new SlotNode(Axis.get(13L)))),
+                           DisNodeGen.create(new SlotNode(Axis.SAM_2),
+                                             new SlotNode(Axis.SAM_3))),
                       gate("mix", (c, ax) ->
-                           MixNodeGen.create(new SlotNode(Axis.get(12L)),
-                                             new SlotNode(Axis.get(13L)))),
+                           MixNodeGen.create(new SlotNode(Axis.SAM_2),
+                                             new SlotNode(Axis.SAM_3))),
 
                       gate("mug", (c, ax) ->
                           MugNodeGen.create(new SlotNode(Axis.SAMPLE))),
 
                       gate("dor", (c, ax) ->
-                           DorNodeGen.create(new SlotNode(Axis.get(12L)),
-                                             new SlotNode(Axis.get(13L)))),
+                           DorNodeGen.create(new SlotNode(Axis.SAM_2),
+                                             new SlotNode(Axis.SAM_3))),
 
                       // ???????
 
@@ -154,40 +191,40 @@ public class ArvoJetDashboard {
                     new JetHook[0],
                     new ChildCore[] {
                       gate("add", (c, ax) ->
-                           AddNodeGen.create(new SlotNode(Axis.get(12L)),
-                                             new SlotNode(Axis.get(13L)))),
+                           AddNodeGen.create(new SlotNode(Axis.SAM_2),
+                                             new SlotNode(Axis.SAM_3))),
                       gate("dec", (c, ax) ->
                            DecNodeGen.create(new SlotNode(Axis.SAMPLE))),
                       gate("div", (c, ax) ->
-                           DivNodeGen.create(new SlotNode(Axis.get(12L)),
-                                             new SlotNode(Axis.get(13L)))),
+                           DivNodeGen.create(new SlotNode(Axis.SAM_2),
+                                             new SlotNode(Axis.SAM_3))),
                       // Skipping +dvr since it's just a call to div and mod.
                       // +gte is just !lth
                       // +gth is just !lte
                       gate("lte", (c, ax) ->
-                           LteNodeGen.create(new SlotNode(Axis.get(12L)),
-                                             new SlotNode(Axis.get(13L)))),
+                           LteNodeGen.create(new SlotNode(Axis.SAM_2),
+                                             new SlotNode(Axis.SAM_3))),
                       gate("lth", (c, ax) ->
-                           LthNodeGen.create(new SlotNode(Axis.get(12L)),
-                                             new SlotNode(Axis.get(13L)))),
+                           LthNodeGen.create(new SlotNode(Axis.SAM_2),
+                                             new SlotNode(Axis.SAM_3))),
                       // +max is just a call to +gth
                       // +min is just a call to +lth
                       gate("mod", (c, ax) ->
-                           ModNodeGen.create(new SlotNode(Axis.get(12L)),
-                                             new SlotNode(Axis.get(13L)))),
+                           ModNodeGen.create(new SlotNode(Axis.SAM_2),
+                                             new SlotNode(Axis.SAM_3))),
                       gate("mul", (c, ax) ->
-                           MulNodeGen.create(new SlotNode(Axis.get(12L)),
-                                             new SlotNode(Axis.get(13L)))),
+                           MulNodeGen.create(new SlotNode(Axis.SAM_2),
+                                             new SlotNode(Axis.SAM_3))),
                       gate("sub", (c, ax) ->
-                           SubNodeGen.create(new SlotNode(Axis.get(12L)),
-                                             new SlotNode(Axis.get(13L)))),
+                           SubNodeGen.create(new SlotNode(Axis.SAM_2),
+                                             new SlotNode(Axis.SAM_3))),
                       gate("cap", (c, ax) ->
                            CapNodeGen.create(new SlotNode(Axis.SAMPLE))),
                       gate("mas", (c, ax) ->
                            MasNodeGen.create(new SlotNode(Axis.SAMPLE))),
                       gate("peg", (c, ax) ->
-                           PegNodeGen.create(new SlotNode(Axis.get(12L)),
-                                             new SlotNode(Axis.get(13L)))),
+                           PegNodeGen.create(new SlotNode(Axis.SAM_2),
+                                             new SlotNode(Axis.SAM_3))),
                       jetLayerTwo
                     });  //,
 
