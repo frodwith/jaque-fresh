@@ -45,6 +45,17 @@ public final class NockRootNode extends RootNode {
     return getSource().sourceSection;
   }
 
+  /**
+   * TODO: We're claiming all nock is internal to suppress trying to back
+   * create source for stack traces on exceptions. If we don't do this, we spin
+   * forever in SourceMappedNoun.fromCell()'s use of MappedNounPrinter where we
+   * try to print out the entire kernel.
+   */
+  @Override
+  public boolean isInternal() {
+    return true;
+  }
+
   @Override
   public Object execute(VirtualFrame frame) {
     NockLanguage.setSubject(frame, frame.getArguments()[0]);
