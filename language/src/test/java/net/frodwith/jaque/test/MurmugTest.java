@@ -7,6 +7,7 @@ import static org.junit.Assert.assertNotEquals;
 
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.BigAtom;
+import net.frodwith.jaque.exception.ExitException;
 import net.frodwith.jaque.runtime.Atom;
 import net.frodwith.jaque.runtime.Cords;
 import net.frodwith.jaque.runtime.HoonMath;
@@ -32,14 +33,14 @@ public class MurmugTest {
     assertEquals(0x601265fc, Murmug.get(a));
 
     a = (BigAtom)HoonMath.lsh((byte)3, 1,
-      HoonMath.add(new BigAtom((int[])HoonMath.bex(212L)),
+      HoonMath.add(HoonMath.bex(212L),
                    Cords.fromString("abcdefjhijklmnopqrstuvwxyz"))
     );
     assertEquals(0x34d08717, Murmug.get(a));
   }
 
-  @Test
-  public void testCell() {
+  @Test(expected = Test.None.class)
+  public void testCell() throws ExitException {
     Cell a = new Cell(42L, 0L);
     assertEquals(0x5303a809, Murmug.get(a));
 
@@ -52,7 +53,7 @@ public class MurmugTest {
     a = new Cell(0L, HoonMath.bex(32L));
     assertEquals(0x5258a6c0, Murmug.get(a));
 
-    a = new Cell(HoonMath.dec(new BigAtom((int[])HoonMath.bex(128L))), 1L);
+    a = new Cell(HoonMath.dec(HoonMath.bex(128L)), 1L);
     assertEquals(0x2ad39968, Murmug.get(a));
   }
 }
