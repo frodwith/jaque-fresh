@@ -18,19 +18,16 @@ import net.frodwith.jaque.exception.NockException;
 public abstract class MulNode extends SubjectNode {
   @Specialization(rewriteOn = ArithmeticException.class)
   protected long mulLongs(long a, long b) throws ArithmeticException {
-    System.err.println("mul(l, l)");
     return HoonMath.mulLongs(a, b);
   }
 
   @Specialization(replaces="mulLongs")
   protected Object genMulLongs(long a, long b) {
-    System.err.println("mul(l, l)");
     return HoonMath.mul(a, b);
   }
 
   @Fallback
   protected Object mul(Object a, Object b) {
-    System.err.println("mul(o, o)");
     return HoonMath.mul(a, b);
   }
 }
