@@ -54,7 +54,8 @@ import net.frodwith.jaque.nodes.jet.ShanNodeGen;
 import net.frodwith.jaque.nodes.jet.SubNodeGen;
 import net.frodwith.jaque.nodes.jet.TripNodeGen;
 
-import net.frodwith.jaque.nodes.jet.ut.MintNodeGen;
+import net.frodwith.jaque.nodes.jet.ut.FondNodeGen;
+//import net.frodwith.jaque.nodes.jet.ut.MintNodeGen;
 
 //import net.frodwith.jaque.nodes.jet.crypto.EdPuckNodeGen;
 
@@ -83,70 +84,76 @@ public class ArvoJetDashboard {
     return new JetHook(name, new FragHook(Axis.get(axis)));
   }
 
-  // private static final ChildCore jetUtCore =
-  //     new ChildCore("ut",
-  //                   Axis.get(15L),
-  //                   new HashCode[0],
-  //                   new JetArm[0],
-  //                   new JetHook[] {
-  //                     pullHook("ar", 12282L),
-  //                     fragHook("fan", 28L),
-  //                     fragHook("rib", 58L),
-  //                     fragHook("vet", 118L),
-  //                     fragHook("fab", 119L),
-  //                     pullHook("blow",    6015L),
-  //                     pullHook("burp",     342L),
-  //                     pullHook("busk",    1373L),
-  //                     pullHook("buss",     374L),
-  //                     pullHook("crop",    1494L),
-  //                     pullHook("duck",    1524L),
-  //                     pullHook("dune",    5982L),
-  //                     pullHook("dunk",    3066L),
-  //                     pullHook("epla",   12206L),
-  //                     pullHook("emin",    1534L),
-  //                     pullHook("emul",    6134L),
-  //                     pullHook("feel",    1502L),
-  //                     pullHook("felt",      94L),
-  //                     pullHook("fine",   49086L),
-  //                     pullHook("fire",       4L),
-  //                     pullHook("fish",    6006L),
-  //                     pullHook("fond",   12283L),
-  //                     pullHook("fund",    6014L),
-  // // //  XX +funk is not part of +ut, and this hook appears to be unused
-  // // //  remove from here and the +ut hint
-  // // //
-  // // { "funk", 0xbefafa, c3y, 31 },
-  //                     new JetHook("funk", new PullHook(Axis.get(31L), Axis.get(0xbefafaL))),
-  //                     pullHook("fuse",   24021L),
-  //                     pullHook("gain",     380L),
-  //                     pullHook("lose", 0x2fefeL),
-  //                     pullHook("mile",     382L),
-  //                     pullHook("mine",     372L),
-  //                     pullHook("mint",   49083L),
-  //                     pullHook("moot", 0x2feffL),
-  //                     pullHook("mull",   24020L),
-  //                     pullHook("nest",      92L),
-  //                     pullHook("peel",    1526L),
-  //                     pullHook("play",    3006L),
-  //                     pullHook("peek",    1532L),
-  //                     pullHook("repo",      22L),
-  //                     pullHook("rest",    6102L),
-  //                     pullHook("tack",    6007L),
-  //                     pullHook("toss",   24540L),
-  //                     pullHook("wrap",    6140L),
+  private static final ChildCore jetUtCore =
+      new ChildCore("ut",
+                    Axis.get(15L),
+                    new HashCode[0],
+                    new JetArm[0],
+                    new JetHook[] {
+                      pullHook("ar", 12282L),
+                      fragHook("fan", 28L),
+                      fragHook("rib", 58L),
+                      fragHook("vet", 118L),
+                      fragHook("fab", 119L),
+                      pullHook("blow",    6015L),
+                      pullHook("burp",     342L),
+                      pullHook("busk",    1373L),
+                      pullHook("buss",     374L),
+                      pullHook("crop",    1494L),
+                      pullHook("duck",    1524L),
+                      pullHook("dune",    5982L),
+                      pullHook("dunk",    3066L),
+                      pullHook("epla",   12206L),
+                      pullHook("emin",    1534L),
+                      pullHook("emul",    6134L),
+                      pullHook("feel",    1502L),
+                      pullHook("felt",      94L),
+                      pullHook("fine",   49086L),
+                      pullHook("fire",       4L),
+                      pullHook("fish",    6006L),
+                      pullHook("fond",   12283L),
+                      pullHook("fund",    6014L),
+                      //  XX +funk is not part of +ut, and this hook appears to be unused
+                      //  remove from here and the +ut hint
+                      new JetHook("funk", new PullHook(Axis.get(31L), Axis.get(0xbefafaL))),
+                      pullHook("fuse",   24021L),
+                      pullHook("gain",     380L),
+                      pullHook("lose", 0x2fefeL),
+                      pullHook("mile",     382L),
+                      pullHook("mine",     372L),
+                      pullHook("mint",   49083L),
+                      pullHook("moot", 0x2feffL),
+                      pullHook("mull",   24020L),
+                      pullHook("nest",      92L),
+                      pullHook("peel",    1526L),
+                      pullHook("play",    3006L),
+                      pullHook("peek",    1532L),
+                      pullHook("repo",      22L),
+                      pullHook("rest",    6102L),
+                      pullHook("tack",    6007L),
+                      pullHook("toss",   24540L),
+                      pullHook("wrap",    6140L),
 
-  //                   },
-  //                   new ChildCore[] {
-  //                     gate("play", (c, ax) ->
-  //                          MintNodeGen.create(new SlotNode(Axis.IDENTITY))), /*,
-  //                                             new SlotNode(Axis.SAM_2),
-  //                                             new SlotNode(Axis.SAM_3),
-  //                                             new SlotNode(Axis.CONTEXT))), */
-  //                     gate("peek", (c, ax) ->
-  //                          MintNodeGen.create(new SlotNode(Axis.IDENTITY))),
-  //                     gate("fond", (c, ax) ->
-  //                          MintNodeGen.create(new SlotNode(Axis.IDENTITY))),
-  //                   });
+                    },
+                    new ChildCore[] {
+                      // gate("play", (c, ax) ->
+                      //      MintNodeGen.create(new SlotNode(Axis.IDENTITY))), /*,
+                      //                         new SlotNode(Axis.SAM_2),
+                      //                         new SlotNode(Axis.SAM_3),
+                      //                         new SlotNode(Axis.CONTEXT))), */
+                      // gate("peek", (c, ax) ->
+                      //      MintNodeGen.create(new SlotNode(Axis.IDENTITY))),
+                      gate("fond", (c, ax) ->
+                           FondNodeGen.create(new SlotNode(Axis.IDENTITY), // cor
+                                              new SlotNode(Axis.SAM_2),    // way
+                                              new SlotNode(Axis.SAM_3),    // hyp
+                                               // vet / (peg 7 118) / (peg u3x_con u3qfu_van_vet)
+                                              new SlotNode(Axis.get(502L)),
+                                               // sam / (peg 7 6) / (peg u3x_con u3x_sam)
+                                              new SlotNode(Axis.get(30L)),
+                                              //                                              new SlotNode(Axis.CONTEXT),  // van
+                                              c)),
+                    });
 
   // private static final ChildCore edCore =
   //     new ChildCore("ed",
@@ -196,7 +203,7 @@ public class ArvoJetDashboard {
                     },
                     new ChildCore[] {
                       //                      hexLayer,
-                      //                      jetUtCore
+                      jetUtCore
                     });
 
   private static final ChildCore jetLayerFour =
@@ -217,7 +224,7 @@ public class ArvoJetDashboard {
                       //                         new SlotNode(Axis.SAM_5),
                       //                         new SlotNode(Axis.SAM_3))),
 
-                      //                      jetLayerFive
+                      jetLayerFive
                     });
 
   private static final ChildCore jetLayerThree =

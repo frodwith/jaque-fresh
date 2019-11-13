@@ -48,10 +48,10 @@ public final class MemoNode extends NockExpressionNode {
     }
 
     NockContext context = contextReference.get();
-    Object product = context.lookupMemo(subject, formula);
+    Object product = context.lookupMemo(0L, new Cell(subject, formula));
     if ( null == product ) {
       product = valueNode.executeGeneric(frame);
-      context.recordMemo(subject, formula, product);
+      context.recordMemo(0L, new Cell(subject, formula), product);
     }
     return product;
   }

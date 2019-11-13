@@ -9,17 +9,17 @@ import net.frodwith.jaque.nodes.SlotNode;
 import net.frodwith.jaque.nodes.SubjectNode;
 
 @NodeChildren({
-    @NodeChild(value="cor", type=SlotNode.class),
+    @NodeChild(value="cor", type=SlotNode.class) /*,
     @NodeChild(value="gol", type=SlotNode.class),
     @NodeChild(value="gen", type=SlotNode.class),
-    @NodeChild(value="van", type=SlotNode.class),
+    @NodeChild(value="van", type=SlotNode.class), */
 })
 public abstract class MintNode extends SubjectNode {
   @Specialization
-  protected Object mint(Object cor,
+  protected Object mint(Object cor /*,
                         Object gol,
                         Object gen,
-                        Object van) {
+                        Object van*/) {
     System.err.println("Made it to mint!");
     System.exit(1);
     return null;

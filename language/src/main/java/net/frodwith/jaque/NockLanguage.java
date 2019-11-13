@@ -146,6 +146,10 @@ public final class NockLanguage extends TruffleLanguage<NockContext> {
     }
   }
 
+  public NockContext getCurrentNockContext() {
+    return getCurrentContext(NockLanguage.class);
+  }
+
   public AstContext getAstContext(Dashboard dashboard) {
     AstContext c = contexts.get(dashboard);
     if ( null == c ) {

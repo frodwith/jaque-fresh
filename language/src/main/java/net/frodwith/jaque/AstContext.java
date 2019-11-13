@@ -6,12 +6,14 @@ import java.util.Objects;
 
 import com.oracle.truffle.api.CallTarget;
 
+import net.frodwith.jaque.NockLanguage;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.AxisMap;
 import net.frodwith.jaque.data.NockFunction;
 import net.frodwith.jaque.dashboard.Location;
 import net.frodwith.jaque.dashboard.Dashboard;
 import net.frodwith.jaque.exception.ExitException;
+import net.frodwith.jaque.runtime.NockContext;
 
 /* 1) Truffle really wants the TruffleLanguage to "own" any particular AST
  *
@@ -36,6 +38,10 @@ public final class AstContext {
     this.dashboard = dashboard;
     this.drivers = new HashMap<>();
     this.functions = new HashMap<>();
+  }
+
+  public NockContext getNockContext() {
+    return this.language.getCurrentNockContext();
   }
 
   public NockFunction getFunction(Cell formula) throws ExitException {

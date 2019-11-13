@@ -51,6 +51,9 @@ public abstract class JetCore {
 
     Registration r = new Registration();
     Location loc = getLocation(parent, hookMap);
+    if (this.name.equals("fond")) {
+      System.err.println("@@@@ FOND LOC: " + loc.toString() + "@@@@@");
+    }
     loc.register(r);
     for ( HashCode h : hashes ) {
       hot.put(h, r);
