@@ -18,6 +18,8 @@ import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.runtime.Cords;
 import net.frodwith.jaque.dashboard.Dashboard;
 import net.frodwith.jaque.dashboard.BatteryHash;
+import net.frodwith.jaque.dashboard.FragHook;
+import net.frodwith.jaque.dashboard.PullHook;
 
 import net.frodwith.jaque.nodes.SlotNode;
 import net.frodwith.jaque.nodes.SubjectNode;
@@ -39,6 +41,7 @@ import net.frodwith.jaque.nodes.jet.LteNodeGen;
 import net.frodwith.jaque.nodes.jet.LthNodeGen;
 import net.frodwith.jaque.nodes.jet.MasNodeGen;
 import net.frodwith.jaque.nodes.jet.MetNodeGen;
+//import net.frodwith.jaque.nodes.jet.MinkNodeGen;
 import net.frodwith.jaque.nodes.jet.MixNodeGen;
 import net.frodwith.jaque.nodes.jet.ModNodeGen;
 import net.frodwith.jaque.nodes.jet.MugNodeGen;
@@ -49,8 +52,14 @@ import net.frodwith.jaque.nodes.jet.RshNodeGen;
 import net.frodwith.jaque.nodes.jet.ShalNodeGen;
 import net.frodwith.jaque.nodes.jet.ShanNodeGen;
 import net.frodwith.jaque.nodes.jet.SubNodeGen;
+import net.frodwith.jaque.nodes.jet.TripNodeGen;
 
 import net.frodwith.jaque.nodes.jet.ut.MintNodeGen;
+
+//import net.frodwith.jaque.nodes.jet.crypto.EdPuckNodeGen;
+
+
+// Maybe the issue isn't childcore. maybe there's a jet arm sort of 
 
 /**
  * A jet tree which represents the vital numeric jets in arvo
@@ -66,28 +75,128 @@ public class ArvoJetDashboard {
         new ChildCore[0]);
   }
 
-  private static final ChildCore jetUtCore =
-      new ChildCore("ut",
-                    Axis.TAIL,
-                    new HashCode[0],
-                    new JetArm[0],
-                    new JetHook[0],
-                    new ChildCore[] {
-                      gate("mint", (c, ax) ->
-                           MintNodeGen.create(new SlotNode(Axis.IDENTITY),
-                                              new SlotNode(Axis.SAM_2),
-                                              new SlotNode(Axis.SAM_3),
-                                              new SlotNode(Axis.CONTEXT))),
-                    });
+  private static JetHook pullHook(String name, long axis) {
+    return new JetHook(name, new PullHook(Axis.IDENTITY, Axis.get(axis)));
+  }
+
+  private static JetHook fragHook(String name, long axis) {
+    return new JetHook(name, new FragHook(Axis.get(axis)));
+  }
+
+  // private static final ChildCore jetUtCore =
+  //     new ChildCore("ut",
+  //                   Axis.get(15L),
+  //                   new HashCode[0],
+  //                   new JetArm[0],
+  //                   new JetHook[] {
+  //                     pullHook("ar", 12282L),
+  //                     fragHook("fan", 28L),
+  //                     fragHook("rib", 58L),
+  //                     fragHook("vet", 118L),
+  //                     fragHook("fab", 119L),
+  //                     pullHook("blow",    6015L),
+  //                     pullHook("burp",     342L),
+  //                     pullHook("busk",    1373L),
+  //                     pullHook("buss",     374L),
+  //                     pullHook("crop",    1494L),
+  //                     pullHook("duck",    1524L),
+  //                     pullHook("dune",    5982L),
+  //                     pullHook("dunk",    3066L),
+  //                     pullHook("epla",   12206L),
+  //                     pullHook("emin",    1534L),
+  //                     pullHook("emul",    6134L),
+  //                     pullHook("feel",    1502L),
+  //                     pullHook("felt",      94L),
+  //                     pullHook("fine",   49086L),
+  //                     pullHook("fire",       4L),
+  //                     pullHook("fish",    6006L),
+  //                     pullHook("fond",   12283L),
+  //                     pullHook("fund",    6014L),
+  // // //  XX +funk is not part of +ut, and this hook appears to be unused
+  // // //  remove from here and the +ut hint
+  // // //
+  // // { "funk", 0xbefafa, c3y, 31 },
+  //                     new JetHook("funk", new PullHook(Axis.get(31L), Axis.get(0xbefafaL))),
+  //                     pullHook("fuse",   24021L),
+  //                     pullHook("gain",     380L),
+  //                     pullHook("lose", 0x2fefeL),
+  //                     pullHook("mile",     382L),
+  //                     pullHook("mine",     372L),
+  //                     pullHook("mint",   49083L),
+  //                     pullHook("moot", 0x2feffL),
+  //                     pullHook("mull",   24020L),
+  //                     pullHook("nest",      92L),
+  //                     pullHook("peel",    1526L),
+  //                     pullHook("play",    3006L),
+  //                     pullHook("peek",    1532L),
+  //                     pullHook("repo",      22L),
+  //                     pullHook("rest",    6102L),
+  //                     pullHook("tack",    6007L),
+  //                     pullHook("toss",   24540L),
+  //                     pullHook("wrap",    6140L),
+
+  //                   },
+  //                   new ChildCore[] {
+  //                     gate("play", (c, ax) ->
+  //                          MintNodeGen.create(new SlotNode(Axis.IDENTITY))), /*,
+  //                                             new SlotNode(Axis.SAM_2),
+  //                                             new SlotNode(Axis.SAM_3),
+  //                                             new SlotNode(Axis.CONTEXT))), */
+  //                     gate("peek", (c, ax) ->
+  //                          MintNodeGen.create(new SlotNode(Axis.IDENTITY))),
+  //                     gate("fond", (c, ax) ->
+  //                          MintNodeGen.create(new SlotNode(Axis.IDENTITY))),
+  //                   });
+
+  // private static final ChildCore edCore =
+  //     new ChildCore("ed",
+  //                   Axis.TAIL,
+  //                   new HashCode[0],
+  //                   new JetArm[0],
+  //                   new JetHook[0],
+  //                   new ChildCore[] {
+  //                     gate("puck", (c, ax) ->
+  //                          EdPuckNodeGen.create(new SlotNode(Axis.SAMPLE))),
+  //                   });
+
+  // ???
+  //
+  // [nock::Dashboard] WARNING: trying to register coed with unlocated parent.
+  // [nock::Dashboard] WARNING: trying to register ed with unlocated parent.
+  // [nock::Dashboard] WARNING: trying to register puck with unlocated parent.
+  // private static final ChildCore coedCore =
+  //     new ChildCore("coed",
+  //                   Axis.get(63L),
+  //                   new HashCode[0],
+  //                   new JetArm[0],
+  //                   new JetHook[0],
+  //                   new ChildCore[] {
+  //                     edCore
+  //                   });
+
+  // private static final ChildCore hexLayer =
+  //     new ChildCore("hex",
+  //                   Axis.CONTEXT,
+  //                   new HashCode[0],
+  //                   new JetArm[0],
+  //                   new JetHook[0],
+  //                   new ChildCore[] {
+  //                     coedCore
+  //                   });
+
 
   private static final ChildCore jetLayerFive =
       new ChildCore("pen",
                     Axis.TAIL,
                     new HashCode[0],
                     new JetArm[0],
-                    new JetHook[0],
+                    new JetHook[] {
+                      pullHook("ap", 86L),
+                      pullHook("ut", 342L),
+                    },
                     new ChildCore[] {
-                      jetUtCore
+                      //                      hexLayer,
+                      //                      jetUtCore
                     });
 
   private static final ChildCore jetLayerFour =
@@ -95,9 +204,20 @@ public class ArvoJetDashboard {
                     Axis.TAIL,
                     new HashCode[0],
                     new JetArm[0],
-                    new JetHook[0],
+                    new JetHook[] {
+                      pullHook("mute", 0x2fbabeL),
+                      pullHook("show", 24406L),
+                    },
                     new ChildCore[] {
-                      jetLayerFive
+                      gate("trip", (c, ax) ->
+                           TripNodeGen.create(new SlotNode(Axis.SAMPLE))),
+
+                      // gate("mink", (c, ax) ->
+                      //      MinkNodeGen.create(new SlotNode(Axis.SAM_4),
+                      //                         new SlotNode(Axis.SAM_5),
+                      //                         new SlotNode(Axis.SAM_3))),
+
+                      //                      jetLayerFive
                     });
 
   private static final ChildCore jetLayerThree =
