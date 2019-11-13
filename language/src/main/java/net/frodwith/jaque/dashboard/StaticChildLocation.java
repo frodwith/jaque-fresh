@@ -28,7 +28,7 @@ public final class StaticChildLocation extends StaticLocation {
     }
     StaticChildLocation scl = (StaticChildLocation) o;
 
-    return name.equals(scl.name) 
+    return name.equals(scl.name)
       && hooks.equals(scl.hooks)
       && parent.equals(scl.parent);
   }
@@ -36,6 +36,19 @@ public final class StaticChildLocation extends StaticLocation {
   @Override
   public int hashCode() {
     return Objects.hash(name, hooks, parent);
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder b = new StringBuilder();
+    b.append("StaticChildLocation{name=");
+    b.append(this.name.toString());
+    b.append(", hooks=");
+    b.append(this.hooks.toString());
+    b.append(", parent=");
+    b.append(this.parent.toString());
+    b.append("}");
+    return b.toString();
   }
 
   @Override

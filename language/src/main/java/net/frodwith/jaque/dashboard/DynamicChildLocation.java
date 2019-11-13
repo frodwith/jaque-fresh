@@ -1,5 +1,6 @@
 package net.frodwith.jaque.dashboard;
 
+import java.lang.StringBuilder;
 import java.util.Map;
 import java.util.Objects;
 
@@ -57,7 +58,7 @@ public final class DynamicChildLocation extends Location {
       return false;
     }
     DynamicChildLocation dcl = (DynamicChildLocation) o;
-    return name.equals(dcl.name) 
+    return name.equals(dcl.name)
       && hooks.equals(dcl.hooks)
       && toParent.equals(dcl.toParent)
       && parent.equals(dcl.parent);
@@ -66,6 +67,21 @@ public final class DynamicChildLocation extends Location {
   @Override
   public int hashCode() {
     return Objects.hash(name, hooks, toParent, parent);
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder b = new StringBuilder();
+    b.append("DynamicChildLocation{name=");
+    b.append(this.name.toString());
+    b.append(", hooks=");
+    b.append(this.hooks.toString());
+    b.append(", toParent=");
+    b.append(this.toParent.toString());
+    b.append(", parent=");
+    b.append(this.parent.toString());
+    b.append("}");
+    return b.toString();
   }
 
   @Override
