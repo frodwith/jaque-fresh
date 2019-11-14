@@ -18,25 +18,30 @@ import net.frodwith.jaque.exception.ExitException;
 @NodeChildren({
     @NodeChild(value="cor", type=SlotNode.class),
     @NodeChild(value="gol", type=SlotNode.class),
+    @NodeChild(value="dox", type=SlotNode.class),
     @NodeChild(value="gen", type=SlotNode.class),
-    @NodeChild(value="vrf", type=SlotNode.class),
+    @NodeChild(value="vet", type=SlotNode.class),
     @NodeChild(value="sut", type=SlotNode.class),
 })
-public abstract class MintNode extends DecapitatedJetNode {
-  private final static long C3__MINT = 0x746e_696dL;
+public abstract class MullNode extends DecapitatedJetNode {
+  private final static long C3__MULL = 0x6c6c_756dL;
 
   @Specialization
-  protected Object mint(Object cor,
+  protected Object mull(Object cor,
                         Object gol,
+                        Object dox,
                         Object gen,
-                        Object vrf,
+                        Object vet,  // Pull vet out of what was van.
                         Object sut) {
     try {
-      long cacheId = 141 + C3__MINT;
-      Cell cacheKey = new Cell(vrf, new Cell(sut, new Cell(gol, gen)));
+      // We have to switch between two different caches based off of the vet
+      // flag.
+      System.err.println("mull");
+      long cacheId = 141 + C3__MULL + (Atom.requireLong(vet) << 8);
+      Cell cacheKey = new Cell(sut, new Cell(gol, new Cell(dox, gen)));
       return lookupOrExecute(cacheId, cacheKey, cor);
     } catch (ExitException e) {
-      throw new NockException("failure running real mint", this);
+      throw new NockException("failure running real mull", this);
     }
   }
 }

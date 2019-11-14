@@ -117,7 +117,7 @@ public class Serf implements Thread.UncaughtExceptionHandler
   public Serf() throws FileNotFoundException {
     this.truffleContext = Context
                         .newBuilder("nock")
-                        .option("nock.memo", "4096")
+                        .option("nock.memo", "14096")
                         .allowAllAccess(true)
                         .build();
     this.truffleContext.initialize("nock");

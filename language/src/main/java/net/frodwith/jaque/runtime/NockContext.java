@@ -79,8 +79,6 @@ public final class NockContext {
 
   public void recordMemo(long cacheId, Cell key, Object product) {
     memoCache.put(new Cell(cacheId, key), product);
-
-    //    new Cell(subject, formula)
   }
 
   public Object asHostObject(Object polyHostObject) {

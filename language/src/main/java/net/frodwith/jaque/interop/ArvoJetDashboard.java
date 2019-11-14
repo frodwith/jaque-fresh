@@ -54,13 +54,17 @@ import net.frodwith.jaque.nodes.jet.ShanNodeGen;
 import net.frodwith.jaque.nodes.jet.SubNodeGen;
 import net.frodwith.jaque.nodes.jet.TripNodeGen;
 
+import net.frodwith.jaque.nodes.jet.ut.CropNodeGen;
+import net.frodwith.jaque.nodes.jet.ut.FishNodeGen;
 import net.frodwith.jaque.nodes.jet.ut.FondNodeGen;
-//import net.frodwith.jaque.nodes.jet.ut.MintNodeGen;
+import net.frodwith.jaque.nodes.jet.ut.FuseNodeGen;
+import net.frodwith.jaque.nodes.jet.ut.MintNodeGen;
+import net.frodwith.jaque.nodes.jet.ut.MullNodeGen;
+import net.frodwith.jaque.nodes.jet.ut.PeekNodeGen;
+import net.frodwith.jaque.nodes.jet.ut.PlayNodeGen;
+import net.frodwith.jaque.nodes.jet.ut.RestNodeGen;
 
 //import net.frodwith.jaque.nodes.jet.crypto.EdPuckNodeGen;
-
-
-// Maybe the issue isn't childcore. maybe there's a jet arm sort of 
 
 /**
  * A jet tree which represents the vital numeric jets in arvo
@@ -136,22 +140,86 @@ public class ArvoJetDashboard {
 
                     },
                     new ChildCore[] {
-                      // gate("play", (c, ax) ->
-                      //      MintNodeGen.create(new SlotNode(Axis.IDENTITY))), /*,
-                      //                         new SlotNode(Axis.SAM_2),
-                      //                         new SlotNode(Axis.SAM_3),
-                      //                         new SlotNode(Axis.CONTEXT))), */
-                      // gate("peek", (c, ax) ->
-                      //      MintNodeGen.create(new SlotNode(Axis.IDENTITY))),
+                      gate("crop", (c, ax) ->
+                           CropNodeGen.create(new SlotNode(Axis.IDENTITY), // cor
+                                              new SlotNode(Axis.SAMPLE),   // ref
+                                              // vet / (peg u3x_con u3qfu_van_vet)
+                                              new SlotNode(Axis.get(502L)),
+                                              // sam / (peg u3x_con u3x_sam)
+                                              new SlotNode(Axis.get(30L)),
+                                              c)),
+                      gate("fish", (c, ax) ->
+                           FishNodeGen.create(new SlotNode(Axis.IDENTITY), // cor
+                                              new SlotNode(Axis.SAMPLE),   // axe
+                                              // vet / (peg u3x_con u3qfu_van_vet)
+                                              new SlotNode(Axis.get(502L)),
+                                              // sam / (peg u3x_con u3x_sam)
+                                              new SlotNode(Axis.get(30L)),
+                                              c)),
                       gate("fond", (c, ax) ->
                            FondNodeGen.create(new SlotNode(Axis.IDENTITY), // cor
                                               new SlotNode(Axis.SAM_2),    // way
                                               new SlotNode(Axis.SAM_3),    // hyp
-                                               // vet / (peg 7 118) / (peg u3x_con u3qfu_van_vet)
+                                              // vet / (peg u3x_con u3qfu_van_vet)
                                               new SlotNode(Axis.get(502L)),
-                                               // sam / (peg 7 6) / (peg u3x_con u3x_sam)
+                                              // sam / (peg u3x_con u3x_sam)
                                               new SlotNode(Axis.get(30L)),
-                                              //                                              new SlotNode(Axis.CONTEXT),  // van
+                                              c)),
+                      gate("fuse", (c, ax) ->
+                           FuseNodeGen.create(new SlotNode(Axis.IDENTITY), // cor
+                                              new SlotNode(Axis.SAMPLE),   // ref
+                                              // vet / (peg u3x_con u3qfu_van_vet)
+                                              new SlotNode(Axis.get(502L)),
+                                              // sam / (peg u3x_con u3x_sam)
+                                              new SlotNode(Axis.get(30L)),
+                                              c)),
+                      gate("mint", (c, ax) ->
+                           MintNodeGen.create(new SlotNode(Axis.IDENTITY), // cor
+                                              new SlotNode(Axis.SAM_2), // gol
+                                              new SlotNode(Axis.SAM_3), // gen
+                                              // vrf / (peg u3x_con u3qfu_van_vrf)
+                                              new SlotNode(Axis.get(251L)),
+                                              // sam / (peg u3x_con u3x_sam)
+                                              new SlotNode(Axis.get(30L)),
+                                              c)),
+                      gate("mull", (c, ax) ->
+                           MullNodeGen.create(new SlotNode(Axis.IDENTITY),  // cor
+                                              new SlotNode(Axis.SAM_2),     // gol
+                                              new SlotNode(Axis.SAM_6),     // dox
+                                              new SlotNode(Axis.SAM_7),     // gen
+                                              // vet / (peg u3x_con u3qfu_van_vet)
+                                              new SlotNode(Axis.get(502L)),
+                                              // sut / (peg u3x_con u3x_sam)
+                                              new SlotNode(Axis.get(30L)),
+                                              c)),
+
+                      // +nest is not straightforward and isn't a copypasta of
+                      // DecapitatedJetNode.
+
+                      gate("peek", (c, ax) ->
+                           PeekNodeGen.create(new SlotNode(Axis.IDENTITY), // cor
+                                              new SlotNode(Axis.SAM_2),    // way
+                                              new SlotNode(Axis.SAM_3),    // hyp
+                                              // vet / (peg u3x_con u3qfu_van_vet)
+                                              new SlotNode(Axis.get(502L)),
+                                              // sam / (peg u3x_con u3x_sam)
+                                              new SlotNode(Axis.get(30L)),
+                                              c)),
+                      gate("play", (c, ax) ->
+                           PlayNodeGen.create(new SlotNode(Axis.IDENTITY), // cor
+                                              new SlotNode(Axis.SAMPLE),  // gen
+                                              // vrf / (peg u3x_con u3qfu_van_vrf)
+                                              new SlotNode(Axis.get(251L)),
+                                              // sam / (peg u3x_con u3x_sam)
+                                              new SlotNode(Axis.get(30L)),
+                                              c)),
+                      gate("rest", (c, ax) ->
+                           RestNodeGen.create(new SlotNode(Axis.IDENTITY), // cor
+                                              new SlotNode(Axis.SAMPLE),  // gen
+                                              // vet / (peg u3x_con u3qfu_van_vet)
+                                              new SlotNode(Axis.get(502L)),
+                                              // sam / (peg u3x_con u3x_sam)
+                                              new SlotNode(Axis.get(30L)),
                                               c)),
                     });
 

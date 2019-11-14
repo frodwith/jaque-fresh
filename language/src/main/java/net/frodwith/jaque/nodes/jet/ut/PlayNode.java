@@ -17,26 +17,26 @@ import net.frodwith.jaque.exception.ExitException;
 
 @NodeChildren({
     @NodeChild(value="cor", type=SlotNode.class),
-    @NodeChild(value="gol", type=SlotNode.class),
     @NodeChild(value="gen", type=SlotNode.class),
-    @NodeChild(value="vrf", type=SlotNode.class),
+    @NodeChild(value="vet", type=SlotNode.class),
     @NodeChild(value="sut", type=SlotNode.class),
 })
-public abstract class MintNode extends DecapitatedJetNode {
-  private final static long C3__MINT = 0x746e_696dL;
+public abstract class PlayNode extends DecapitatedJetNode {
+  private final static long C3__PLAY = 0x7961_6c70L;
 
   @Specialization
-  protected Object mint(Object cor,
-                        Object gol,
+  protected Object play(Object cor,
                         Object gen,
                         Object vrf,
                         Object sut) {
     try {
-      long cacheId = 141 + C3__MINT;
-      Cell cacheKey = new Cell(vrf, new Cell(sut, new Cell(gol, gen)));
+      // We have to switch between two different caches based off of the vet
+      // flag.
+      long cacheId = 141 + C3__PLAY;
+      Cell cacheKey = new Cell(vrf, new Cell(sut, gen));
       return lookupOrExecute(cacheId, cacheKey, cor);
     } catch (ExitException e) {
-      throw new NockException("failure running real mint", this);
+      throw new NockException("failure running real play", this);
     }
   }
 }
