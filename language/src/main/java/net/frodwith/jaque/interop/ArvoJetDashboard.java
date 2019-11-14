@@ -64,7 +64,7 @@ import net.frodwith.jaque.nodes.jet.ut.PeekNodeGen;
 import net.frodwith.jaque.nodes.jet.ut.PlayNodeGen;
 import net.frodwith.jaque.nodes.jet.ut.RestNodeGen;
 
-//import net.frodwith.jaque.nodes.jet.crypto.EdPuckNodeGen;
+import net.frodwith.jaque.nodes.jet.crypto.EdPuckNodeGen;
 
 /**
  * A jet tree which represents the vital numeric jets in arvo
@@ -223,41 +223,41 @@ public class ArvoJetDashboard {
                                               c)),
                     });
 
-  // private static final ChildCore edCore =
-  //     new ChildCore("ed",
-  //                   Axis.TAIL,
-  //                   new HashCode[0],
-  //                   new JetArm[0],
-  //                   new JetHook[0],
-  //                   new ChildCore[] {
-  //                     gate("puck", (c, ax) ->
-  //                          EdPuckNodeGen.create(new SlotNode(Axis.SAMPLE))),
-  //                   });
+  private static final ChildCore edCore =
+      new ChildCore("ed",
+                    Axis.TAIL,
+                    new HashCode[0],
+                    new JetArm[0],
+                    new JetHook[0],
+                    new ChildCore[] {
+                      gate("puck", (c, ax) ->
+                           EdPuckNodeGen.create(new SlotNode(Axis.SAMPLE))),
+                    });
 
   // ???
   //
   // [nock::Dashboard] WARNING: trying to register coed with unlocated parent.
   // [nock::Dashboard] WARNING: trying to register ed with unlocated parent.
   // [nock::Dashboard] WARNING: trying to register puck with unlocated parent.
-  // private static final ChildCore coedCore =
-  //     new ChildCore("coed",
-  //                   Axis.get(63L),
-  //                   new HashCode[0],
-  //                   new JetArm[0],
-  //                   new JetHook[0],
-  //                   new ChildCore[] {
-  //                     edCore
-  //                   });
+  private static final ChildCore coedCore =
+      new ChildCore("coed",
+                    Axis.get(63L),
+                    new HashCode[0],
+                    new JetArm[0],
+                    new JetHook[0],
+                    new ChildCore[] {
+                      edCore
+                    });
 
-  // private static final ChildCore hexLayer =
-  //     new ChildCore("hex",
-  //                   Axis.CONTEXT,
-  //                   new HashCode[0],
-  //                   new JetArm[0],
-  //                   new JetHook[0],
-  //                   new ChildCore[] {
-  //                     coedCore
-  //                   });
+  private static final ChildCore hexLayer =
+      new ChildCore("hex",
+                    Axis.CONTEXT,
+                    new HashCode[0],
+                    new JetArm[0],
+                    new JetHook[0],
+                    new ChildCore[] {
+                      coedCore
+                    });
 
 
   private static final ChildCore jetLayerFive =
@@ -270,7 +270,7 @@ public class ArvoJetDashboard {
                       pullHook("ut", 342L),
                     },
                     new ChildCore[] {
-                      //                      hexLayer,
+                      hexLayer,
                       jetUtCore
                     });
 

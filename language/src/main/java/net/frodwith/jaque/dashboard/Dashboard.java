@@ -200,12 +200,12 @@ public final class Dashboard {
     }
     else {
       Cell parentCore = Cell.require(clue.toParent.fragment(core));
-      Optional<Location> parentLocation 
-        = parentCore.getMeta().getNockClass(core, this).getLocation();
+      NockClass nc = parentCore.getMeta().getNockClass(core, this);
+      Optional<Location> parentLocation = nc.getLocation();
 
       if ( !parentLocation.isPresent() ) {
         LOG.warning("trying to register " + clue.name +
-            " with unlocated parent.");
+                    " with unlocated parent. NockClass = " + nc.toString());
         return;
       }
       Location parent = parentLocation.get();
