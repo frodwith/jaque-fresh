@@ -200,16 +200,21 @@ public final class Dashboard {
     }
     else {
       Cell parentCore = Cell.require(clue.toParent.fragment(core));
-      NockClass nc = parentCore.getMeta().getNockClass(core, this);
+
+      // Switching this line from `getNockClass(core, this)` to
+      // `getNockClass(parentCore, this)` fixes the 
+      NockClass nc = parentCore.getMeta().getNockClass(parentCore, this);
+
       Optional<Location> parentLocation = nc.getLocation();
 
       if ( !parentLocation.isPresent() ) {
-        LOG.warning("trying to register " + clue.name +
-                    " with unlocated parent. NockClass = " + nc.toString());
+        System.err.println("[nock::Dashboard] WARNING: trying to register " + clue.name +
+                    " with unlocated parent. NockClass = " + nc.toString() +
+                    ", parentCore.mug() = " + parentCore.mug());
         return;
       }
       Location parent = parentLocation.get();
-      Location child = 
+      Location child =
         ( clue.toParent.isTail() && parent instanceof StaticLocation )
         ? new StaticChildLocation(clue.name, clue.hooks, 
             (StaticLocation) parent)
