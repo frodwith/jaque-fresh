@@ -9,6 +9,38 @@
   <groupId>net.frodwith</groupId>
   <artifactId>nock-language</artifactId>
   <packaging>jar</packaging>
+
+  <!-- We use native libraries which have different names on. -->
+  <profiles>
+    <profile>
+      <id>Linux</id>
+      <activation>
+        <property>
+          <name>platform</name>
+          <value>nix</value>
+        </property>
+      </activation>
+      <properties>
+        <os_name>linux</os_name>
+        <lib_suffix>so</lib_suffix>
+      </properties>
+    </profile>
+    <profile>
+      <id>OSX</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+        <property>
+          <name>platform</name>
+          <value>nix</value>
+        </property>
+      </activation>
+      <properties>
+        <os_name>darwin</os_name>
+        <lib_suffix>dylib</lib_suffix>
+      </properties>
+    </profile>
+  </profiles>
+
   <build>
     <plugins>
       <plugin>
@@ -20,6 +52,64 @@
           <downloadJavadocs>true</downloadJavadocs>
         </configuration>
       </plugin>
+
+      <!-- Compiles the code in src/main/native into urbed25519.{%lib} -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>native-maven-plugin</artifactId>
+        <version>1.0-alpha-11</version>
+        <extensions>true</extensions>
+        <configuration>
+          <javahOS>${os_name}</javahOS>
+          <sources>
+            <source>
+              <directory>src/main/native</directory>
+              <fileNames>
+                <fileName>jni.c</fileName>
+              </fileNames>
+            </source>
+            <source>
+              <directory>src/main/native/include</directory>
+            </source>
+          </sources>
+          <compilerProvider>generic-classic</compilerProvider>
+          <compilerExecutable>gcc</compilerExecutable>
+
+          <compilerStartOptions>
+            <compilerStartOption>-m64</compilerStartOption>
+            <compilerStartOption>-fpic</compilerStartOption>
+            <compilerStartOption>-Wall</compilerStartOption>
+            <compilerStartOption>-g</compilerStartOption>
+            <compilerStartOption>-O2</compilerStartOption>
+          </compilerStartOptions>
+
+          <linkerOutputDirectory>target</linkerOutputDirectory>
+          <linkerExecutable>gcc</linkerExecutable>
+
+          <linkerStartOptions>
+            <linkerStartOption>-m64</linkerStartOption>
+            <linkerStartOption>-shared</linkerStartOption>
+          </linkerStartOptions>
+
+          <linkerFinalName></linkerFinalName>
+
+          <linkerEndOptions>
+            <linkerEndOption>-o ${project.build.directory}/liburbed25519.${lib_suffix}</linkerEndOption>
+          </linkerEndOptions>
+        </configuration>
+        <executions>
+          <execution>
+            <id>javah</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>initialize</goal>
+              <goal>compile</goal>
+              <goal>link</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
@@ -116,6 +206,12 @@
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-jdk14</artifactId>
       <version>1.7.27</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.codehaus.mojo/native-maven-plugin -->
+    <dependency>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>native-maven-plugin</artifactId>
+        <version>1.0-alpha-11</version>
     </dependency>
   </dependencies>
 </project>

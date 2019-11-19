@@ -11,6 +11,9 @@ import net.frodwith.jaque.runtime.HoonMath;
 import net.frodwith.jaque.exception.ExitException;
 import net.frodwith.jaque.exception.NockException;
 
+import net.frodwith.jaque.Ed25519;
+import net.frodwith.jaque.Ed25519Exception;
+
 @NodeChildren({
   @NodeChild(value="a", type=SlotNode.class)
 })
@@ -18,6 +21,17 @@ public abstract class EdPuckNode extends SubjectNode {
   @Specialization
   protected Object puck(Object a) {
     System.err.println("puck");
+
+    byte[] publicKey = new byte[32];
+    byte[] privateKey = new byte[64];
+    byte[] seed = new byte[32];
+
+    try {
+      Ed25519.ed25519_create_keypair(publicKey, privateKey, seed);
+    } catch (Ed25519Exception e) {
+      e.printStackTrace();
+    }
+
     System.exit(-1);
     return null;
 

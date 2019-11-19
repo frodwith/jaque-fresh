@@ -225,10 +225,10 @@ public final class Dashboard {
     location.audit(clue);
     invalidate();
 
-    if (clue.name.equals("fond")) {
-      //      new Exception().printStackTrace();
-      System.err.println("Clue name '" + clue.name + "' at " + location);
-    }
+    // if (clue.name.equals("fond")) {
+    //   //      new Exception().printStackTrace();
+    //   System.err.println("Clue name '" + clue.name + "' at " + location);
+    // }
 
     Cell battery = canonicalizeBattery(core);
     Battery b = battery.getMeta().getGrain().getBattery(this, battery);
