@@ -234,11 +234,6 @@ public class ArvoJetDashboard {
                            EdPuckNodeGen.create(new SlotNode(Axis.SAMPLE))),
                     });
 
-  // ???
-  //
-  // [nock::Dashboard] WARNING: trying to register coed with unlocated parent.
-  // [nock::Dashboard] WARNING: trying to register ed with unlocated parent.
-  // [nock::Dashboard] WARNING: trying to register puck with unlocated parent.
   private static final ChildCore coedCore =
       new ChildCore("coed",
                     Axis.get(63L),

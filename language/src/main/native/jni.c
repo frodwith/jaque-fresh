@@ -1,16 +1,28 @@
 #include "net_frodwith_jaque_Ed25519.h"
 #include <stdio.h>
 
+#include "ed25519/ed25519.h"
+
 /**
  * Helper method to get data out of jbyteArray. Returns false on bad input.
  */
-int byteArrayToCharArray(JNIEnv* env, jbyteArray a, int assumedLen,
+int byteArrayToCharArray(JNIEnv* env, jbyteArray src, int assumedLen,
                          unsigned char* dest) {
-  int len = (*env)->GetArrayLength(env, a);
+  int len = (*env)->GetArrayLength(env, src);
   if (len != assumedLen)
     return 0;
 
-  (*env)->GetByteArrayRegion(env, a, 0, len, (jbyte*)dest);
+  (*env)->GetByteArrayRegion(env, src, 0, len, (jbyte*)dest);
+  return 1;
+}
+
+int charArrayToByteArray(JNIEnv* env, unsigned char* src, int assumedLen,
+                         jbyteArray dest) {
+  int len = (*env)->GetArrayLength(env, dest);
+  if (len != assumedLen)
+    return 0;
+
+  (*env)->SetByteArrayRegion(env, dest, 0, len, (jbyte*)src);
   return 1;
 }
 
@@ -25,6 +37,7 @@ void throwException(JNIEnv* env, const char* message) {
 
   exceptionClass = (*env)->FindClass(env, className);
   if (exceptionClass == NULL) {
+    // We have to throw an exception somehow; try the default one.
     exceptionClass = (*env)->FindClass(env, "java/lang/Exception");
 
     if (exceptionClass == NULL) {
@@ -51,7 +64,7 @@ Java_net_frodwith_jaque_Ed25519_ed25519_1create_1keypair(
     jbyteArray jPrivateKey,
     jbyteArray jSeed)
 {
-  // Copy the
+  // Local C version of the java byte arrays
   unsigned char publicKey[32];
   unsigned char privateKey[64];
   unsigned char seed[32];
@@ -61,12 +74,17 @@ Java_net_frodwith_jaque_Ed25519_ed25519_1create_1keypair(
     return;
   }
 
-  /* ed25519_create_keypair(publicKey, privateKey, seed); */
+  ed25519_create_keypair(publicKey, privateKey, seed);
 
-  /* if (! */
+  if (!charArrayToByteArray(env, publicKey, 32, jPublicKey)) {
+    throwException(env, "Public key output size not 32");
+    return;
+  }
 
-
-  fprintf(stderr, "\red25519_create_keypair\r\n");
+  if (!charArrayToByteArray(env, privateKey, 64, jPrivateKey)) {
+    throwException(env, "Private key output size not 64");
+    return;
+  }
 }
 
 /*

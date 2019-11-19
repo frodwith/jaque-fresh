@@ -369,8 +369,12 @@ public final class Atom {
   }
 
   public static byte[] wordsToBytes(int[] wor, int bel, boolean endian) {
+    return wordsToByteArrayLen(wor, bel, bel, endian);
+  }
+
+  public static byte[] wordsToByteArrayLen(int[] wor, int bel, int len, boolean endian) {
     int    w, i, b;
-    byte[] buf = new byte[bel];
+    byte[] buf = new byte[len];
     for (i = 0, b = 0;;) {
       w = wor[i++];
 
