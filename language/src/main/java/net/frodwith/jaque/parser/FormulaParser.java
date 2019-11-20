@@ -266,6 +266,11 @@ public final class FormulaParser {
         };
       }
 
+      case Motes.SLOG: {
+        next = parseExpr(nextNoun, nextAxis, false);
+        return (c) -> new SlogNode(clue.apply(c), next.apply(c));
+      }
+
       default:
         next = parseExpr(nextNoun, nextAxis, tail);
         return (c) -> axe(axis, new TossNode(clue.apply(c), next.apply(c)));
@@ -275,9 +280,6 @@ public final class FormulaParser {
       case Motes.LOSE:
       case Motes.SPOT:
         return StackNode.create(hints.head, clue, parseExpr(next, false));
-
-      case Motes.SLOG:
-        return SlogNode.create(clue, parseExpr(next, tail));
       */
     }
   }

@@ -20,5 +20,6 @@ public final class Motes {
     ROSE = 0x65736f72,
     PALM = 0x6d6c6170,
     LEAF = 0x6661656c,
-    SPOT = 0x746f7073;
+    SPOT = 0x746f7073,
+    SLOG = 0x676f6c73;
 }
