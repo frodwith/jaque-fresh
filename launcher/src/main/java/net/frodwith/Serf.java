@@ -139,33 +139,29 @@ public class Serf implements Thread.UncaughtExceptionHandler
   public void run(String pierDir) throws IOException {
     // TODO: load the pier directory and do the equivalent of u3m_boot().
     //
-    System.err.println("About to send boot");
-
     sendBoot();
-    System.err.println("Send boot");
 
     // Read until EOF
     try {
       boolean done = false;
       while (!done) {
-        System.err.println("Waiting for message...");
+        //System.err.println("Waiting for message...");
         Value message = readNoun();
 
         long jobMug = nockRuntime.invokeMember("mug", message).asLong();
-        System.err.println("raw jar mug: " + Long.toHexString(jobMug));
 
         long tag = getHeadTag(message);
         if (tag == C3__BOOT) {
-          System.err.println("poke boot");
+          //System.err.println("poke boot");
           onBootMessage(message);
         } else if (tag == C3__WORK) {
-          System.err.println("poke work");
+          //System.err.println("poke work");
           onWorkMessage(message);
         } else if (tag == C3__EXIT) {
-          System.err.println("poke exit");
+          //System.err.println("poke exit");
           // TODO: Exit immediately.
         } else if (tag == C3__SAVE) {
-          System.err.println("poke save");
+          //System.err.println("poke save");
           // TODO: I have no idea at all.
         } else {
           // TODO: long -> String
@@ -274,7 +270,6 @@ public class Serf implements Thread.UncaughtExceptionHandler
     }
 
     long jobMug = nockRuntime.invokeMember("mug", job).asLong();
-    System.err.println("boot / job mug: " + Long.toHexString(jobMug));
 
     this.lastEventRequested = eventNum;
     this.lifecycleFormulas.add(job);
@@ -289,7 +284,6 @@ public class Serf implements Thread.UncaughtExceptionHandler
       this.lifecycleFormulas = new ArrayList<Value>();
 
       long eveMug = nockRuntime.invokeMember("mug", eve).asLong();
-      System.err.println("pill / eve mug: " + Long.toHexString(eveMug));
 
       // "u3v_boot()"
       //
@@ -300,11 +294,6 @@ public class Serf implements Thread.UncaughtExceptionHandler
 
       this.currentMug = nockRuntime.invokeMember("mug", this.kernelCore).asLong();
       this.lastEventProcessed = eventNum;
-
-      System.err.println("core mug: " + Long.toHexString(this.currentMug));
-
-      //this.currentMug = mug u3A->roc
-      //u3A->ent_d = u3V.dun_d;
     } else {
       // Prior to the evaluation of the entire lifecycle sequence, we simply
       // use the mug of the formula as the kernel mug.
@@ -319,9 +308,7 @@ public class Serf implements Thread.UncaughtExceptionHandler
    */
   private Value performBoot(Value eve) {
     Value lifeCycle = this.truffleContext.eval(lifecycleSource);
-    System.err.println("about to execute lifecycle");
     Value gat = lifeCycle.execute(eve);
-    System.err.println("finished lifecycle " + gat.toString());
     return gat;
   }
 
@@ -355,9 +342,7 @@ public class Serf implements Thread.UncaughtExceptionHandler
     // into [now ovo], and indirectly passes ovo to _cv_nock_poke(), which
     // reconstructs sam out of [now ovo]. I believe there's no reason for that.
     //
-    System.err.println("Running poke call");
     Value product = this.callPoke.execute(this.kernelCore, job);
-    System.err.println("Finished: " + product);
 
     // Now that we have the product, we
     Value listOvum = product.getArrayElement(0);
@@ -381,7 +366,7 @@ public class Serf implements Thread.UncaughtExceptionHandler
   }
 
   private void sendDone(long event, long mug, Value effects) throws IOException {
-    System.err.println("Sending DONE(" + event + ", " + mug + ")");
+    System.err.println("Sending DONE(" + event + ", " + mug + ", " + effects + ")");
     writeNoun(nockRuntime.invokeMember("toNoun", C3__DONE, event, mug, effects));
   }
 
