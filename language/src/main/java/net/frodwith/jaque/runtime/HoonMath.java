@@ -710,4 +710,8 @@ public final class HoonMath {
     byte[] in = Atom.toByteArray(atom);
     return Atom.fromByteArray(doSha("SHA-1", in), Atom.BIG_ENDIAN);
   }
+
+  public static Object shay(Object len, Object atom) throws ExitException {
+    return sha_help(len, atom, "SHA-256");
+  }
 }

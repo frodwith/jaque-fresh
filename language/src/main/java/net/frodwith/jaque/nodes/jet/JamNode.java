@@ -12,7 +12,6 @@ import net.frodwith.jaque.runtime.HoonSerial;
 public abstract class JamNode extends SubjectNode {
   @Specialization
   protected Object jam(Object sample) {
-    System.err.println("jam");
     return HoonSerial.jam(sample);
   }
 }

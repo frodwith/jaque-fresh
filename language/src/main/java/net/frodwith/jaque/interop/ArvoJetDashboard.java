@@ -51,6 +51,7 @@ import net.frodwith.jaque.nodes.jet.RipNodeGen;
 import net.frodwith.jaque.nodes.jet.RshNodeGen;
 import net.frodwith.jaque.nodes.jet.ShalNodeGen;
 import net.frodwith.jaque.nodes.jet.ShanNodeGen;
+import net.frodwith.jaque.nodes.jet.ShayNodeGen;
 import net.frodwith.jaque.nodes.jet.SubNodeGen;
 import net.frodwith.jaque.nodes.jet.TripNodeGen;
 
@@ -302,6 +303,9 @@ public class ArvoJetDashboard {
                                               new SlotNode(Axis.SAM_3))),
                       gate("shan", (c, ax) ->
                            ShanNodeGen.create(new SlotNode(Axis.SAMPLE))),
+                      gate("shay", (c, ax) ->
+                           ShayNodeGen.create(new SlotNode(Axis.SAM_2),
+                                              new SlotNode(Axis.SAM_3))),
 
                       jetLayerFour
                     });

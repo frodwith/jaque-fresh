@@ -18,13 +18,11 @@ import net.frodwith.jaque.exception.NockException;
 public abstract class ConNode extends SubjectNode {
   @Specialization
   protected long genLongs(long a, long b) {
-    System.err.println("con");
     return HoonMath.con(a, b);
   }
 
   @Fallback
   protected Object con(Object a, Object b) {
-    System.err.println("con");
     return HoonMath.con(needAtom(a), needAtom(b));
   }
 }

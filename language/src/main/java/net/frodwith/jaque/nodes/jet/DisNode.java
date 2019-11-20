@@ -18,13 +18,11 @@ import net.frodwith.jaque.runtime.HoonMath;
 public abstract class DisNode extends SubjectNode {
   @Specialization
   protected long dis(long a, long b) throws ArithmeticException {
-    System.err.println("dis");
     return HoonMath.dis(a, b);
   }
 
   @Fallback
   protected Object dis(Object a, Object b) {
-    System.err.println("dis");
     return HoonMath.dis(needAtom(a), needAtom(b));
   }
 }

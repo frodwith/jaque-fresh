@@ -19,7 +19,6 @@ public abstract class ShalNode extends SubjectNode {
   @Specialization
   protected Object shal(Object len, Object atom) {
     try {
-      System.err.println("shal");
       return HoonMath.shal(len, atom);
     }
     catch ( ExitException e ) {
