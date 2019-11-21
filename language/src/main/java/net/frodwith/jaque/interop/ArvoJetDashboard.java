@@ -25,6 +25,7 @@ import net.frodwith.jaque.nodes.SlotNode;
 import net.frodwith.jaque.nodes.SubjectNode;
 import net.frodwith.jaque.nodes.jet.AddNodeGen;
 import net.frodwith.jaque.nodes.jet.BexNodeGen;
+import net.frodwith.jaque.nodes.jet.CanNodeGen;
 import net.frodwith.jaque.nodes.jet.CapNodeGen;
 import net.frodwith.jaque.nodes.jet.CatNodeGen;
 import net.frodwith.jaque.nodes.jet.ConNodeGen;
@@ -319,7 +320,9 @@ public class ArvoJetDashboard {
                     new ChildCore[] {
                       gate("bex", (c, ax) ->
                            BexNodeGen.create(new SlotNode(Axis.SAMPLE))),
-                      // +can: No math implementation of it yet.
+                      gate("can", (c, ax) ->
+                           CanNodeGen.create(new SlotNode(Axis.SAM_2),
+                                             new SlotNode(Axis.SAM_3))),
                       gate("cat", (c, ax) ->
                            CatNodeGen.create(new SlotNode(Axis.SAM_2),
                                              new SlotNode(Axis.SAM_6),

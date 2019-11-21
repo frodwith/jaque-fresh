@@ -685,6 +685,47 @@ public final class HoonMath {
     }
   }
 
+  public static Object can(byte a, Iterable<Object> b) throws ExitException {
+    int tot = 0;
+
+    try {
+      for ( Object i : b ) {
+        Cell c = Cell.require(i);
+        long pil = Atom.requireLong(c.head);
+        int pi = (int) pil;
+
+        if (pi != pil) {
+          throw new ExitException("conversion error");
+        }
+
+        Object qi = c.tail;
+        if ( !Atom.isAtom(qi) ) {
+          throw new ExitException("not an atom in can()");
+        }
+        tot = Math.addExact(tot, pi);
+      }
+    }
+    catch (ArithmeticException e) {
+      throw new ExitException("ArithmeticException in can()");
+    }
+
+    if ( 0 == tot ) {
+      return 0L;
+    }
+
+    int[] sal = Atom.slaq(a, tot);
+    int pos = 0;
+
+    for ( Object i : b ) {
+      Cell c = Cell.require(i);
+      int pi = (int)Atom.requireLong(c.head);
+      Atom.chop(a, 0, pi, pos, sal, c.tail);
+      pos += pi;
+    }
+
+    return Atom.malt(sal);
+  }
+
   @TruffleBoundary
   private static byte[] doSha(String algo, byte[] bytes) throws ExitException {
     try {
