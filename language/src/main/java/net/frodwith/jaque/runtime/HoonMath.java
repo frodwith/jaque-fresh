@@ -726,6 +726,33 @@ public final class HoonMath {
     return Atom.malt(sal);
   }
 
+  public static Object rap(byte a, Iterable<Object> b) throws ExitException {
+    int tot = 0;
+    try {
+      for ( Object i : b ) {
+        tot = Math.addExact(tot, met(a, i));
+      }
+    }
+    catch ( ArithmeticException e ) {
+      throw new ExitException("ArithmeticException in rap()");
+    }
+
+    if ( 0 == tot ) {
+      return 0L;
+    }
+
+    int[] sal = Atom.slaq(a, tot);
+    int pos = 0;
+
+    for ( Object i : b ) {
+      int len = met(a, i);
+      Atom.chop(a, 0, len, pos, sal, i);
+      pos += len;
+    }
+
+    return Atom.malt(sal);
+  }
+
   @TruffleBoundary
   private static byte[] doSha(String algo, byte[] bytes) throws ExitException {
     try {
