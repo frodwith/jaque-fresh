@@ -49,6 +49,7 @@ import net.frodwith.jaque.nodes.jet.MugNodeGen;
 import net.frodwith.jaque.nodes.jet.MulNodeGen;
 import net.frodwith.jaque.nodes.jet.PegNodeGen;
 import net.frodwith.jaque.nodes.jet.RapNodeGen;
+import net.frodwith.jaque.nodes.jet.RepNodeGen;
 import net.frodwith.jaque.nodes.jet.RipNodeGen;
 import net.frodwith.jaque.nodes.jet.RshNodeGen;
 import net.frodwith.jaque.nodes.jet.ShalNodeGen;
@@ -347,7 +348,9 @@ public class ArvoJetDashboard {
                       gate("rap", (c, ax) ->
                            RapNodeGen.create(new SlotNode(Axis.SAM_2),
                                              new SlotNode(Axis.SAM_3))),
-                      // +rep: no math impl
+                      gate("rep", (c, ax) ->
+                           RepNodeGen.create(new SlotNode(Axis.SAM_2),
+                                             new SlotNode(Axis.SAM_3))),
                       gate("rip", (c, ax) ->
                            RipNodeGen.create(new SlotNode(Axis.SAM_2),
                                              new SlotNode(Axis.SAM_3))),
