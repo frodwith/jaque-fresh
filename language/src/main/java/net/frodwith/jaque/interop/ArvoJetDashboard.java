@@ -35,6 +35,7 @@ import net.frodwith.jaque.nodes.jet.DecNodeGen;
 import net.frodwith.jaque.nodes.jet.DisNodeGen;
 import net.frodwith.jaque.nodes.jet.DivNodeGen;
 import net.frodwith.jaque.nodes.jet.DorNodeGen;
+import net.frodwith.jaque.nodes.jet.GorNodeGen;
 import net.frodwith.jaque.nodes.jet.EndNodeGen;
 import net.frodwith.jaque.nodes.jet.JamNodeGen;
 import net.frodwith.jaque.nodes.jet.LshNodeGen;
@@ -45,6 +46,7 @@ import net.frodwith.jaque.nodes.jet.MetNodeGen;
 //import net.frodwith.jaque.nodes.jet.MinkNodeGen;
 import net.frodwith.jaque.nodes.jet.MixNodeGen;
 import net.frodwith.jaque.nodes.jet.ModNodeGen;
+import net.frodwith.jaque.nodes.jet.MorNodeGen;
 import net.frodwith.jaque.nodes.jet.MugNodeGen;
 import net.frodwith.jaque.nodes.jet.MulNodeGen;
 import net.frodwith.jaque.nodes.jet.PegNodeGen;
@@ -413,6 +415,12 @@ public class ArvoJetDashboard {
 
                       gate("dor", (c, ax) ->
                            DorNodeGen.create(new SlotNode(Axis.SAM_2),
+                                             new SlotNode(Axis.SAM_3))),
+                      gate("gor", (c, ax) ->
+                           GorNodeGen.create(new SlotNode(Axis.SAM_2),
+                                             new SlotNode(Axis.SAM_3))),
+                      gate("mor", (c, ax) ->
+                           MorNodeGen.create(new SlotNode(Axis.SAM_2),
                                              new SlotNode(Axis.SAM_3))),
 
                       // ???????

@@ -631,6 +631,28 @@ public final class HoonMath {
     }
   }
 
+  public static long gor(Object a, Object b) throws ExitException {
+    int c = Murmug.get(a),
+        d = Murmug.get(b);
+
+    if (c == d) {
+      return dor(a, b);
+    }
+
+    return (Atom.compare(c, d) == -1) ? Atom.YES : Atom.NO;
+  }
+
+  public static long mor(Object a, Object b) throws ExitException {
+    int c = Murmug.get((long)Murmug.get(a)),
+        d = Murmug.get((long)Murmug.get(b));
+
+    if (c == d) {
+      return dor(a, b);
+    }
+
+    return (Atom.compare(c, d) == -1) ? Atom.YES : Atom.NO;
+  }
+
   public static long dis(long a, long b) {
     return a & b;
   }
