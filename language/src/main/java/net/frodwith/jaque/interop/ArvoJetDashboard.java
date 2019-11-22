@@ -64,6 +64,7 @@ import net.frodwith.jaque.nodes.jet.ut.FondNodeGen;
 import net.frodwith.jaque.nodes.jet.ut.FuseNodeGen;
 import net.frodwith.jaque.nodes.jet.ut.MintNodeGen;
 import net.frodwith.jaque.nodes.jet.ut.MullNodeGen;
+import net.frodwith.jaque.nodes.jet.ut.NestNodeGen;
 import net.frodwith.jaque.nodes.jet.ut.PeekNodeGen;
 import net.frodwith.jaque.nodes.jet.ut.PlayNodeGen;
 import net.frodwith.jaque.nodes.jet.ut.RestNodeGen;
@@ -91,6 +92,45 @@ public class ArvoJetDashboard {
   private static JetHook fragHook(String name, long axis) {
     return new JetHook(name, new FragHook(Axis.get(axis)));
   }
+
+  // While +nest:ut is a gate, what we perform matching on is actually a
+  // subcore two hints down.
+  private static final ChildCore jetUtNestCore =
+      new ChildCore(
+          "nest",
+          Axis.CONTEXT,
+          new HashCode[0],
+          new JetArm[0],
+          new JetHook[0],
+          new ChildCore[] { new ChildCore(
+              "nest-in",
+              Axis.CONTEXT,
+              new HashCode[0],
+              new JetArm[0],
+              new JetHook[0],
+              new ChildCore[] { new ChildCore(
+                  "nest-dext",
+                  Axis.TAIL,
+                  new HashCode[0],
+                  new JetArm[] { new AxisArm(
+                      Axis.HEAD,
+                      (c, ax) ->
+                      NestNodeGen.create(
+                          // cor
+                          new SlotNode(Axis.IDENTITY),
+                          // seg / (peg u3x_pay u3x_sam_2)
+                          new SlotNode(Axis.get(28L)),
+                          // reg / (peg u3x_pay u3x_sam_6)
+                          new SlotNode(Axis.get(58L)),
+                          // ref / (peg (peg u3x_pay u3x_con) u3x_sam_3)
+                          new SlotNode(Axis.get(125L)),
+                          // van_van / :(peg u3x_pay u3x_con u3x_con u3qfu_van_vet)
+                          new SlotNode(Axis.get(4_086L)),
+                          // sut / :(peg u3x_pay u3x_con u3x_con u3x_sam)
+                          new SlotNode(Axis.get(254L)),
+                          c))},
+                  new JetHook[0],
+                  new ChildCore[0])})});
 
   private static final ChildCore jetUtCore =
       new ChildCore("ut",
@@ -197,8 +237,8 @@ public class ArvoJetDashboard {
                                               new SlotNode(Axis.get(30L)),
                                               c)),
 
-                      // +nest is not straightforward and isn't a copypasta of
-                      // DecapitatedJetNode.
+                      // Matching +nest requires matching a tree of nested cores.
+                      jetUtNestCore,
 
                       gate("peek", (c, ax) ->
                            PeekNodeGen.create(new SlotNode(Axis.IDENTITY), // cor

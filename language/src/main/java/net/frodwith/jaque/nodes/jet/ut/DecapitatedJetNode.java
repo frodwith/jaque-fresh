@@ -28,27 +28,42 @@ import net.frodwith.jaque.exception.ExitException;
 public abstract class DecapitatedJetNode extends SubjectNode {
   protected abstract AstContext getLocalContext();
 
-  protected Object lookupOrExecute(long cacheId, Cell cacheKey, Object cor)
+  protected final Object runCore(Object subject)
       throws ExitException
   {
-    AstContext astContext = getLocalContext();
-    NockContext nockContext = astContext.getNockContext();
+    Cell formula = Cell.require(Axis.HEAD.fragment(subject));
+    CallTarget fn = formula.getMeta()
+                    .getFunction(formula, getLocalContext()).callTarget;
+    NockCall call = new NockCall(fn, subject);
 
-    Object cached = nockContext.lookupMemo(cacheId, cacheKey);
+    NockCallDispatchNode dispatch = NockCallDispatchNodeGen.create();
+    return dispatch.executeCall(call);
+  }
+
+  protected final Object cacheLookup(long cacheId, Cell cacheKey)
+      throws ExitException
+  {
+    return getLocalContext().getNockContext().lookupMemo(cacheId, cacheKey);
+  }
+
+  protected final void cacheRecord(long cacheId, Cell cacheKey, Object result)
+      throws ExitException
+  {
+    NockContext nockContext = getLocalContext().getNockContext();
+    nockContext.recordMemo(cacheId, cacheKey, result);
+  }
+
+  protected final Object lookupOrExecute(long cacheId, Cell cacheKey, Object cor)
+      throws ExitException
+  {
+    Object cached = cacheLookup(cacheId, cacheKey);
     //    System.err.print(null != cached ? "H" : ".");
     if (null != cached) {
       return cached;
     }
 
-    Object subject = cor;
-    Cell formula = Cell.require(Axis.HEAD.fragment(subject));
-    CallTarget fn = formula.getMeta()
-                    .getFunction(formula, astContext).callTarget;
-    NockCall call = new NockCall(fn, subject);
-
-    NockCallDispatchNode dispatch = NockCallDispatchNodeGen.create();
-    Object retVal = dispatch.executeCall(call);
-    nockContext.recordMemo(cacheId, cacheKey, retVal);
+    Object retVal = runCore(cor);
+    cacheRecord(cacheId, cacheKey, retVal);
     return retVal;
   }
 }
