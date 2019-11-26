@@ -26,18 +26,18 @@ JNIEXPORT void JNICALL Java_net_frodwith_jaque_Ed25519_ed25519_1key_1exchange
 /*
  * Class:     net_frodwith_jaque_Ed25519
  * Method:    ed25519_sign
- * Signature: ([B[BJ[B[B)V
+ * Signature: ([B[B[B[B)V
  */
 JNIEXPORT void JNICALL Java_net_frodwith_jaque_Ed25519_ed25519_1sign
-  (JNIEnv *, jclass, jbyteArray, jbyteArray, jlong, jbyteArray, jbyteArray);
+  (JNIEnv *, jclass, jbyteArray, jbyteArray, jbyteArray, jbyteArray);
 
 /*
  * Class:     net_frodwith_jaque_Ed25519
  * Method:    ed25519_verify
- * Signature: ([B[BJ[B)I
+ * Signature: ([B[B[B)I
  */
 JNIEXPORT jint JNICALL Java_net_frodwith_jaque_Ed25519_ed25519_1verify
-  (JNIEnv *, jclass, jbyteArray, jbyteArray, jlong, jbyteArray);
+  (JNIEnv *, jclass, jbyteArray, jbyteArray, jbyteArray);
 
 #ifdef __cplusplus
 }

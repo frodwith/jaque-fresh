@@ -16,10 +16,10 @@ public class Ed25519 {
       byte[] sharedSecret, byte[] publicKey, byte[] privateKey)
       throws Ed25519Exception;
   public static native void ed25519_sign(
-      byte[] signature, byte[] message, long len,
+      byte[] signature, byte[] message,
       byte[] publicKey, byte[] privateKey)
       throws Ed25519Exception;
   public static native int ed25519_verify(
-      byte[] signature, byte[] message, long len, byte[] publicKey)
+      byte[] signature, byte[] message, byte[] publicKey)
       throws Ed25519Exception;
 }

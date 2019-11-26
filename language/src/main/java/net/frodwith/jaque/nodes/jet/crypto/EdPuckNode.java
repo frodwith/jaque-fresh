@@ -24,8 +24,6 @@ public abstract class EdPuckNode extends SubjectNode {
     byte[] seed = Atom.wordsToByteArrayLen(
         Atom.words(s), HoonMath.met((byte) 3, s), 32, Atom.LITTLE_ENDIAN);
 
-    //    System.err.println("puck");
-
     byte[] publicKey = new byte[32];
     byte[] privateKey = new byte[64];
 
@@ -34,8 +32,6 @@ public abstract class EdPuckNode extends SubjectNode {
     } catch (Ed25519Exception e) {
       throw new NockException(e.getMessage(), this);
     }
-
-    // System.err.println("-> \"" + publicKey + "\"");
 
     return Atom.fromByteArray(publicKey, Atom.LITTLE_ENDIAN);
   }

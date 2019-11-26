@@ -1,5 +1,7 @@
 #include "net_frodwith_jaque_Ed25519.h"
+
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "ed25519/ed25519.h"
 
@@ -96,11 +98,30 @@ JNIEXPORT void JNICALL
 Java_net_frodwith_jaque_Ed25519_ed25519_1key_1exchange(
     JNIEnv* env,
     jclass thiz,
-    jbyteArray sharedSecret,
-    jbyteArray publicKey,
-    jbyteArray privateKey)
+    jbyteArray jSharedSecret,
+    jbyteArray jPublicKey,
+    jbyteArray jPrivateKey)
 {
-  fprintf(stderr, "\red25519_key_exchange\r\n");
+  unsigned char publicKey[32];
+  unsigned char privateKey[64];
+
+  if (!byteArrayToCharArray(env, jPublicKey, 32, publicKey)) {
+    throwException(env, "Public key size not equal to 32");
+    return;
+  }
+
+  if (!byteArrayToCharArray(env, jPrivateKey, 64, privateKey)) {
+    throwException(env, "Private key size not equal to 64");
+    return;
+  }
+
+  unsigned char shared[32] = {0};
+  ed25519_key_exchange(shared, publicKey, privateKey);
+
+  if (!charArrayToByteArray(env, shared, 32, jSharedSecret)) {
+    throwException(env, "Shared secret output size not 32");
+    return;
+  }
 }
 
 /*
@@ -112,13 +133,37 @@ JNIEXPORT void JNICALL
 Java_net_frodwith_jaque_Ed25519_ed25519_1sign(
     JNIEnv* env,
     jclass thiz,
-    jbyteArray signature,
-    jbyteArray message,
-    jlong len,
-    jbyteArray publicKey,
-    jbyteArray privateKey)
+    jbyteArray jSignature,
+    jbyteArray jMessage,
+    jbyteArray jPublicKey,
+    jbyteArray jPrivateKey)
 {
-  fprintf(stderr, "\red25519_sign\r\n");
+  unsigned char publicKey[32];
+  unsigned char privateKey[64];
+
+  if (!byteArrayToCharArray(env, jPublicKey, 32, publicKey)) {
+    throwException(env, "Public key size not equal to 32");
+    return;
+  }
+
+  if (!byteArrayToCharArray(env, jPrivateKey, 64, privateKey)) {
+    throwException(env, "Private key size not equal to 64");
+    return;
+  }
+
+  size_t messageLen = (*env)->GetArrayLength(env, jMessage);
+  unsigned char* message = (unsigned char*)malloc(messageLen);
+  (*env)->GetByteArrayRegion(env, jMessage, 0, messageLen, (jbyte*)message);
+
+  unsigned char signature[64] = {0};
+  ed25519_sign(signature, message, messageLen, publicKey, privateKey);
+
+  if (!charArrayToByteArray(env, signature, 64, jSignature)) {
+    throwException(env, "Signature output size not 64");
+    return;
+  }
+
+  free(message);
 }
 
 /*
@@ -130,10 +175,30 @@ JNIEXPORT jint JNICALL
 Java_net_frodwith_jaque_Ed25519_ed25519_1verify(
     JNIEnv* env,
     jclass thiz,
-    jbyteArray signature,
-    jbyteArray message,
-    jlong len,
-    jbyteArray publicKey)
+    jbyteArray jSignature,
+    jbyteArray jMessage,
+    jbyteArray jPublicKey)
 {
-  fprintf(stderr, "\red25519_verify\r\n");
+  unsigned char publicKey[32];
+  unsigned char signature[64];
+
+  if (!byteArrayToCharArray(env, jPublicKey, 32, publicKey)) {
+    throwException(env, "Public key size not equal to 32");
+    return 0;
+  }
+
+  if (!byteArrayToCharArray(env, jSignature, 64, signature)) {
+    throwException(env, "Signature size not equal to 64");
+    return 0;
+  }
+
+  size_t messageLen = (*env)->GetArrayLength(env, jMessage);
+  unsigned char* message = (unsigned char*)malloc(messageLen);
+  (*env)->GetByteArrayRegion(env, jMessage, 0, messageLen, (jbyte*)message);
+
+  // verified is a boolean, not a nock loobean
+  int verified = ed25519_verify(signature, message, messageLen, publicKey);
+  free(message);
+
+  return verified;
 }
