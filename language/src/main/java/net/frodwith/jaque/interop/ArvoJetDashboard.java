@@ -72,6 +72,9 @@ import net.frodwith.jaque.nodes.jet.ut.PlayNodeGen;
 import net.frodwith.jaque.nodes.jet.ut.RestNodeGen;
 
 import net.frodwith.jaque.nodes.jet.crypto.EdPuckNodeGen;
+import net.frodwith.jaque.nodes.jet.crypto.EdSharNodeGen;
+import net.frodwith.jaque.nodes.jet.crypto.EdSignNodeGen;
+import net.frodwith.jaque.nodes.jet.crypto.EdVeriNodeGen;
 
 /**
  * A jet tree which represents the vital numeric jets in arvo
@@ -278,6 +281,16 @@ public class ArvoJetDashboard {
                     new ChildCore[] {
                       gate("puck", (c, ax) ->
                            EdPuckNodeGen.create(new SlotNode(Axis.SAMPLE))),
+                      gate("shar", (c, ax) ->
+                           EdSharNodeGen.create(new SlotNode(Axis.SAM_2),
+                                                new SlotNode(Axis.SAM_3))),
+                      gate("sign", (c, ax) ->
+                           EdSignNodeGen.create(new SlotNode(Axis.SAM_2),
+                                                new SlotNode(Axis.SAM_3))),
+                      gate("veri", (c, ax) ->
+                           EdVeriNodeGen.create(new SlotNode(Axis.SAM_2),
+                                                new SlotNode(Axis.SAM_6),
+                                                new SlotNode(Axis.SAM_7))),
                     });
 
   private static final ChildCore coedCore =
