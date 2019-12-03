@@ -39,6 +39,46 @@ JNIEXPORT void JNICALL Java_net_frodwith_jaque_Ed25519_ed25519_1sign
 JNIEXPORT jint JNICALL Java_net_frodwith_jaque_Ed25519_ed25519_1verify
   (JNIEnv *, jclass, jbyteArray, jbyteArray, jbyteArray);
 
+/*
+ * Class:     net_frodwith_jaque_Ed25519
+ * Method:    point_add
+ * Signature: ([B[B[B)V
+ */
+JNIEXPORT void JNICALL Java_net_frodwith_jaque_Ed25519_point_1add
+  (JNIEnv *, jclass, jbyteArray, jbyteArray, jbyteArray);
+
+/*
+ * Class:     net_frodwith_jaque_Ed25519
+ * Method:    scalarmult
+ * Signature: ([B[B[B)V
+ */
+JNIEXPORT void JNICALL Java_net_frodwith_jaque_Ed25519_scalarmult
+  (JNIEnv *, jclass, jbyteArray, jbyteArray, jbyteArray);
+
+/*
+ * Class:     net_frodwith_jaque_Ed25519
+ * Method:    scalarmult_base
+ * Signature: ([B[B)V
+ */
+JNIEXPORT void JNICALL Java_net_frodwith_jaque_Ed25519_scalarmult_1base
+  (JNIEnv *, jclass, jbyteArray, jbyteArray);
+
+/*
+ * Class:     net_frodwith_jaque_Ed25519
+ * Method:    add_scalarmult_scalarmult_base
+ * Signature: ([B[B[B[B)V
+ */
+JNIEXPORT void JNICALL Java_net_frodwith_jaque_Ed25519_add_1scalarmult_1scalarmult_1base
+  (JNIEnv *, jclass, jbyteArray, jbyteArray, jbyteArray, jbyteArray);
+
+/*
+ * Class:     net_frodwith_jaque_Ed25519
+ * Method:    add_double_scalarmult
+ * Signature: ([B[B[B[B[B)V
+ */
+JNIEXPORT void JNICALL Java_net_frodwith_jaque_Ed25519_add_1double_1scalarmult
+  (JNIEnv *, jclass, jbyteArray, jbyteArray, jbyteArray, jbyteArray, jbyteArray);
+
 #ifdef __cplusplus
 }
 #endif

@@ -76,6 +76,7 @@
                 <fileName>ed25519/sha512.c</fileName>
                 <fileName>ed25519/sign.c</fileName>
                 <fileName>ed25519/verify.c</fileName>
+                <fileName>ge-additions/ge-additions.c</fileName>
               </fileNames>
             </source>
             <source>

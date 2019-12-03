@@ -202,3 +202,80 @@ Java_net_frodwith_jaque_Ed25519_ed25519_1verify(
 
   return verified;
 }
+
+/*
+ * Class:     net_frodwith_jaque_Ed25519
+ * Method:    point_add
+ * Signature: ([B[B[B)V
+ */
+JNIEXPORT void JNICALL Java_net_frodwith_jaque_Ed25519_point_1add(
+    JNIEnv* env,
+    jclass thiz,
+    jbyteArray jOutput,
+    jbyteArray jAPoint,
+    jbyteArray jBPoint)
+{
+  fprintf(stderr, "\r+point-add:ed:crypto\r\n");
+}
+
+/*
+ * Class:     net_frodwith_jaque_Ed25519
+ * Method:    scalarmult
+ * Signature: ([B[B[B)V
+ */
+JNIEXPORT void JNICALL Java_net_frodwith_jaque_Ed25519_scalarmult(
+    JNIEnv* env,
+    jclass thiz,
+    jbyteArray jOutput,
+    jbyteArray jAScalar,
+    jbyteArray jAPoint)
+{
+  fprintf(stderr, "\r+scalarmult:ed:crypto\r\n");
+}
+
+/*
+ * Class:     net_frodwith_jaque_Ed25519
+ * Method:    scalarmult_base
+ * Signature: ([B[B)V
+ */
+JNIEXPORT void JNICALL Java_net_frodwith_jaque_Ed25519_scalarmult_1base(
+    JNIEnv* env,
+    jclass thiz,
+    jbyteArray jOutput,
+    jbyteArray jScalar)
+{
+  fprintf(stderr, "\r+scalarmult-base:ed:crypto\r\n");
+}
+
+/*
+ * Class:     net_frodwith_jaque_Ed25519
+ * Method:    add_scalarmult_scalarmult_base
+ * Signature: ([B[B[B[B)V
+ */
+JNIEXPORT void JNICALL Java_net_frodwith_jaque_Ed25519_add_1scalarmult_1scalarmult_1base(
+    JNIEnv* env,
+    jclass thiz,
+    jbyteArray jOutput,
+    jbyteArray jAScalar,
+    jbyteArray jAPoint,
+    jbyteArray jBScalar)
+{
+  fprintf(stderr, "\r+add-scalarmult-scalarmult-base:ed:crypto\r\n");
+}
+
+/*
+ * Class:     net_frodwith_jaque_Ed25519
+ * Method:    add_double_scalarmult
+ * Signature: ([B[B[B[B[B)V
+ */
+JNIEXPORT void JNICALL Java_net_frodwith_jaque_Ed25519_add_1double_1scalarmult(
+    JNIEnv* env,
+    jclass thiz,
+    jbyteArray jOutput,
+    jbyteArray jAScalar,
+    jbyteArray jAPoint,
+    jbyteArray jBScalar,
+    jbyteArray jBPoint)
+{
+  fprintf(stderr, "\r+add-double-scalarmult:ed:crypto\r\n");
+}
