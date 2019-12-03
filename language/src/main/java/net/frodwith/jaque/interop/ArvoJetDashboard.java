@@ -75,6 +75,11 @@ import net.frodwith.jaque.nodes.jet.crypto.EdPuckNodeGen;
 import net.frodwith.jaque.nodes.jet.crypto.EdSharNodeGen;
 import net.frodwith.jaque.nodes.jet.crypto.EdSignNodeGen;
 import net.frodwith.jaque.nodes.jet.crypto.EdVeriNodeGen;
+import net.frodwith.jaque.nodes.jet.crypto.EdPointAddNodeGen;
+import net.frodwith.jaque.nodes.jet.crypto.EdScalarmultNodeGen;
+import net.frodwith.jaque.nodes.jet.crypto.EdScalarmultBaseNodeGen;
+import net.frodwith.jaque.nodes.jet.crypto.EdAddScalarmultScalarmultBaseNodeGen;
+import net.frodwith.jaque.nodes.jet.crypto.EdAddDoubleScalarmultNodeGen;
 
 /**
  * A jet tree which represents the vital numeric jets in arvo
@@ -279,6 +284,28 @@ public class ArvoJetDashboard {
                     new JetArm[0],
                     new JetHook[0],
                     new ChildCore[] {
+                      gate("point-add", (c, ax) ->
+                           EdPointAddNodeGen.create(new SlotNode(Axis.SAM_2),
+                                                    new SlotNode(Axis.SAM_3))),
+                      gate("scalarmult", (c, ax) ->
+                           EdScalarmultNodeGen.create(
+                               new SlotNode(Axis.SAM_2),
+                               new SlotNode(Axis.SAM_3))),
+                      gate("scalarmult-base", (c, ax) ->
+                           EdScalarmultBaseNodeGen.create(
+                               new SlotNode(Axis.SAMPLE))),
+                      gate("add-scalarmult-scalarmult-base", (c, ax) ->
+                           EdAddScalarmultScalarmultBaseNodeGen.create(
+                               new SlotNode(Axis.SAM_2),
+                               new SlotNode(Axis.SAM_6),
+                               new SlotNode(Axis.SAM_7))),
+                      gate("add-double-scalarmult", (c, ax) ->
+                           EdAddDoubleScalarmultNodeGen.create(
+                               new SlotNode(Axis.SAM_2),
+                               new SlotNode(Axis.SAM_6),
+                               new SlotNode(Axis.SAM_14),
+                               new SlotNode(Axis.SAM_15))),
+
                       gate("puck", (c, ax) ->
                            EdPuckNodeGen.create(new SlotNode(Axis.SAMPLE))),
                       gate("shar", (c, ax) ->

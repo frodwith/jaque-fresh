@@ -24,11 +24,13 @@ public final class Axis implements Iterable<Boolean> {
   public final static Axis SAM_4    = new Axis(24L);
   public final static Axis SAM_5    = new Axis(25L);
   public final static Axis SAM_6    = new Axis(26L);
-  public final static Axis SAM_7    = new Axis(27L);
-
   public final static Axis SAM_12    = new Axis(52L);
   public final static Axis SAM_13    = new Axis(53L);
-  
+
+  public final static Axis SAM_7    = new Axis(27L);
+  public final static Axis SAM_14   = new Axis(54L);
+  public final static Axis SAM_15   = new Axis(55L);
+
   // public final static Axis SAM_3    = new Axis(13L);
 
   public final int length;
