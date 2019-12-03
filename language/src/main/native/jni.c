@@ -4,6 +4,9 @@
 #include <stdlib.h>
 
 #include "ed25519/ed25519.h"
+#include "ed25519/ge.h"
+
+#include "ge-additions/ge-additions.h"
 
 /**
  * Helper method to get data out of jbyteArray. Returns false on bad input.
@@ -216,6 +219,58 @@ JNIEXPORT void JNICALL Java_net_frodwith_jaque_Ed25519_point_1add(
     jbyteArray jBPoint)
 {
   fprintf(stderr, "\r+point-add:ed:crypto\r\n");
+
+  unsigned char a_y[32];
+  unsigned char b_y[32];
+
+  if (!byteArrayToCharArray(env, jAPoint, 32, a_y)) {
+    throwException(env, "a-point size not equal to 32");
+    return;
+  }
+
+  if (!byteArrayToCharArray(env, jBPoint, 32, b_y)) {
+    throwException(env, "b-point size not equal to 32");
+    return;
+  }
+
+  ////////// Copied verbatim from ed_point_add.c
+  //
+  ge_p3 A;
+  if (ge_frombytes_negate_vartime(&A, a_y) != 0) {
+    throwException(env, "A not a valid @udpoint in +point-add:ed:crypto");
+    return;
+  }
+
+  ge_p3 B;
+  if (ge_frombytes_negate_vartime(&B, b_y) != 0) {
+    throwException(env, "B not a valid @udpoint in +point-add:ed:crypto");
+    return;
+  }
+
+  // Undo the negation from above. See add_scalar.c in the ed25519 distro.
+  fe_neg(A.X, A.X);
+  fe_neg(A.T, A.T);
+  fe_neg(B.X, B.X);
+  fe_neg(B.T, B.T);
+
+  ge_cached b_cached;
+  ge_p3_to_cached(&b_cached, &B);
+
+  ge_p1p1 sum;
+  ge_add(&sum, &A, &b_cached);
+
+  ge_p3 result;
+  ge_p1p1_to_p3(&result, &sum);
+
+  unsigned char output_y[32];
+  ge_p3_tobytes(output_y, &result);
+  //
+  //////////
+
+  if (!charArrayToByteArray(env, output_y, 32, jOutput)) {
+    throwException(env, "Output size not 32");
+    return;
+  }
 }
 
 /*
@@ -231,6 +286,44 @@ JNIEXPORT void JNICALL Java_net_frodwith_jaque_Ed25519_scalarmult(
     jbyteArray jAPoint)
 {
   fprintf(stderr, "\r+scalarmult:ed:crypto\r\n");
+
+  unsigned char a_y[32];
+  unsigned char b_y[32];
+
+  if (!byteArrayToCharArray(env, jAScalar, 32, a_y)) {
+    throwException(env, "a-scalar size not equal to 32");
+    return;
+  }
+
+  if (!byteArrayToCharArray(env, jAPoint, 32, b_y)) {
+    throwException(env, "a-point size not equal to 32");
+    return;
+  }
+
+  ////////// Copied verbatim from ed_scalarmult.c
+  //
+  ge_p3 B;
+  if (ge_frombytes_negate_vartime(&B, b_y) != 0) {
+    throwException(env, "B not a valid @udpoint in +scalarmult:ed:crypto");
+    return;
+  }
+
+  // Undo the negation from above. See add_scalar.c in the ed25519 distro.
+  fe_neg(B.X, B.X);
+  fe_neg(B.T, B.T);
+
+  ge_p3 result;
+  ge_scalarmult(&result, a_y, &B);
+
+  unsigned char output_y[32];
+  ge_p3_tobytes(output_y, &result);
+  //
+  //////////
+
+  if (!charArrayToByteArray(env, output_y, 32, jOutput)) {
+    throwException(env, "Output size not 32");
+    return;
+  }
 }
 
 /*
@@ -245,6 +338,27 @@ JNIEXPORT void JNICALL Java_net_frodwith_jaque_Ed25519_scalarmult_1base(
     jbyteArray jScalar)
 {
   fprintf(stderr, "\r+scalarmult-base:ed:crypto\r\n");
+
+  unsigned char scalar_y[32];
+  if (!byteArrayToCharArray(env, jScalar, 32, scalar_y)) {
+    throwException(env, "a-scalar size not equal to 32");
+    return;
+  }
+
+  ////////// Copied verbatim from ed_scalarmult.c
+  //
+  ge_p3 R;
+  ge_scalarmult_base(&R, scalar_y);
+
+  unsigned char output_y[32];
+  ge_p3_tobytes(output_y, &R);
+  //
+  //////////
+
+  if (!charArrayToByteArray(env, output_y, 32, jOutput)) {
+    throwException(env, "Output size not 32");
+    return;
+  }
 }
 
 /*
@@ -261,6 +375,51 @@ JNIEXPORT void JNICALL Java_net_frodwith_jaque_Ed25519_add_1scalarmult_1scalarmu
     jbyteArray jBScalar)
 {
   fprintf(stderr, "\r+add-scalarmult-scalarmult-base:ed:crypto\r\n");
+
+  unsigned char a_y[32];
+  unsigned char a_point_y[32];
+  unsigned char b_y[32];
+
+  if (!byteArrayToCharArray(env, jAScalar, 32, a_y)) {
+    throwException(env, "a-scalar size not equal to 32");
+    return;
+  }
+
+  if (!byteArrayToCharArray(env, jAPoint, 32, a_point_y)) {
+    throwException(env, "a-point size not equal to 32");
+    return;
+  }
+
+  if (!byteArrayToCharArray(env, jBScalar, 32, b_y)) {
+    throwException(env, "b-scalar size not equal to 32");
+    return;
+  }
+
+  ////////// Copied verbatim from ed_add_scalarmult_scalarmult_base.c
+  //
+  ge_p3 A;
+  if (ge_frombytes_negate_vartime(&A, a_point_y) != 0) {
+    throwException(
+        env,
+        "A not a valid @udpoint in +add-scalarmult-scalarmult-base:ed:crypto");
+  }
+
+  // Undo the negation from above. See add_scalar.c in the ed25519 distro.
+  fe_neg(A.X, A.X);
+  fe_neg(A.T, A.T);
+
+  ge_p2 r;
+  ge_double_scalarmult_vartime(&r, a_y, &A, b_y);
+
+  unsigned char output_y[32];
+  ge_tobytes(output_y, &r);
+  //
+  //////////
+
+  if (!charArrayToByteArray(env, output_y, 32, jOutput)) {
+    throwException(env, "Output size not 32");
+    return;
+  }
 }
 
 /*
@@ -278,4 +437,77 @@ JNIEXPORT void JNICALL Java_net_frodwith_jaque_Ed25519_add_1double_1scalarmult(
     jbyteArray jBPoint)
 {
   fprintf(stderr, "\r+add-double-scalarmult:ed:crypto\r\n");
+
+  unsigned char a_y[32];
+  unsigned char a_point_y[32];
+  unsigned char b_y[32];
+  unsigned char b_point_y[32];
+
+  if (!byteArrayToCharArray(env, jAScalar, 32, a_y)) {
+    throwException(env, "a-scalar size not equal to 32");
+    return;
+  }
+
+  if (!byteArrayToCharArray(env, jAPoint, 32, a_point_y)) {
+    throwException(env, "a-point size not equal to 32");
+    return;
+  }
+
+  if (!byteArrayToCharArray(env, jBScalar, 32, b_y)) {
+    throwException(env, "b-scalar size not equal to 32");
+    return;
+  }
+
+  if (!byteArrayToCharArray(env, jBPoint, 32, b_point_y)) {
+    throwException(env, "b-point size not equal to 32");
+    return;
+  }
+
+  ////////// Copied verbatim from ed_add_double_scalarmult.c
+  //
+  ge_p3 A;
+  if (ge_frombytes_negate_vartime(&A, a_point_y) != 0) {
+    throwException(
+        env,
+        "A not a valid @udpoint in +add-double-scalarmult:ed:crypto");
+    return;
+  }
+
+  ge_p3 B;
+  if (ge_frombytes_negate_vartime(&B, b_point_y) != 0) {
+    throwException(
+        env,
+        "B not a valid @udpoint in +add-double-scalarmult:ed:crypto");
+    return;
+  }
+
+  // Undo the negation from above. See add_scalar.c in the ed25519 distro.
+  fe_neg(A.X, A.X);
+  fe_neg(A.T, A.T);
+  fe_neg(B.X, B.X);
+  fe_neg(B.T, B.T);
+
+  // Perform the multiplications of a*A and b*B
+  ge_p3 a_result, b_result;
+  ge_scalarmult(&a_result, a_y, &A);
+  ge_scalarmult(&b_result, b_y, &B);
+
+  // Sum those two points
+  ge_cached b_result_cached;
+  ge_p3_to_cached(&b_result_cached, &b_result);
+  ge_p1p1 sum;
+  ge_add(&sum, &a_result, &b_result_cached);
+
+  ge_p3 final_result;
+  ge_p1p1_to_p3(&final_result, &sum);
+
+  unsigned char output_y[32];
+  ge_p3_tobytes(output_y, &final_result);
+  //
+  //////////
+
+  if (!charArrayToByteArray(env, output_y, 32, jOutput)) {
+    throwException(env, "Output size not 32");
+    return;
+  }
 }
