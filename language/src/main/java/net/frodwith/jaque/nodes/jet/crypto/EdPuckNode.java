@@ -21,18 +21,16 @@ import net.frodwith.jaque.Ed25519Exception;
 public abstract class EdPuckNode extends SubjectNode {
   @Specialization
   protected Object puck(Object s) {
-    byte[] seed = Atom.wordsToByteArrayLen(
-        Atom.words(s), HoonMath.met((byte) 3, s), 32, Atom.LITTLE_ENDIAN);
-
-    byte[] publicKey = new byte[32];
-    byte[] privateKey = new byte[64];
-
     try {
+      byte[] seed = Atom.forceBytes(s, 32);
+      byte[] publicKey = new byte[32];
+      byte[] privateKey = new byte[64];
       Ed25519.ed25519_create_keypair(publicKey, privateKey, seed);
+      return Atom.fromByteArray(publicKey, Atom.LITTLE_ENDIAN);
     } catch (Ed25519Exception e) {
       throw new NockException(e.getMessage(), this);
+    } catch (ExitException e) {
+      throw new NockException(e.getMessage(), this);
     }
-
-    return Atom.fromByteArray(publicKey, Atom.LITTLE_ENDIAN);
   }
 }

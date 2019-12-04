@@ -25,20 +25,17 @@ public abstract class EdVeriNode extends SubjectNode {
   protected long veri(Object s, Object m, Object pk) {
     System.err.println("veri:ed:crypto");
 
-    byte[] signature = Atom.wordsToByteArrayLen(
-         Atom.words(s), HoonMath.met((byte) 3, s), 64, Atom.LITTLE_ENDIAN);
-    byte[] message = Atom.wordsToBytes(
-         Atom.words(m), HoonMath.met((byte) 3, m), Atom.LITTLE_ENDIAN);
-    byte[] publicKey = Atom.wordsToByteArrayLen(
-         Atom.words(pk), HoonMath.met((byte) 3, pk), 32, Atom.LITTLE_ENDIAN);
-
-    int ret = 0;
     try {
-      ret = Ed25519.ed25519_verify(signature, message, publicKey);
+      byte[] signature = Atom.forceBytes(s, 64);
+      byte[] message = Atom.toByteArray(m);
+      byte[] publicKey = Atom.forceBytes(pk, 32);
+
+      int ret = Ed25519.ed25519_verify(signature, message, publicKey);
+      return (ret == 1) ? Atom.YES : Atom.NO;
     } catch (Ed25519Exception e) {
       throw new NockException(e.getMessage(), this);
+    } catch (ExitException e) {
+      throw new NockException(e.getMessage(), this);
     }
-
-    return (ret == 1) ? Atom.YES : Atom.NO;
   }
 }

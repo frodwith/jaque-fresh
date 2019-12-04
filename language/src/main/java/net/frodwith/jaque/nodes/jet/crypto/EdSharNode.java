@@ -24,24 +24,21 @@ public abstract class EdSharNode extends SubjectNode {
   protected Object shar(Object pub, Object seedObj) {
     System.err.println("shar:ed:crypto");
 
-    byte[] seed = Atom.wordsToByteArrayLen(
-        Atom.words(seedObj), HoonMath.met((byte) 3, seedObj), 32,
-        Atom.LITTLE_ENDIAN);
-    byte[] otherPublicKey = Atom.wordsToByteArrayLen(
-        Atom.words(pub), HoonMath.met((byte) 3, pub), 32,
-        Atom.LITTLE_ENDIAN);
-
-    byte[] selfPublicKey = new byte[32];
-    byte[] privateKey = new byte[64];
-    byte[] shared = new byte[32];
-
     try {
+      byte[] seed = Atom.forceBytes(seedObj, 32);
+      byte[] otherPublicKey = Atom.forceBytes(pub, 32);
+
+      byte[] selfPublicKey = new byte[32];
+      byte[] privateKey = new byte[64];
+      byte[] shared = new byte[32];
+
       Ed25519.ed25519_create_keypair(selfPublicKey, privateKey, seed);
       Ed25519.ed25519_key_exchange(shared, otherPublicKey, privateKey);
+      return Atom.takeBytes(shared, 32);
     } catch (Ed25519Exception e) {
       throw new NockException(e.getMessage(), this);
+    } catch (ExitException e) {
+      throw new NockException(e.getMessage(), this);
     }
-
-    return Atom.fromByteArray(shared, Atom.LITTLE_ENDIAN);
   }
 }

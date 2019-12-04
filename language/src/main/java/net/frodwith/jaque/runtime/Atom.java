@@ -369,12 +369,8 @@ public final class Atom {
   }
 
   public static byte[] wordsToBytes(int[] wor, int bel, boolean endian) {
-    return wordsToByteArrayLen(wor, bel, bel, endian);
-  }
-
-  public static byte[] wordsToByteArrayLen(int[] wor, int bel, int len, boolean endian) {
     int    w, i, b;
-    byte[] buf = new byte[len];
+    byte[] buf = new byte[bel];
     for (i = 0, b = 0;;) {
       w = wor[i++];
 
@@ -394,6 +390,27 @@ public final class Atom {
       reverse(buf);
     }
     return buf;
+  }
+
+  public static byte[] forceBytes(Object a, int maxLen) throws ExitException {
+    byte[] src = toByteArray(a);
+    if ( src.length == maxLen ) {
+      return src;
+    }
+    if ( src.length > maxLen ) {
+      throw new ExitException("forceBytes length longer than " + maxLen);
+    }
+    byte[] r = new byte[maxLen];
+    System.arraycopy(src, 0, r, 0, Math.min(src.length, maxLen));
+    return r;
+  }
+
+  public static Object takeBytes(byte[] src, int len) {
+    if (src.length == len) {
+      return fromByteArray(src);
+    } else {
+      return fromByteArray(Arrays.copyOfRange(src, 0, len));
+    }
   }
 
   public static int[] incrementInPlace(int[] vol) {

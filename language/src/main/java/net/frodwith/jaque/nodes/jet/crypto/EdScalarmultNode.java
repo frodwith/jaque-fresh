@@ -24,21 +24,17 @@ public abstract class EdScalarmultNode extends SubjectNode {
   protected Object scalarmult(Object aObj, Object bObj) {
     System.err.println("+scalarmult:ed:crypto");
 
-    byte[] a = Atom.wordsToByteArrayLen(
-        Atom.words(aObj), HoonMath.met((byte) 3, aObj), 32,
-        Atom.LITTLE_ENDIAN);
-    byte[] b = Atom.wordsToByteArrayLen(
-        Atom.words(bObj), HoonMath.met((byte) 3, bObj), 32,
-        Atom.LITTLE_ENDIAN);
-
-    byte[] output = new byte[32];
-
     try {
+      byte[] a = Atom.forceBytes(aObj, 32);
+      byte[] b = Atom.forceBytes(bObj, 32);
+
+      byte[] output = new byte[32];
       Ed25519.scalarmult(output, a, b);
+      return Atom.takeBytes(output, 32);
     } catch (Ed25519Exception e) {
       throw new NockException(e.getMessage(), this);
+    } catch (ExitException e) {
+      throw new NockException(e.getMessage(), this);
     }
-
-    return Atom.fromByteArray(output, Atom.LITTLE_ENDIAN);
   }
 }

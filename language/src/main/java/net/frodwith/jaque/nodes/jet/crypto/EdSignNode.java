@@ -24,24 +24,21 @@ public abstract class EdSignNode extends SubjectNode {
   protected Object sign(Object msg, Object seedObj) {
     System.err.println("sign:ed:crypto");
 
-    byte[] seed = Atom.wordsToByteArrayLen(
-        Atom.words(seedObj), HoonMath.met((byte) 3, seedObj), 32,
-        Atom.LITTLE_ENDIAN);
-    byte[] message = Atom.wordsToBytes(
-         Atom.words(msg), HoonMath.met((byte) 3, msg), Atom.LITTLE_ENDIAN);
-
-    byte[] signature = new byte[64];
-
     try {
+      byte[] seed = Atom.forceBytes(seedObj, 32);
+      byte[] message = Atom.toByteArray(msg);
+
+      byte[] signature = new byte[64];
       byte[] publicKey = new byte[32];
       byte[] privateKey = new byte[64];
 
       Ed25519.ed25519_create_keypair(publicKey, privateKey, seed);
       Ed25519.ed25519_sign(signature, message, publicKey, privateKey);
+      return Atom.takeBytes(signature, 64);
     } catch (Ed25519Exception e) {
       throw new NockException(e.getMessage(), this);
+    } catch (ExitException e) {
+      throw new NockException(e.getMessage(), this);
     }
-
-    return Atom.fromByteArray(signature, Atom.LITTLE_ENDIAN);
   }
 }
