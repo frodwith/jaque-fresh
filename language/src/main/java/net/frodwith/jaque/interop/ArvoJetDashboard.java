@@ -38,6 +38,7 @@ import net.frodwith.jaque.nodes.jet.DorNodeGen;
 import net.frodwith.jaque.nodes.jet.GorNodeGen;
 import net.frodwith.jaque.nodes.jet.EndNodeGen;
 import net.frodwith.jaque.nodes.jet.JamNodeGen;
+import net.frodwith.jaque.nodes.jet.LossNodeGen;
 import net.frodwith.jaque.nodes.jet.LshNodeGen;
 import net.frodwith.jaque.nodes.jet.LteNodeGen;
 import net.frodwith.jaque.nodes.jet.LthNodeGen;
@@ -90,13 +91,20 @@ import net.frodwith.jaque.nodes.jet.crypto.AesEcbNodeGen;
  */
 public class ArvoJetDashboard {
   private static ChildCore
-    gate(String name, BiFunction<AstContext,Axis,SubjectNode> factory) {
+  gate(String name, BiFunction<AstContext,Axis,SubjectNode> factory) {
+    return offsetGate(name, Axis.CONTEXT, factory);
+  }
+
+  private static ChildCore
+  offsetGate(String name,
+             Axis toParent,
+             BiFunction<AstContext,Axis,SubjectNode> factory) {
     return new ChildCore(name,
-        Axis.CONTEXT,
-        new HashCode[0],
-        new JetArm[] { new AxisArm(Axis.HEAD, factory) },
-        new JetHook[0],
-        new ChildCore[0]);
+                         toParent,
+                         new HashCode[0],
+                         new JetArm[] { new AxisArm(Axis.HEAD, factory) },
+                         new JetHook[0],
+                         new ChildCore[0]);
   }
 
   private static ChildCore
@@ -400,6 +408,13 @@ public class ArvoJetDashboard {
                     new JetArm[0],
                     new JetHook[0],
                     new ChildCore[] {
+                      // TODO: I'm unsure about the jet matching here. Or: Is
+                      // this loss?
+                      //
+                      offsetGate("loss", Axis.get(63L),
+                                 (c, ax) -> LossNodeGen.create(new SlotNode(Axis.SAM_2),
+                                                               new SlotNode(Axis.SAM_3))),
+
                       coedCore,
                       aesCore
                     });
