@@ -81,6 +81,10 @@ import net.frodwith.jaque.nodes.jet.crypto.EdScalarmultBaseNodeGen;
 import net.frodwith.jaque.nodes.jet.crypto.EdAddScalarmultScalarmultBaseNodeGen;
 import net.frodwith.jaque.nodes.jet.crypto.EdAddDoubleScalarmultNodeGen;
 
+import javax.crypto.Cipher;
+import net.frodwith.jaque.nodes.jet.crypto.AesCbcNodeGen;
+import net.frodwith.jaque.nodes.jet.crypto.AesEcbNodeGen;
+
 /**
  * A jet tree which represents the vital numeric jets in arvo
  */
@@ -93,6 +97,50 @@ public class ArvoJetDashboard {
         new JetArm[] { new AxisArm(Axis.HEAD, factory) },
         new JetHook[0],
         new ChildCore[0]);
+  }
+
+  private static ChildCore
+  aesEcbCore(String name, int keysize) {
+    return new ChildCore(name,
+                         Axis.CONTEXT,
+                         new HashCode[0],
+                         new JetArm[0],
+                         new JetHook[0],
+                         new ChildCore[] {
+                           gate("en", (c, cx) -> AesEcbNodeGen.create(
+                               new SlotNode(Axis.CON_SAM),
+                               new SlotNode(Axis.SAMPLE),
+                               Cipher.ENCRYPT_MODE,
+                               keysize)),
+                           gate("de", (c, cx) -> AesEcbNodeGen.create(
+                               new SlotNode(Axis.CON_SAM),
+                               new SlotNode(Axis.SAMPLE),
+                               Cipher.DECRYPT_MODE,
+                               keysize)),
+                         });
+  }
+
+  private static ChildCore
+  aesCbcCore(String name, int keysize) {
+    return new ChildCore(name,
+                         Axis.CONTEXT,
+                         new HashCode[0],
+                         new JetArm[0],
+                         new JetHook[0],
+                         new ChildCore[] {
+                           gate("en", (c, cx) -> AesCbcNodeGen.create(
+                               new SlotNode(Axis.get(61L)),
+                               new SlotNode(Axis.get(60L)),
+                               new SlotNode(Axis.SAMPLE),
+                               Cipher.ENCRYPT_MODE,
+                               keysize)),
+                           gate("de", (c, cx) -> AesCbcNodeGen.create(
+                               new SlotNode(Axis.get(61L)),
+                               new SlotNode(Axis.get(60L)),
+                               new SlotNode(Axis.SAMPLE),
+                               Cipher.DECRYPT_MODE,
+                               keysize)),
+                         });
   }
 
   private static JetHook pullHook(String name, long axis) {
@@ -330,6 +378,21 @@ public class ArvoJetDashboard {
                       edCore
                     });
 
+  private static final ChildCore aesCore =
+      new ChildCore("aes",
+                    Axis.get(31L),
+                    new HashCode[0],
+                    new JetArm[0],
+                    new JetHook[0],
+                    new ChildCore[] {
+                      aesEcbCore("ecba", 16),
+                      aesEcbCore("ecbb", 24),
+                      aesEcbCore("ecbc", 32),
+                      aesCbcCore("cbca", 16),
+                      aesCbcCore("cbcb", 24),
+                      aesCbcCore("cbcc", 32),
+                    });
+
   private static final ChildCore hexLayer =
       new ChildCore("hex",
                     Axis.CONTEXT,
@@ -337,9 +400,9 @@ public class ArvoJetDashboard {
                     new JetArm[0],
                     new JetHook[0],
                     new ChildCore[] {
-                      coedCore
+                      coedCore,
+                      aesCore
                     });
-
 
   private static final ChildCore jetLayerFive =
       new ChildCore("pen",

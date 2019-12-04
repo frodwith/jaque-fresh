@@ -19,6 +19,8 @@ public final class Axis implements Iterable<Boolean> {
   public final static Axis SAMPLE   = new Axis(6L);
   public final static Axis CONTEXT  = new Axis(7L);
 
+  public final static Axis CON_SAM  = new Axis(30L);
+
   public final static Axis SAM_2    = new Axis(12L);
   public final static Axis SAM_3    = new Axis(13L);
   public final static Axis SAM_4    = new Axis(24L);
