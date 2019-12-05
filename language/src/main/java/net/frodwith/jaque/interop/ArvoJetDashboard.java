@@ -39,6 +39,7 @@ import net.frodwith.jaque.nodes.jet.GorNodeGen;
 import net.frodwith.jaque.nodes.jet.EndNodeGen;
 import net.frodwith.jaque.nodes.jet.JamNodeGen;
 import net.frodwith.jaque.nodes.jet.LossNodeGen;
+import net.frodwith.jaque.nodes.jet.LoreNodeGen;
 import net.frodwith.jaque.nodes.jet.LshNodeGen;
 import net.frodwith.jaque.nodes.jet.LteNodeGen;
 import net.frodwith.jaque.nodes.jet.LthNodeGen;
@@ -412,8 +413,12 @@ public class ArvoJetDashboard {
                       // this loss?
                       //
                       offsetGate("loss", Axis.get(63L),
-                                 (c, ax) -> LossNodeGen.create(new SlotNode(Axis.SAM_2),
-                                                               new SlotNode(Axis.SAM_3))),
+                                 (c, ax) -> LossNodeGen.create(
+                                     new SlotNode(Axis.SAM_2),
+                                     new SlotNode(Axis.SAM_3))),
+                      offsetGate("lore", Axis.get(63L),
+                                 (c, ax) -> LoreNodeGen.create(
+                                     new SlotNode(Axis.SAMPLE))),
 
                       coedCore,
                       aesCore

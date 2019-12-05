@@ -52,6 +52,14 @@ public class List implements Iterable<Object> {
     return c.atom();
   }
 
+  public static Object flop(Object a) {
+    Object r = 0L;
+    for ( Object i : new List(a) ) {
+      r = new Cell(i, r);
+    }
+    return r;
+  }
+
   // longest common subsequence
   // credit to: https://rosettacode.org/wiki/Longest_common_subsequence#Dynamic_Programming_3
   public static Object loss(Object a, Object b) throws ExitException {
