@@ -10,15 +10,23 @@
   <artifactId>nock-language</artifactId>
   <packaging>jar</packaging>
 
-  <!-- We use native libraries which have different names on. -->
   <profiles>
+    <profile>
+      <id>jdk8-graalvm</id>
+      <activation>
+        <jdk>1.8</jdk>
+      </activation>
+      <properties>
+        <test.argLine>-XX:-UseJVMCIClassLoader</test.argLine>
+      </properties>
+    </profile>
+    <!-- We use native libraries which have different names on. -->
     <profile>
       <id>Linux</id>
       <activation>
-        <property>
-          <name>platform</name>
-          <value>nix</value>
-        </property>
+        <os>
+          <name>Linux</name>
+        </os>
       </activation>
       <properties>
         <os_name>linux</os_name>
@@ -28,11 +36,9 @@
     <profile>
       <id>OSX</id>
       <activation>
-        <activeByDefault>true</activeByDefault>
-        <property>
-          <name>platform</name>
-          <value>nix</value>
-        </property>
+        <os>
+          <family>mac</family>
+        </os>
       </activation>
       <properties>
         <os_name>darwin</os_name>
@@ -130,7 +136,7 @@
             <include>**/*TestSuite.java</include>
             <include>**/*Test.java</include>
           </includes>
-          <argLine>-XX:-UseJVMCIClassLoader</argLine>
+          <argLine>-Dgraalvm.locatorDisabled=true ${test.argLine}</argLine>
         </configuration>
       </plugin>
       <plugin>
