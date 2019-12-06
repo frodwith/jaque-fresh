@@ -23,6 +23,7 @@ import org.graalvm.polyglot.Value;
 import org.graalvm.polyglot.Source;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.PolyglotAccess;
+import org.graalvm.polyglot.PolyglotException;
 
 class NounShapeException extends Exception {
   public NounShapeException(String msg) {
@@ -148,17 +149,15 @@ public class Serf implements Thread.UncaughtExceptionHandler
         //System.err.println("Waiting for message...");
         Value message = readNoun();
 
-        long jobMug = nockRuntime.invokeMember("mug", message).asLong();
-
         long tag = getHeadTag(message);
         if (tag == C3__BOOT) {
-          //System.err.println("poke boot");
+          // System.err.println("poke boot");
           onBootMessage(message);
         } else if (tag == C3__WORK) {
-          //System.err.println("poke work");
+          // System.err.println("poke work");
           onWorkMessage(message);
         } else if (tag == C3__EXIT) {
-          //System.err.println("poke exit");
+          System.err.println("poke exit");
           // TODO: Exit immediately.
         } else if (tag == C3__SAVE) {
           //System.err.println("poke save");
@@ -172,7 +171,13 @@ public class Serf implements Thread.UncaughtExceptionHandler
       System.err.println("(noun shape exception; shutting down)");
       e.printStackTrace(System.err);
     } catch (Throwable e) {
+      System.err.println("THROWABLE");
       e.printStackTrace(System.err);
+      try {
+        // Wait half a second for things to write to stderr before our parent
+        // process murders our connection to stderr when our process ded.
+        Thread.sleep(500);
+      } catch (InterruptedException ie) {}
     }
   }
 
@@ -250,6 +255,8 @@ public class Serf implements Thread.UncaughtExceptionHandler
       } else {
         doWorkLive(eventNum, job);
       }
+    } catch (PolyglotException e ) {
+      throw new NounShapeException("Couldn't execute work message", e);
     } catch (UnsupportedOperationException e) {
       throw new NounShapeException("Couldn't unpack work message", e);
     } catch (ArrayIndexOutOfBoundsException e) {
@@ -275,10 +282,6 @@ public class Serf implements Thread.UncaughtExceptionHandler
     this.lifecycleFormulas.add(job);
 
     if ( this.bootSequenceLength == eventNum ) {
-      // TODO: Wait, do we have to reverse this to work? In the solid case this
-      // is a no-op. In the brass case, since we're using a list we can add to
-      // the end, does this actually break the ordering we need?
-      Collections.reverse(this.lifecycleFormulas);
       this.lifecycleFormulas.add(this.truffleContext.asValue(0L));
       Value eve = nockRuntime.invokeMember("toNoun", this.lifecycleFormulas.toArray());
       this.lifecycleFormulas = new ArrayList<Value>();
@@ -297,7 +300,7 @@ public class Serf implements Thread.UncaughtExceptionHandler
     } else {
       // Prior to the evaluation of the entire lifecycle sequence, we simply
       // use the mug of the formula as the kernel mug.
-      this.currentMug = nockRuntime.invokeMember("mug", job).asLong();
+      this.currentMug = jobMug;
     }
 
     sendDone(eventNum, this.currentMug, this.truffleContext.asValue(0L));

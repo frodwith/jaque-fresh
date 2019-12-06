@@ -73,7 +73,7 @@ public final class InteropDebugDump implements TruffleObject {
 
       System.err.println(w.toString());
 
-      return null;
+      return 0L;
     }
   }
 }

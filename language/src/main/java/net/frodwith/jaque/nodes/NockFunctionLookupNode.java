@@ -50,6 +50,6 @@ public abstract class NockFunctionLookupNode extends NockNode {
   
   @Fallback
   protected CallTarget doAtom(Object atom) {
-    throw new NockException("atom not formula", this);
+    throw new NockException("atom not formula: " + atom, this);
   }
 }
