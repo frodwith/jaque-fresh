@@ -10,6 +10,7 @@ import static org.junit.Assert.assertFalse;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.BigAtom;
 import net.frodwith.jaque.runtime.Equality;
+import net.frodwith.jaque.runtime.Murmug;
 
 public class EqualityTest {
   @Test
@@ -40,7 +41,7 @@ public class EqualityTest {
     Cell a = new Cell(42L, new Cell(43L, 45L)),
          b = new Cell(42L, new Cell(43L, 45L));
 
-    a.mug();
+    Murmug.get(a);
     assertFalse("!=tail", a.tail == b.tail);
     assertNotEquals("!=mug", a.cachedMug(), b.cachedMug());
     assertTrue(Equality.equals(a, b));

@@ -21,18 +21,7 @@ import net.frodwith.jaque.exception.ExitException;
 public final class InteropMug implements TruffleObject {
   @TruffleBoundary
   private static int mug(Object obj) {
-    // TODO: The problem with this implementation is that we aren't caching the
-    // mugs on the cell object or BigAtom objects. I assume this will be fixed
-    // in the new data representation where we're able to call `value.mug()` on
-    // value classes.
-    if (obj instanceof BigAtom) {
-      return ((BigAtom)obj).getMug();
-    } else if (obj instanceof Cell) {
-      return ((Cell)obj).mug();
-    } else {
-      // Fallback
-      return Murmug.get(obj);
-    }
+    return Murmug.get(obj);
   }
 
   @ExportMessage

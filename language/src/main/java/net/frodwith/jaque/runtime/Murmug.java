@@ -15,7 +15,7 @@ public final class Murmug {
   private enum Type { ROOT, HEAD, TAIL };
 
   @TruffleBoundary
-  public static int newGet(Object veb) {
+  public static int get(Object veb) {
     final class MugFrame {
       public Type type;
       public Cell cell;
@@ -93,30 +93,6 @@ public final class Murmug {
     assert stack.isEmpty();
 
     return currentMug;
-  }
-
-  @TruffleBoundary
-  public static int get(Cell c) {
-    return c.mug();
-  }
-
-  @TruffleBoundary
-  public static int get(BigAtom a) {
-    return a.getMug();
-  }
-
-  @TruffleBoundary
-  public static int get(long l) {
-    return bytes(Atom.toByteArray(l));
-  }
-
-  @TruffleBoundary
-  public static int get(Object noun) {
-    return ( noun instanceof Cell )
-      ? get((Cell) noun)
-      : ( noun instanceof BigAtom )
-      ? get((BigAtom) noun)
-      : get((long) noun);
   }
 
   public static int calculate(Cell c) {

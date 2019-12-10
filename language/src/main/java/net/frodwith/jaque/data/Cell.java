@@ -51,20 +51,6 @@ public final class Cell implements TruffleObject, Serializable {
     }
   }
 
-  public int mug() {
-    int mug;
-    if ( null == meta ) {
-      meta = mug = Murmug.calculate(this);
-    }
-    else if ( meta instanceof Integer ) {
-      mug = (int) meta;
-    }
-    else {
-      mug = ((CellMeta)meta).mug(this);
-    }
-    return mug;
-  }
-
   public int cachedMug() {
     if ( null == meta ) {
       return 0;
@@ -88,7 +74,17 @@ public final class Cell implements TruffleObject, Serializable {
 
   @Override
   public int hashCode() {
-    return mug();
+    int mug;
+    if ( null == meta ) {
+      meta = mug = Murmug.get(this);
+    }
+    else if ( meta instanceof Integer ) {
+      mug = (int) meta;
+    }
+    else {
+      mug = ((CellMeta)meta).mug(this);
+    }
+    return mug;
   }
 
   public void unifyMeta(Cell other) {

@@ -30,26 +30,4 @@ public class MugTest {
     assertEquals(0x5303a809, Murmug.get(a));
     assertNotEquals(0, a.cachedMug());
   }
-
-
-  @Test
-  public void testNewSmallAtom() {
-    assertEquals(0x643849c6, Murmug.newGet(42L));
-  }
-
-  @Test
-  public void testNewBigAtom() {
-    BigAtom a = new BigAtom(new int[] { 0xdeadbeef, 0xbeefdead, 0xfeedbeef });
-    assertEquals(0, a.cachedMug());
-    assertEquals(0x601265fc, Murmug.newGet(a));
-    assertNotEquals(0, a.cachedMug());
-  }
-
-  @Test
-  public void testNewCell() {
-    Cell a = new Cell(42L, 0L);
-    assertEquals(0, a.cachedMug());
-    assertEquals(0x5303a809, Murmug.newGet(a));
-    assertNotEquals(0, a.cachedMug());
-  }
 }

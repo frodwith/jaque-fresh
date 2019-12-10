@@ -32,21 +32,7 @@ public final class BigAtom implements TruffleObject, Serializable {
     assert(words.length > 2);
 
     this.words = words;
-    this.meta  = 0;
-  }
-
-  public int getMug() {
-    if ( meta instanceof BigAtomMeta ) {
-      return ((BigAtomMeta) meta).getMug(asByteArray());
-    }
-    else {
-      int mug = (int) meta;
-      if ( 0 == mug ) {
-        mug = Murmug.bytes(asByteArray());
-        meta = mug;
-      }
-      return mug;
-    }
+    this.meta  = null;
   }
 
   public void setMug(int mug) {
@@ -86,16 +72,27 @@ public final class BigAtom implements TruffleObject, Serializable {
     getMeta().setSilo(silo);
   }
 
+  @Override
   public int hashCode() {
-    return getMug();
+    int mug;
+    if ( null == meta ) {
+      meta = mug = Murmug.get(this);
+    }
+    else if ( meta instanceof Integer ) {
+      mug = (int) meta;
+    }
+    else {
+      mug = ((BigAtomMeta)meta).getMug(asByteArray());
+    }
+    return mug;
   }
 
   public boolean unequalMugs(BigAtom other) {
-    int a = cachedMug();
+    int a = Murmug.get(this);
     if ( 0 == a ) {
       return false;
     }
-    int b = other.cachedMug();
+    int b = Murmug.get(other);
     if ( 0 == b ) {
       return false;
     }

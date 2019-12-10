@@ -17,21 +17,6 @@ import net.frodwith.jaque.exception.NockException;
 @NodeChild(value="sample", type=SlotNode.class)
 public abstract class MugNode extends SubjectNode {
   @Specialization
-  protected long mug(long l) {
-    return Murmug.get(l);
-  }
-
-  @Specialization
-  protected long mug(BigAtom ba) {
-    return ba.getMug();
-  }
-
-  @Specialization
-  protected long mug(Cell c) {
-    return c.mug();
-  }
-
-  @Fallback
   protected long mug(Object sample) {
     return Murmug.get(sample);
   }

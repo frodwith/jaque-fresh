@@ -209,8 +209,7 @@ public final class Dashboard {
 
       if ( !parentLocation.isPresent() ) {
         System.err.println("[nock::Dashboard] WARNING: trying to register " + clue.name +
-                    " with unlocated parent. NockClass = " + nc.toString() +
-                    ", parentCore.mug() = " + parentCore.mug());
+                    " with unlocated parent. NockClass = " + nc.toString());
         return;
       }
       Location parent = parentLocation.get();
