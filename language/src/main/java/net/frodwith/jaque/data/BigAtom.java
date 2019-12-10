@@ -49,6 +49,24 @@ public final class BigAtom implements TruffleObject, Serializable {
     }
   }
 
+  public void setMug(int mug) {
+    if ( meta instanceof BigAtomMeta ) {
+      ((BigAtomMeta)meta).setMug(mug);
+    } else {
+      meta = mug;
+    }
+  }
+
+  public int cachedMug() {
+    if ( meta instanceof BigAtomMeta ) {
+      return ((BigAtomMeta)meta).cachedMug();
+    } else if ( meta instanceof Integer ) {
+      return (int) meta;
+    } else {
+      return 0;
+    }
+  }
+
   public boolean inSilo(GrainSilo silo) {
     return ( meta instanceof BigAtomMeta ) && ((BigAtomMeta) meta).inSilo(silo);
   }
@@ -70,15 +88,6 @@ public final class BigAtom implements TruffleObject, Serializable {
 
   public int hashCode() {
     return getMug();
-  }
-
-  public int cachedMug() {
-    if ( meta instanceof Integer ) {
-      return (int) meta;
-    }
-    else {
-      return ((BigAtomMeta) meta).cachedMug();
-    }
   }
 
   public boolean unequalMugs(BigAtom other) {
