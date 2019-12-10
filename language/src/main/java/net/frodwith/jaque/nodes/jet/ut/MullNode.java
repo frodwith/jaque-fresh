@@ -36,7 +36,6 @@ public abstract class MullNode extends DecapitatedJetNode {
     try {
       // We have to switch between two different caches based off of the vet
       // flag.
-      System.err.println("mull");
       long cacheId = 141 + C3__MULL + (Atom.requireLong(vet) << 8);
       Cell cacheKey = new Cell(sut, new Cell(gol, new Cell(dox, gen)));
       return lookupOrExecute(cacheId, cacheKey, cor);

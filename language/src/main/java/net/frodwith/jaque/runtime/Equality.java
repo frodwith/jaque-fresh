@@ -154,7 +154,7 @@ public final class Equality {
     stack.push(new ComparedHeads(a, b));
     stack.push(new CompareNouns(a.head, b.head));
 
-    do { 
+    do {
       if ( whistle++ > 65535 ) {
         return dedup(stack);
       }

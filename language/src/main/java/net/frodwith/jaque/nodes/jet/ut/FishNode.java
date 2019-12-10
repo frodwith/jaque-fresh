@@ -30,7 +30,6 @@ public abstract class FishNode extends DecapitatedJetNode {
                         Object vet,  // Pull vet out of what was van.
                         Object sut) {
     try {
-      System.err.println("fish");
       // We have to switch between two different caches based off of the vet
       // flag.
       long cacheId = 141 + C3__FISH + (Atom.requireLong(vet) << 8);
