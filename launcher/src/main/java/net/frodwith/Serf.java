@@ -2,6 +2,12 @@ package net.frodwith.jaque;
 
 import net.frodwith.jaque.NockLanguage;
 
+import java.util.logging.Level;
+import java.util.logging.Handler;
+import java.util.logging.Formatter;
+import java.util.logging.LogRecord;
+import java.util.logging.ConsoleHandler;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.EOFException;
@@ -114,9 +120,21 @@ public class Serf implements Thread.UncaughtExceptionHandler
     serf.run(pierDir);
   }
 
+  private final static Handler logHandler;
+
+  static {
+    logHandler = new ConsoleHandler();
+    logHandler.setFormatter(new Formatter() {
+      public String format(LogRecord r) {
+        return r.getMessage() + "\r\n";
+      }
+    });
+  }
+
   public Serf() throws FileNotFoundException {
     this.truffleContext = Context
                         .newBuilder("nock")
+                        .logHandler(logHandler)
                         .option("nock.memo", "14096")
                         .allowAllAccess(true)
                         .build();
@@ -366,7 +384,7 @@ public class Serf implements Thread.UncaughtExceptionHandler
   }
 
   private void sendDone(long event, long mug, Value effects) throws IOException {
-    System.err.println("Sending DONE(" + event + ", " + mug + ", " + effects + ")");
+    logHandler.publish(new LogRecord(Level.FINE, "Sending DONE(" + event + ", " + mug + ", " + effects + ")"));
     writeNoun(nockRuntime.invokeMember("toNoun", C3__DONE, event, mug, effects));
   }
 
