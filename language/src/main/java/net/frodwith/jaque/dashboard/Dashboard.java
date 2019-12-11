@@ -1,5 +1,7 @@
 package net.frodwith.jaque.dashboard;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Optional;
@@ -35,8 +37,10 @@ import net.frodwith.jaque.dashboard.Battery;
 import net.frodwith.jaque.dashboard.NockClass;
 import net.frodwith.jaque.dashboard.LocatedClass;
 
+import net.frodwith.jaque.printer.SimpleAtomPrinter;
 import net.frodwith.jaque.parser.FormulaParser;
 import net.frodwith.jaque.nodes.NockRootNode;
+import net.frodwith.jaque.runtime.Atom;
 import net.frodwith.jaque.runtime.GrainSilo;
 import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.runtime.StrongCellGrainKey;
@@ -208,9 +212,17 @@ public final class Dashboard {
       Optional<Location> parentLocation = nc.getLocation();
 
       if ( !parentLocation.isPresent() ) {
-        LOG.warning("trying to register " + clue.name +
-                    " with unlocated parent. NockClass = " + nc.toString() +
-                    ", parentCore.mug() = " + parentCore.mug());
+        try {
+          StringWriter out = new StringWriter();
+          int[] words = Atom.words(clue.toParent.atom);
+          SimpleAtomPrinter.raw(out, words, 16, 0);
+          LOG.warning("trying to register " + clue.name +
+                      " with unlocated parent at axis " + out.toString() +
+                      " with parentCore.mug() = " + parentCore.mug());
+        }
+        catch ( IOException e ) {
+          LOG.severe("cannot warn about unlocated parent");
+        }
         return;
       }
       Location parent = parentLocation.get();

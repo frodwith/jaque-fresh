@@ -47,7 +47,7 @@ public final class FastClue {
     while ( true ) {
       if ( formula instanceof Cell ) {
         Cell c = ((Cell) formula);
-        if ( Equality.equals(10L, c.head) ) {
+        if ( (c.head instanceof Long) && (11L == (long) c.head) ) {
           formula = Cell.require(c.tail).tail;
           continue;
         }
