@@ -1,5 +1,7 @@
 package net.frodwith.jaque.dashboard;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Optional;
@@ -35,8 +37,10 @@ import net.frodwith.jaque.dashboard.Battery;
 import net.frodwith.jaque.dashboard.NockClass;
 import net.frodwith.jaque.dashboard.LocatedClass;
 
+import net.frodwith.jaque.printer.SimpleAtomPrinter;
 import net.frodwith.jaque.parser.FormulaParser;
 import net.frodwith.jaque.nodes.NockRootNode;
+import net.frodwith.jaque.runtime.Atom;
 import net.frodwith.jaque.runtime.GrainSilo;
 import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.runtime.StrongCellGrainKey;

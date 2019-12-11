@@ -27,6 +27,7 @@ import net.frodwith.jaque.exception.ExitException;
 @NodeField(name="localContext", type=AstContext.class)
 public abstract class DecapitatedJetNode extends SubjectNode {
   protected abstract AstContext getLocalContext();
+  private @Child NockCallDispatchNode dispatch = NockCallDispatchNodeGen.create();
 
   protected final Object runCore(Object subject)
       throws ExitException
@@ -34,10 +35,7 @@ public abstract class DecapitatedJetNode extends SubjectNode {
     Cell formula = Cell.require(Axis.HEAD.fragment(subject));
     CallTarget fn = formula.getMeta()
                     .getFunction(formula, getLocalContext()).callTarget;
-    NockCall call = new NockCall(fn, subject);
-
-    NockCallDispatchNode dispatch = NockCallDispatchNodeGen.create();
-    return dispatch.executeCall(call);
+    return dispatch.executeCall(new NockCall(fn, subject));
   }
 
   protected final Object cacheLookup(long cacheId, Cell cacheKey)

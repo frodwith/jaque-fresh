@@ -30,7 +30,6 @@ public final class SlogNode extends NockExpressionNode {
     try {
       Level level;
       Cell clue = clueNode.executeCell(frame);
-      StringBuilder buf = new StringBuilder();
       switch ( Atom.requireInt(clue.head) ) {
         case 1:
           level = Level.WARNING;
@@ -47,12 +46,11 @@ public final class SlogNode extends NockExpressionNode {
       Object wall = Tanks.wash(0L, 80L, clue.tail);
       Lists.Iterator i = new Lists.Iterator(wall);
       while ( i.hasNext() ) {
-        buf.append(Tapes.toString(i.next()));
-        buf.append("\n");
+        LOG.log(level, Tapes.toString(i.next()));
       }
-      LOG.log(level, buf.toString());
     }
     catch (ExitException | UnexpectedResultException e) {
+      LOG.log(Level.SEVERE, "bad slog");
     }
     return valueNode.executeGeneric(frame);
   }
