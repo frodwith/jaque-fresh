@@ -1,3 +1,7 @@
 #!/bin/bash
 
-mvn package -DskipTests && rm -Rf fakefed/ && ./urbit -F fed -B ~/src/urbit/bin/solid.pill -c fakefed
+if [ -r $1 ]; then
+  mvn package -DskipTests && rm -Rf fakefed/ && ./urbit -vF fed -B $1 -c fakefed
+else
+  echo "pill file does not exist"
+fi
