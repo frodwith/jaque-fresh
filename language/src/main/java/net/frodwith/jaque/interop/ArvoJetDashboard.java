@@ -62,7 +62,9 @@ import net.frodwith.jaque.nodes.jet.ShayNodeGen;
 import net.frodwith.jaque.nodes.jet.SubNodeGen;
 import net.frodwith.jaque.nodes.jet.TripNodeGen;
 
-import net.frodwith.jaque.nodes.jet.ut.CropNodeGen;
+import net.frodwith.jaque.nodes.jet.ut.DecapitatedNode;
+import net.frodwith.jaque.nodes.jet.ut.CropKeyNodeGen;
+
 import net.frodwith.jaque.nodes.jet.ut.FishNodeGen;
 import net.frodwith.jaque.nodes.jet.ut.FondNodeGen;
 import net.frodwith.jaque.nodes.jet.ut.FuseNodeGen;
@@ -252,13 +254,13 @@ public class ArvoJetDashboard {
                     },
                     new ChildCore[] {
                       gate("crop", (c, ax) ->
-                           CropNodeGen.create(new SlotNode(Axis.IDENTITY), // cor
-                                              new SlotNode(Axis.SAMPLE),   // ref
-                                              // vet / (peg u3x_con u3qfu_van_vet)
-                                              new SlotNode(Axis.get(502L)),
-                                              // sam / (peg u3x_con u3x_sam)
-                                              new SlotNode(Axis.get(30L)),
-                                              c)),
+                        new DecapitatedNode(c, ax,
+                          CropKeyNodeGen.create(
+                              // vet / (peg u3x_con u3qfu_van_vet)
+                              new SlotNode(Axis.get(502L)),
+                              // sut / (peg u3x_con u3x_sam)
+                              new SlotNode(Axis.get(30L)),
+                              new SlotNode(Axis.SAMPLE)))),
                       gate("fish", (c, ax) ->
                            FishNodeGen.create(new SlotNode(Axis.IDENTITY), // cor
                                               new SlotNode(Axis.SAMPLE),   // axe

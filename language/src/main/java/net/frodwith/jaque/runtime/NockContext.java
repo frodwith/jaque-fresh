@@ -33,13 +33,19 @@ import net.frodwith.jaque.dashboard.Dashboard;
 public final class NockContext {
   private final Env env;
   private final Cache<Cell,Object> memoCache;
+  private final Cache<Object,Object> newMemoCache;
   private AstContext astContext;
   private static final String dashboardRequired = Dashboard.class + " required";
 
   public NockContext(Env env, AstContext astContext) {
     this.astContext = astContext;
     this.env  = env;
+
     this.memoCache = CacheBuilder.newBuilder()
+      .maximumSize(env.getOptions().get(NockOptions.MEMO_SIZE))
+      .build();
+
+    this.newMemoCache = CacheBuilder.newBuilder()
       .maximumSize(env.getOptions().get(NockOptions.MEMO_SIZE))
       .build();
 
@@ -79,6 +85,14 @@ public final class NockContext {
 
   public void recordMemo(long cacheId, Cell key, Object product) {
     memoCache.put(new Cell(cacheId, key), product);
+  }
+
+  public Object newLookupMemo(Object key) {
+    return newMemoCache.getIfPresent(key);
+  }
+
+  public void newRecordMemo(Object key, Object product) {
+    newMemoCache.put(key, product);
   }
 
   public Object asHostObject(Object polyHostObject) {
