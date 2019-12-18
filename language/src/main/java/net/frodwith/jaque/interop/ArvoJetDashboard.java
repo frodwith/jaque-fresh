@@ -282,15 +282,11 @@ public class ArvoJetDashboard {
                       // sut / (peg u3x_con u3x_sam)
                       // ref / u3x_sam
                       decapitate("fuse", 502, 30, 6),
-                      gate("mint", (c, ax) ->
-                           MintNodeGen.create(new SlotNode(Axis.IDENTITY), // cor
-                                              new SlotNode(Axis.SAM_2), // gol
-                                              new SlotNode(Axis.SAM_3), // gen
-                                              // vrf / (peg u3x_con u3qfu_van_vrf)
-                                              new SlotNode(Axis.get(251L)),
-                                              // sam / (peg u3x_con u3x_sam)
-                                              new SlotNode(Axis.get(30L)),
-                                              c)),
+                      // vrf / (peg u3x_con u3qfu_van_vrf)
+                      // sut / (peg u3x_con u3x_sam)
+                      // gol / sam_2
+                      // gen / sam_3
+                      decapitate("mint", 251, 30, 12, 13),
                       gate("mull", (c, ax) ->
                            MullNodeGen.create(new SlotNode(Axis.IDENTITY),  // cor
                                               new SlotNode(Axis.SAM_2),     // gol
