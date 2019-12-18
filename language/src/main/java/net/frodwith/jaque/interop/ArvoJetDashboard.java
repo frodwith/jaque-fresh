@@ -257,6 +257,13 @@ public class ArvoJetDashboard {
                       pullHook("wrap",    6140L),
 
                     },
+                    // TODO: the presence of a persistent compiler cache (as
+                    // opposed to vere's, which is per-event) makes it more
+                    // likely that changes to the compiler will cause spurious
+                    // cache hits.  add the battery of the ut core and possibly
+                    // its context as cache keys for all compiler jets.  This
+                    // will separate the caches of versions of the compiler.
+                    // THESE JETS WILL BE SUBTLY BROKEN UNTIL THIS IS DONE.
                     new ChildCore[] {
                       // vet / (peg u3x_con u3qfu_van_vet)
                       // sut / (peg u3x_con u3x_sam)
