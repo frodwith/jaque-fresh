@@ -77,21 +77,12 @@ public final class NockContext {
     return astContext.dashboard;
   }
 
-  // Memoization caches require a cacheId number. 0 means nock, jets which
-  // store their own partial memoization use their own cacheId.
-  public Object lookupMemo(long cacheId, Cell key) {
-    return memoCache.getIfPresent(new Cell(cacheId, key));
-  }
-
-  public void recordMemo(long cacheId, Cell key, Object product) {
-    memoCache.put(new Cell(cacheId, key), product);
-  }
-
-  public Object newLookupMemo(Object key) {
+  // the keys are objects which must override .equals() and .hashCode()
+  public Object lookupMemo(Object key) {
     return newMemoCache.getIfPresent(key);
   }
 
-  public void newRecordMemo(Object key, Object product) {
+  public void recordMemo(Object key, Object product) {
     newMemoCache.put(key, product);
   }
 

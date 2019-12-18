@@ -13,7 +13,7 @@ public abstract class SaveNode extends NockNode {
   }
 
   protected void save(Object key, Object product) {
-    astContext.getNockContext().newRecordMemo(key, product);
+    astContext.getNockContext().recordMemo(key, product);
   }
 
   public abstract void executeSave(VirtualFrame frame, Object key, Object product);

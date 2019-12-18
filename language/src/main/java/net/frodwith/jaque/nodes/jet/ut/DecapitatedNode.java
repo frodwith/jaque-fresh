@@ -56,7 +56,7 @@ public final class DecapitatedNode extends SubjectNode {
       return nockNode.executeGeneric(frame);
     }
 
-    product = astContext.getNockContext().newLookupMemo(key);
+    product = astContext.getNockContext().lookupMemo(key);
 
     if ( null == product ) {
       product = nockNode.executeGeneric(frame);

@@ -50,10 +50,10 @@ public final class MemoNode extends NockExpressionNode {
 
     NockContext context = contextReference.get();
     NounsKey key = new NounsKey("nock", new Object[] { subject, formula });
-    Object product = context.newLookupMemo(key);
+    Object product = context.lookupMemo(key);
     if ( null == product ) {
       product = valueNode.executeGeneric(frame);
-      context.newRecordMemo(key, product);
+      context.recordMemo(key, product);
     }
     return product;
   }
