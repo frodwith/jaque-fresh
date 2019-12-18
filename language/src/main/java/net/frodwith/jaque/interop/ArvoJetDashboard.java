@@ -63,7 +63,7 @@ import net.frodwith.jaque.nodes.jet.SubNodeGen;
 import net.frodwith.jaque.nodes.jet.TripNodeGen;
 
 import net.frodwith.jaque.nodes.jet.ut.DecapitatedNode;
-import net.frodwith.jaque.nodes.jet.ut.VetSutRefKeyNodeGen;
+import net.frodwith.jaque.nodes.jet.ut.NounsKeyNode;
 import net.frodwith.jaque.nodes.jet.ut.NestSaveNode;
 import net.frodwith.jaque.nodes.jet.ut.UnconditionalSaveNode;
 
@@ -164,6 +164,16 @@ public class ArvoJetDashboard {
     return new JetHook(name, new FragHook(Axis.get(axis)));
   }
 
+  private static SubjectNode[] slots(long... axes) {
+    SubjectNode[] nodes = new SubjectNode[axes.length];
+
+    for ( int i = 0; i < axes.length; ++i ) {
+      nodes[i] = new SlotNode(Axis.get(axes[i]));
+    }
+
+    return nodes;
+  }
+
   // While +nest:ut is a gate, what we perform matching on is actually a
   // subcore two hints down.
   private static final ChildCore jetUtNestCore =
@@ -192,26 +202,18 @@ public class ArvoJetDashboard {
                           new SlotNode(Axis.get(28L)),
                           // reg / (peg u3x_pay u3x_sam_6)
                           new SlotNode(Axis.get(58L))),
-                        VetSutRefKeyNodeGen.create(
-                          // vet / :(peg u3x_pay u3x_con u3x_con u3qfu_van_vet)
-                          new SlotNode(Axis.get(4_086L)),
-                          // sut / :(peg u3x_pay u3x_con u3x_con u3x_sam)
-                          new SlotNode(Axis.get(254L)),
-                          // ref / (peg (peg u3x_pay u3x_con) u3x_sam_3)
-                          new SlotNode(Axis.get(125L)), "nest")))},
+                        // vet / :(peg u3x_pay u3x_con u3x_con u3qfu_van_vet)
+                        // sut / :(peg u3x_pay u3x_con u3x_con u3x_sam)
+                        // ref / (peg (peg u3x_pay u3x_con) u3x_sam_3)
+                        new NounsKeyNode("nest", slots(4_086, 254, 125))))},
                   new JetHook[0],
                   new ChildCore[0])})});
 
-  private static final ChildCore
-    decapitate(String name, long vet, long sut, long ref) {
+  private static final ChildCore decapitate(String name, long... keyAxes) {
     return gate(name, (c, ax) ->
       new DecapitatedNode(c, ax,
         new UnconditionalSaveNode(c),
-        VetSutRefKeyNodeGen.create(
-          new SlotNode(Axis.get(vet)),
-          new SlotNode(Axis.get(sut)),
-          new SlotNode(Axis.get(ref)),
-          name)));
+        new NounsKeyNode(name, slots(keyAxes))));
   }
 
   private static final ChildCore jetUtCore =

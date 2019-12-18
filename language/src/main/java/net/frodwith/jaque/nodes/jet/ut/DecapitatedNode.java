@@ -22,7 +22,7 @@ import net.frodwith.jaque.exception.NockException;
 public final class DecapitatedNode extends SubjectNode {
   protected final AstContext astContext;
   private @Child SaveNode saveNode;
-  private @Child KeyNode keyNode;
+  private @Child NounsKeyNode keyNode;
   private @Child SubjectNode nockNode;
 
   private final static TruffleLogger LOG =
@@ -31,7 +31,7 @@ public final class DecapitatedNode extends SubjectNode {
   public DecapitatedNode(AstContext astContext,
                          Axis armAxis,
                          SaveNode saveNode,
-                         KeyNode keyNode) {
+                         NounsKeyNode keyNode) {
     this.astContext = astContext;
     this.keyNode = keyNode;
     this.saveNode = saveNode;
@@ -43,7 +43,8 @@ public final class DecapitatedNode extends SubjectNode {
   }
 
   public final Object executeGeneric(VirtualFrame frame) {
-    Object key, product;
+    NounsKey key;
+    Object product;
 
     try {
       key = keyNode.executeKey(frame);
