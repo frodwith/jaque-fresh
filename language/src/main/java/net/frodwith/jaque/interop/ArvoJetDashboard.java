@@ -304,15 +304,10 @@ public class ArvoJetDashboard {
                       // sut / (peg u3x_con u3x_sam)
                       // gen / sam
                       decapitate("play", 251, 30, 6),
-                      gate("rest", (c, ax) ->
-                           RestNodeGen.create(new SlotNode(Axis.IDENTITY), // cor
-                                              new SlotNode(Axis.SAMPLE),  // gen
-                                              // vet / (peg u3x_con u3qfu_van_vet)
-                                              new SlotNode(Axis.get(502L)),
-                                              // sam / (peg u3x_con u3x_sam)
-                                              new SlotNode(Axis.get(30L)),
-                                              c)),
-                    });
+                      // vet / (peg u3x_con u3qfu_van_vet)
+                      // sut / (peg u3x_con u3x_sam)
+                      // gen / sam
+                      decapitate("rest", 502, 30, 6)});
 
   private static final ChildCore edCore =
       new ChildCore("ed",
