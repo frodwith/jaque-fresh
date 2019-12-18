@@ -2,6 +2,7 @@ package net.frodwith.jaque.nodes.jet.ut;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 
+import net.frodwith.jaque.NounsKey;
 import net.frodwith.jaque.nodes.NockNode;
 import net.frodwith.jaque.nodes.SubjectNode;
 

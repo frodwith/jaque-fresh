@@ -6,6 +6,7 @@ import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.TruffleLanguage.ContextReference;
 
 import net.frodwith.jaque.NockLanguage;
+import net.frodwith.jaque.NounsKey;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.runtime.Equality;
 import net.frodwith.jaque.runtime.NockContext;
@@ -48,10 +49,11 @@ public final class MemoNode extends NockExpressionNode {
     }
 
     NockContext context = contextReference.get();
-    Object product = context.lookupMemo(0L, new Cell(subject, formula));
+    NounsKey key = new NounsKey("nock", new Object[] { subject, formula });
+    Object product = context.newLookupMemo(key);
     if ( null == product ) {
       product = valueNode.executeGeneric(frame);
-      context.recordMemo(0L, new Cell(subject, formula), product);
+      context.newRecordMemo(key, product);
     }
     return product;
   }

@@ -4,6 +4,7 @@ import com.oracle.truffle.api.TruffleLogger;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.CompilerDirectives;
 
+import net.frodwith.jaque.NounsKey;
 import net.frodwith.jaque.AstContext;
 import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.data.NockCall;

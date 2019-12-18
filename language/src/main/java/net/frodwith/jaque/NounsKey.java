@@ -1,4 +1,4 @@
-package net.frodwith.jaque.nodes.jet.ut;
+package net.frodwith.jaque;
 
 import java.util.Objects;
 import java.util.Arrays;
