@@ -20,8 +20,9 @@ import net.frodwith.jaque.nodes.NockFunctionLookupNodeGen;
 import net.frodwith.jaque.exception.NockException;
 
 public final class DecapitatedNode extends SubjectNode {
-  private final AstContext astContext;
-  private @Child DecapitationKeyNode keyNode;
+  protected final AstContext astContext;
+  private @Child SaveNode saveNode;
+  private @Child KeyNode keyNode;
   private @Child SubjectNode nockNode;
 
   private final static TruffleLogger LOG =
@@ -29,9 +30,11 @@ public final class DecapitatedNode extends SubjectNode {
 
   public DecapitatedNode(AstContext astContext,
                          Axis armAxis,
-                         DecapitationKeyNode keyNode) {
+                         SaveNode saveNode,
+                         KeyNode keyNode) {
     this.astContext = astContext;
     this.keyNode = keyNode;
+    this.saveNode = saveNode;
 
     SlotNode slot = new SlotNode(armAxis);
     NockFunctionLookupNode look = NockFunctionLookupNodeGen.create(slot, astContext);
@@ -39,8 +42,7 @@ public final class DecapitatedNode extends SubjectNode {
     this.nockNode = new NockHeadCallNode(eval);
   }
 
-  public Object executeGeneric(VirtualFrame frame) {
-    NockContext context;
+  public final Object executeGeneric(VirtualFrame frame) {
     Object key, product;
 
     try {
@@ -52,12 +54,11 @@ public final class DecapitatedNode extends SubjectNode {
       return nockNode.executeGeneric(frame);
     }
 
-    context = astContext.getNockContext();
-    product = context.newLookupMemo(key);
+    product = astContext.getNockContext().newLookupMemo(key);
 
     if ( null == product ) {
       product = nockNode.executeGeneric(frame);
-      context.newRecordMemo(key, product);
+      saveNode.executeSave(frame, key, product);
     }
 
     return product;

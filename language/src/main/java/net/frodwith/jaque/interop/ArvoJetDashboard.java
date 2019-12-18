@@ -63,7 +63,9 @@ import net.frodwith.jaque.nodes.jet.SubNodeGen;
 import net.frodwith.jaque.nodes.jet.TripNodeGen;
 
 import net.frodwith.jaque.nodes.jet.ut.DecapitatedNode;
-import net.frodwith.jaque.nodes.jet.ut.CropKeyNodeGen;
+import net.frodwith.jaque.nodes.jet.ut.VetSutRefKeyNodeGen;
+import net.frodwith.jaque.nodes.jet.ut.NestSaveNode;
+import net.frodwith.jaque.nodes.jet.ut.UnconditionalSaveNode;
 
 import net.frodwith.jaque.nodes.jet.ut.FishNodeGen;
 import net.frodwith.jaque.nodes.jet.ut.FondNodeGen;
@@ -184,20 +186,19 @@ public class ArvoJetDashboard {
                   new JetArm[] { new AxisArm(
                       Axis.HEAD,
                       (c, ax) ->
-                      NestNodeGen.create(
-                          // cor
-                          new SlotNode(Axis.IDENTITY),
+                      new DecapitatedNode(c, ax,
+                        new NestSaveNode(c,
                           // seg / (peg u3x_pay u3x_sam_2)
                           new SlotNode(Axis.get(28L)),
                           // reg / (peg u3x_pay u3x_sam_6)
-                          new SlotNode(Axis.get(58L)),
-                          // ref / (peg (peg u3x_pay u3x_con) u3x_sam_3)
-                          new SlotNode(Axis.get(125L)),
-                          // van_van / :(peg u3x_pay u3x_con u3x_con u3qfu_van_vet)
+                          new SlotNode(Axis.get(58L))),
+                        VetSutRefKeyNodeGen.create(
+                          // vet / :(peg u3x_pay u3x_con u3x_con u3qfu_van_vet)
                           new SlotNode(Axis.get(4_086L)),
                           // sut / :(peg u3x_pay u3x_con u3x_con u3x_sam)
                           new SlotNode(Axis.get(254L)),
-                          c))},
+                          // ref / (peg (peg u3x_pay u3x_con) u3x_sam_3)
+                          new SlotNode(Axis.get(125L)), "nest")))},
                   new JetHook[0],
                   new ChildCore[0])})});
 
@@ -255,12 +256,14 @@ public class ArvoJetDashboard {
                     new ChildCore[] {
                       gate("crop", (c, ax) ->
                         new DecapitatedNode(c, ax,
-                          CropKeyNodeGen.create(
+                          new UnconditionalSaveNode(c),
+                          VetSutRefKeyNodeGen.create(
                               // vet / (peg u3x_con u3qfu_van_vet)
                               new SlotNode(Axis.get(502L)),
                               // sut / (peg u3x_con u3x_sam)
                               new SlotNode(Axis.get(30L)),
-                              new SlotNode(Axis.SAMPLE)))),
+                              // ref
+                              new SlotNode(Axis.SAMPLE), "crop"))),
                       gate("fish", (c, ax) ->
                            FishNodeGen.create(new SlotNode(Axis.IDENTITY), // cor
                                               new SlotNode(Axis.SAMPLE),   // axe
