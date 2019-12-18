@@ -17,10 +17,6 @@ public final class NestSaveNode extends SaveNode {
     this.regNode = regNode;
   }
 
-  private void save(Object key, Object product) {
-    astContext.getNockContext().newRecordMemo(key, product);
-  }
-
   public void executeSave(VirtualFrame frame, Object key, Object product) {
     if ( product instanceof Long ) {
       switch ( (int) (long) product ) {

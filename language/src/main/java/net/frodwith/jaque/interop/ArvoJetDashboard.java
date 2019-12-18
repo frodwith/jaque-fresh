@@ -67,16 +67,6 @@ import net.frodwith.jaque.nodes.jet.ut.NounsKeyNode;
 import net.frodwith.jaque.nodes.jet.ut.NestSaveNode;
 import net.frodwith.jaque.nodes.jet.ut.UnconditionalSaveNode;
 
-import net.frodwith.jaque.nodes.jet.ut.FishNodeGen;
-import net.frodwith.jaque.nodes.jet.ut.FondNodeGen;
-import net.frodwith.jaque.nodes.jet.ut.FuseNodeGen;
-import net.frodwith.jaque.nodes.jet.ut.MintNodeGen;
-import net.frodwith.jaque.nodes.jet.ut.MullNodeGen;
-import net.frodwith.jaque.nodes.jet.ut.NestNodeGen;
-import net.frodwith.jaque.nodes.jet.ut.PeekNodeGen;
-import net.frodwith.jaque.nodes.jet.ut.PlayNodeGen;
-import net.frodwith.jaque.nodes.jet.ut.RestNodeGen;
-
 import net.frodwith.jaque.nodes.jet.crypto.EdPuckNodeGen;
 import net.frodwith.jaque.nodes.jet.crypto.EdSharNodeGen;
 import net.frodwith.jaque.nodes.jet.crypto.EdSignNodeGen;

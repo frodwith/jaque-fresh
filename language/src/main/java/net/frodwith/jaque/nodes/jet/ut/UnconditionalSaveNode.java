@@ -11,6 +11,6 @@ public final class UnconditionalSaveNode extends SaveNode {
   }
 
   public void executeSave(VirtualFrame frame, Object key, Object product) {
-    astContext.getNockContext().newRecordMemo(key, product);
+    save(key, product);
   }
 }
