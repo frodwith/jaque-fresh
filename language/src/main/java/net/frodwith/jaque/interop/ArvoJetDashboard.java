@@ -202,6 +202,18 @@ public class ArvoJetDashboard {
                   new JetHook[0],
                   new ChildCore[0])})});
 
+  private static final ChildCore
+    decapitate(String name, long vet, long sut, long ref) {
+    return gate(name, (c, ax) ->
+      new DecapitatedNode(c, ax,
+        new UnconditionalSaveNode(c),
+        VetSutRefKeyNodeGen.create(
+          new SlotNode(Axis.get(vet)),
+          new SlotNode(Axis.get(sut)),
+          new SlotNode(Axis.get(ref)),
+          name)));
+  }
+
   private static final ChildCore jetUtCore =
       new ChildCore("ut",
                     Axis.get(15L),
@@ -254,24 +266,11 @@ public class ArvoJetDashboard {
 
                     },
                     new ChildCore[] {
-                      gate("crop", (c, ax) ->
-                        new DecapitatedNode(c, ax,
-                          new UnconditionalSaveNode(c),
-                          VetSutRefKeyNodeGen.create(
-                              // vet / (peg u3x_con u3qfu_van_vet)
-                              new SlotNode(Axis.get(502L)),
-                              // sut / (peg u3x_con u3x_sam)
-                              new SlotNode(Axis.get(30L)),
-                              // ref
-                              new SlotNode(Axis.SAMPLE), "crop"))),
-                      gate("fish", (c, ax) ->
-                           FishNodeGen.create(new SlotNode(Axis.IDENTITY), // cor
-                                              new SlotNode(Axis.SAMPLE),   // axe
-                                              // vet / (peg u3x_con u3qfu_van_vet)
-                                              new SlotNode(Axis.get(502L)),
-                                              // sam / (peg u3x_con u3x_sam)
-                                              new SlotNode(Axis.get(30L)),
-                                              c)),
+                      // vet / (peg u3x_con u3qfu_van_vet)
+                      // sut / (peg u3x_con u3x_sam)
+                      // ref / u3x_sam
+                      decapitate("crop", 502, 30, 6),
+                      decapitate("fish", 502, 30, 6),
                       gate("fond", (c, ax) ->
                            FondNodeGen.create(new SlotNode(Axis.IDENTITY), // cor
                                               new SlotNode(Axis.SAM_2),    // way
