@@ -300,14 +300,10 @@ public class ArvoJetDashboard {
                       // way / sam_2
                       // hyp / sam_3
                       decapitate("peek", 502, 30, 12, 13),
-                      gate("play", (c, ax) ->
-                           PlayNodeGen.create(new SlotNode(Axis.IDENTITY), // cor
-                                              new SlotNode(Axis.SAMPLE),  // gen
-                                              // vrf / (peg u3x_con u3qfu_van_vrf)
-                                              new SlotNode(Axis.get(251L)),
-                                              // sam / (peg u3x_con u3x_sam)
-                                              new SlotNode(Axis.get(30L)),
-                                              c)),
+                      // vrf / (peg u3x_con u3qfu_van_vrf)
+                      // sut / (peg u3x_con u3x_sam)
+                      // gen / sam
+                      decapitate("play", 251, 30, 6),
                       gate("rest", (c, ax) ->
                            RestNodeGen.create(new SlotNode(Axis.IDENTITY), // cor
                                               new SlotNode(Axis.SAMPLE),  // gen
