@@ -295,15 +295,11 @@ public class ArvoJetDashboard {
                       decapitate("mull", 502, 30, 12, 26, 27),
                       // Matching +nest requires matching a tree of nested cores.
                       jetUtNestCore,
-                      gate("peek", (c, ax) ->
-                           PeekNodeGen.create(new SlotNode(Axis.IDENTITY), // cor
-                                              new SlotNode(Axis.SAM_2),    // way
-                                              new SlotNode(Axis.SAM_3),    // hyp
-                                              // vet / (peg u3x_con u3qfu_van_vet)
-                                              new SlotNode(Axis.get(502L)),
-                                              // sam / (peg u3x_con u3x_sam)
-                                              new SlotNode(Axis.get(30L)),
-                                              c)),
+                      // vet / (peg u3x_con u3qfu_van_vet)
+                      // sut / (peg u3x_con u3x_sam)
+                      // way / sam_2
+                      // hyp / sam_3
+                      decapitate("peek", 502, 30, 12, 13),
                       gate("play", (c, ax) ->
                            PlayNodeGen.create(new SlotNode(Axis.IDENTITY), // cor
                                               new SlotNode(Axis.SAMPLE),  // gen
