@@ -223,20 +223,11 @@ public class Serf implements Thread.UncaughtExceptionHandler
       throws NounShapeException
   {
     try {
-      Value tail = message.getArrayElement(1);
-      Value who = tail.getArrayElement(0);
-      tail = tail.getArrayElement(1);
-      Value fake = tail.getArrayElement(0);
-      Value bootSequenceLength = tail.getArrayElement(1);
-
-      // When we boot up, we save these values.
-      this.who = who;
-      this.isFake = fake.asLong() == 0 ? true : false;
+      Value bootSequenceLength = message.getArrayElement(1);
       this.bootSequenceLength = bootSequenceLength.asLong();
 
       // The boot sequence length is 1 with solid pills and 5 with brass pills.
-      System.err.println("poke boot: who=" + this.who + ", isFake=" +
-                         this.isFake + ", bootLen=" + this.bootSequenceLength);
+      System.err.println("poke boot: bootLen=" + this.bootSequenceLength + "\r\n");
     } catch (UnsupportedOperationException e) {
       throw new NounShapeException("Couldn't unpack boot message", e);
     } catch (ArrayIndexOutOfBoundsException e) {
@@ -383,7 +374,7 @@ public class Serf implements Thread.UncaughtExceptionHandler
    * after we've loaded a snapshot. We don't have snapshots yet.
    */
   private void sendBoot() throws IOException {
-    writeNoun(nockRuntime.invokeMember("toNoun", C3__PLAY, 0L));
+    writeNoun(nockRuntime.invokeMember("toNoun", C3__PLAY, 1L, 0L));
   }
 
   private void sendDone(long event, long mug, Value effects) throws IOException {
