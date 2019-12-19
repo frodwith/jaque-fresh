@@ -12,10 +12,12 @@ import net.frodwith.jaque.runtime.Equality;
 import net.frodwith.jaque.runtime.NockContext;
 
 public final class MemoNode extends NockExpressionNode {
-  @CompilationFinal private Object oneSubject; 
+  @CompilationFinal private NounsKey oneKey;
   @CompilationFinal private Object oneProduct; 
+
   @Child private NockExpressionNode tossNode;
   @Child private NockExpressionNode valueNode;
+
   private final Cell formula;
   private final ContextReference<NockContext> contextReference;
 
@@ -25,36 +27,49 @@ public final class MemoNode extends NockExpressionNode {
     this.formula = formula;
     this.tossNode = tossNode;
     this.valueNode = valueNode;
-    this.oneSubject = null;
+    this.oneKey = null;
     this.oneProduct = null;
   }
 
   public Object executeGeneric(VirtualFrame frame) {
     tossNode.executeGeneric(frame);
     Object subject = NockLanguage.getSubject(frame);
-    if ( null == oneSubject ) {
+    NockContext context = contextReference.get();
+
+    Object [] keyNouns = new Object[2 + context.flyCount()];
+    keyNouns[0] = subject;
+    keyNouns[1] = formula;
+    int i = 2;
+    for ( Object gate : context.flyGates() ) {
+      keyNouns[i++] = gate;
+    }
+    NounsKey key = new NounsKey("nock", keyNouns);
+
+    if ( null == oneKey ) {
       // first run
       CompilerDirectives.transferToInterpreterAndInvalidate();
-      oneSubject = subject;
+      oneKey = key;
       oneProduct = valueNode.executeGeneric(frame);
       return oneProduct;
     }
     else if ( null != oneProduct ) {
-      // single item cache ( memoized thunks reduced to an equality check )
-      if ( Equality.equals(oneSubject, subject) ) {
+      // single item cache ( memoized thunks reduced to a few equality checks )
+      if ( oneKey.equals(key) ) {
         return oneProduct;
       }
-      CompilerDirectives.transferToInterpreterAndInvalidate();
-      oneProduct = null;
+      else {
+        CompilerDirectives.transferToInterpreterAndInvalidate();
+        oneProduct = null;
+      }
     }
 
-    NockContext context = contextReference.get();
-    NounsKey key = new NounsKey("nock", new Object[] { subject, formula });
     Object product = context.lookupMemo(key);
+
     if ( null == product ) {
       product = valueNode.executeGeneric(frame);
       context.recordMemo(key, product);
     }
+
     return product;
   }
 }

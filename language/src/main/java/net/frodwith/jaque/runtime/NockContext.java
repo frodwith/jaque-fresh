@@ -2,7 +2,9 @@ package net.frodwith.jaque.runtime;
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.ArrayDeque;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import org.graalvm.options.OptionValues;
 import org.graalvm.options.OptionKey;
@@ -33,6 +35,7 @@ import net.frodwith.jaque.dashboard.Dashboard;
 public final class NockContext {
   private final Env env;
   private final Cache<Object,Object> memoCache;
+  private final ArrayDeque<Object> flyStack;
   private AstContext astContext;
   private static final String dashboardRequired = Dashboard.class + " required";
 
@@ -47,6 +50,8 @@ public final class NockContext {
     if ( env.isPolyglotAccessAllowed() ) {
       env.exportSymbol("nock", new Bindings(this));
     }
+
+    flyStack = new ArrayDeque<>();
   }
 
   public AstContext getAstContext() {
@@ -83,5 +88,33 @@ public final class NockContext {
 
   public Object asHostObject(Object polyHostObject) {
     return env.asHostObject(polyHostObject);
+  }
+
+  public int flyCount() {
+    return flyStack.size();
+  }
+
+  public <T> T withFly(Object flyGate, Supplier<T> thunk) {
+    try {
+      flyStack.push(flyGate);
+      return thunk.get();
+    }
+    finally {
+      flyStack.pop();
+    }
+  }
+
+  public <T> T peelFly(Function<Object,T> withPeeled) {
+    Object fly = flyStack.pop();
+    try {
+      return withPeeled.apply(fly);
+    }
+    finally {
+      flyStack.push(fly);
+    }
+  }
+
+  public Iterable<Object> flyGates() {
+    return flyStack;
   }
 }
