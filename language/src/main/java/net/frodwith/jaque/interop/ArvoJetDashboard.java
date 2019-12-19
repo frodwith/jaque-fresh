@@ -45,7 +45,7 @@ import net.frodwith.jaque.nodes.jet.LteNodeGen;
 import net.frodwith.jaque.nodes.jet.LthNodeGen;
 import net.frodwith.jaque.nodes.jet.MasNodeGen;
 import net.frodwith.jaque.nodes.jet.MetNodeGen;
-//import net.frodwith.jaque.nodes.jet.MinkNodeGen;
+import net.frodwith.jaque.nodes.jet.MinkNodeGen;
 import net.frodwith.jaque.nodes.jet.MixNodeGen;
 import net.frodwith.jaque.nodes.jet.ModNodeGen;
 import net.frodwith.jaque.nodes.jet.MorNodeGen;
@@ -423,10 +423,10 @@ public class ArvoJetDashboard {
                       gate("trip", (c, ax) ->
                            TripNodeGen.create(new SlotNode(Axis.SAMPLE))),
 
-                      // gate("mink", (c, ax) ->
-                      //      MinkNodeGen.create(new SlotNode(Axis.SAM_4),
-                      //                         new SlotNode(Axis.SAM_5),
-                      //                         new SlotNode(Axis.SAM_3))),
+                      gate("mink", (c, ax) ->
+                           MinkNodeGen.create(c, new SlotNode(Axis.SAM_4),
+                                              new SlotNode(Axis.SAM_5),
+                                              new SlotNode(Axis.SAM_3))),
 
                       jetLayerFive
                     });
