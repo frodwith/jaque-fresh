@@ -105,12 +105,17 @@ public final class NockContext {
   }
 
   public <T> T peelFly(Function<Object,T> withPeeled) {
-    Object fly = flyStack.pop();
-    try {
-      return withPeeled.apply(fly);
+    if ( flyStack.isEmpty() ) {
+      return withPeeled.apply(null);
     }
-    finally {
-      flyStack.push(fly);
+    else {
+      Object fly = flyStack.pop();
+      try {
+        return withPeeled.apply(fly);
+      }
+      finally {
+        flyStack.push(fly);
+      }
     }
   }
 
