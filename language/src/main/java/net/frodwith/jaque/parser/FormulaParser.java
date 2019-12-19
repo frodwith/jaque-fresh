@@ -297,19 +297,18 @@ public final class FormulaParser {
       : parseStaticHint(hint, nextNoun, axis, nextAxis, tail);
   }
 
-  /*
-
-  private static WishNode parseWish(Object arg, boolean tail) throws ShapeException, FormulaRequiredException {
+  private static Function<AstContext,NockExpressionNode>
+    parseWish(Object arg, Axis axis)
+      throws ExitException {
     Cell args = Cell.require(arg);
-    ExpressionNode ref = parseExpr(args.head, false);
-    ExpressionNode gof = parseExpr(args.tail, false);
 
-    return tail
-      ? TailWishNode.create(ref, gof)
-      : HeadWishNode.create(ref, gof);
+    Function<AstContext,NockExpressionNode>
+      left = parseExpr(args.head, axis.peg(6), false),
+      right = parseExpr(args.tail, axis.peg(7), false);
+
+    return (c) -> axe(axis,
+      new WishNode(c, left.apply(c), right.apply(c)));
   }
-
-*/
 
   private static Function<AstContext,NockExpressionNode>
     parseEdit(Object arg, Axis axis, boolean tail)
@@ -383,10 +382,8 @@ public final class FormulaParser {
           return parseEdit(arg, axis, tail);
         case 11:
           return parseHint(arg, axis, tail);
-          /*
-             case 12:
-               return parseWish(arg);
-           */
+        case 12:
+          return parseWish(arg, axis);
         default:
           throw new ExitException("bad opcode: " + code);
       }

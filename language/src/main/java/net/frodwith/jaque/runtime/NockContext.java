@@ -2,7 +2,9 @@ package net.frodwith.jaque.runtime;
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.ArrayDeque;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import org.graalvm.options.OptionValues;
 import org.graalvm.options.OptionKey;
@@ -32,13 +34,15 @@ import net.frodwith.jaque.dashboard.Dashboard;
 
 public final class NockContext {
   private final Env env;
-  private final Cache<Cell,Object> memoCache;
+  private final Cache<Object,Object> memoCache;
+  private final ArrayDeque<Object> flyStack;
   private AstContext astContext;
   private static final String dashboardRequired = Dashboard.class + " required";
 
   public NockContext(Env env, AstContext astContext) {
     this.astContext = astContext;
     this.env  = env;
+
     this.memoCache = CacheBuilder.newBuilder()
       .maximumSize(env.getOptions().get(NockOptions.MEMO_SIZE))
       .build();
@@ -46,6 +50,8 @@ public final class NockContext {
     if ( env.isPolyglotAccessAllowed() ) {
       env.exportSymbol("nock", new Bindings(this));
     }
+
+    flyStack = new ArrayDeque<>();
   }
 
   public AstContext getAstContext() {
@@ -71,17 +77,49 @@ public final class NockContext {
     return astContext.dashboard;
   }
 
-  // Memoization caches require a cacheId number. 0 means nock, jets which
-  // store their own partial memoization use their own cacheId.
-  public Object lookupMemo(long cacheId, Cell key) {
-    return memoCache.getIfPresent(new Cell(cacheId, key));
+  // the keys are objects which must override .equals() and .hashCode()
+  public Object lookupMemo(Object key) {
+    return memoCache.getIfPresent(key);
   }
 
-  public void recordMemo(long cacheId, Cell key, Object product) {
-    memoCache.put(new Cell(cacheId, key), product);
+  public void recordMemo(Object key, Object product) {
+    memoCache.put(key, product);
   }
 
   public Object asHostObject(Object polyHostObject) {
     return env.asHostObject(polyHostObject);
+  }
+
+  public int flyCount() {
+    return flyStack.size();
+  }
+
+  public <T> T withFly(Object flyGate, Supplier<T> thunk) {
+    try {
+      flyStack.push(flyGate);
+      return thunk.get();
+    }
+    finally {
+      flyStack.pop();
+    }
+  }
+
+  public <T> T peelFly(Function<Object,T> withPeeled) {
+    if ( flyStack.isEmpty() ) {
+      return withPeeled.apply(null);
+    }
+    else {
+      Object fly = flyStack.pop();
+      try {
+        return withPeeled.apply(fly);
+      }
+      finally {
+        flyStack.push(fly);
+      }
+    }
+  }
+
+  public Iterable<Object> flyGates() {
+    return flyStack;
   }
 }

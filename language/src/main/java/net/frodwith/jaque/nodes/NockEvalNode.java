@@ -7,10 +7,10 @@ import net.frodwith.jaque.data.NockCall;
 
 public final class NockEvalNode extends NockCallLookupNode {
   @Child private NockFunctionLookupNode lookupNode;
-  @Child private NockExpressionNode subjectNode;
+  @Child private SubjectNode subjectNode;
 
   public NockEvalNode(NockFunctionLookupNode lookupNode,
-                      NockExpressionNode subjectNode) {
+                      SubjectNode subjectNode) {
     this.lookupNode = lookupNode;
     this.subjectNode = subjectNode;
   }

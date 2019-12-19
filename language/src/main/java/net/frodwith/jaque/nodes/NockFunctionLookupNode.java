@@ -16,7 +16,7 @@ import net.frodwith.jaque.dashboard.Dashboard;
 import net.frodwith.jaque.exception.NockException;
 import net.frodwith.jaque.exception.ExitException;
 
-@NodeChild(value="cellNode", type=NockExpressionNode.class)
+@NodeChild(value="cellNode", type=SubjectNode.class)
 @NodeField(name="astContext", type=AstContext.class)
 public abstract class NockFunctionLookupNode extends NockNode {
   public static final int INLINE_CACHE_SIZE = 2;

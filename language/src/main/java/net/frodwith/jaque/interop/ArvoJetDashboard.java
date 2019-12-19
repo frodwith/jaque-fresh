@@ -45,7 +45,7 @@ import net.frodwith.jaque.nodes.jet.LteNodeGen;
 import net.frodwith.jaque.nodes.jet.LthNodeGen;
 import net.frodwith.jaque.nodes.jet.MasNodeGen;
 import net.frodwith.jaque.nodes.jet.MetNodeGen;
-//import net.frodwith.jaque.nodes.jet.MinkNodeGen;
+import net.frodwith.jaque.nodes.jet.MinkNodeGen;
 import net.frodwith.jaque.nodes.jet.MixNodeGen;
 import net.frodwith.jaque.nodes.jet.ModNodeGen;
 import net.frodwith.jaque.nodes.jet.MorNodeGen;
@@ -62,16 +62,10 @@ import net.frodwith.jaque.nodes.jet.ShayNodeGen;
 import net.frodwith.jaque.nodes.jet.SubNodeGen;
 import net.frodwith.jaque.nodes.jet.TripNodeGen;
 
-import net.frodwith.jaque.nodes.jet.ut.CropNodeGen;
-import net.frodwith.jaque.nodes.jet.ut.FishNodeGen;
-import net.frodwith.jaque.nodes.jet.ut.FondNodeGen;
-import net.frodwith.jaque.nodes.jet.ut.FuseNodeGen;
-import net.frodwith.jaque.nodes.jet.ut.MintNodeGen;
-import net.frodwith.jaque.nodes.jet.ut.MullNodeGen;
-import net.frodwith.jaque.nodes.jet.ut.NestNodeGen;
-import net.frodwith.jaque.nodes.jet.ut.PeekNodeGen;
-import net.frodwith.jaque.nodes.jet.ut.PlayNodeGen;
-import net.frodwith.jaque.nodes.jet.ut.RestNodeGen;
+import net.frodwith.jaque.nodes.jet.ut.DecapitatedNode;
+import net.frodwith.jaque.nodes.jet.ut.NounsKeyNode;
+import net.frodwith.jaque.nodes.jet.ut.NestSaveNode;
+import net.frodwith.jaque.nodes.jet.ut.UnconditionalSaveNode;
 
 import net.frodwith.jaque.nodes.jet.crypto.EdPuckNodeGen;
 import net.frodwith.jaque.nodes.jet.crypto.EdSharNodeGen;
@@ -160,6 +154,16 @@ public class ArvoJetDashboard {
     return new JetHook(name, new FragHook(Axis.get(axis)));
   }
 
+  private static SubjectNode[] slots(long... axes) {
+    SubjectNode[] nodes = new SubjectNode[axes.length];
+
+    for ( int i = 0; i < axes.length; ++i ) {
+      nodes[i] = new SlotNode(Axis.get(axes[i]));
+    }
+
+    return nodes;
+  }
+
   // While +nest:ut is a gate, what we perform matching on is actually a
   // subcore two hints down.
   private static final ChildCore jetUtNestCore =
@@ -182,22 +186,25 @@ public class ArvoJetDashboard {
                   new JetArm[] { new AxisArm(
                       Axis.HEAD,
                       (c, ax) ->
-                      NestNodeGen.create(
-                          // cor
-                          new SlotNode(Axis.IDENTITY),
+                      new DecapitatedNode(c, ax,
+                        new NestSaveNode(c,
                           // seg / (peg u3x_pay u3x_sam_2)
                           new SlotNode(Axis.get(28L)),
                           // reg / (peg u3x_pay u3x_sam_6)
-                          new SlotNode(Axis.get(58L)),
-                          // ref / (peg (peg u3x_pay u3x_con) u3x_sam_3)
-                          new SlotNode(Axis.get(125L)),
-                          // van_van / :(peg u3x_pay u3x_con u3x_con u3qfu_van_vet)
-                          new SlotNode(Axis.get(4_086L)),
-                          // sut / :(peg u3x_pay u3x_con u3x_con u3x_sam)
-                          new SlotNode(Axis.get(254L)),
-                          c))},
+                          new SlotNode(Axis.get(58L))),
+                        // vet / :(peg u3x_pay u3x_con u3x_con u3qfu_van_vet)
+                        // sut / :(peg u3x_pay u3x_con u3x_con u3x_sam)
+                        // ref / (peg (peg u3x_pay u3x_con) u3x_sam_3)
+                        new NounsKeyNode("nest", slots(4_086, 254, 125))))},
                   new JetHook[0],
                   new ChildCore[0])})});
+
+  private static final ChildCore decapitate(String name, long... keyAxes) {
+    return gate(name, (c, ax) ->
+      new DecapitatedNode(c, ax,
+        new UnconditionalSaveNode(c),
+        new NounsKeyNode(name, slots(keyAxes))));
+  }
 
   private static final ChildCore jetUtCore =
       new ChildCore("ut",
@@ -250,89 +257,54 @@ public class ArvoJetDashboard {
                       pullHook("wrap",    6140L),
 
                     },
+                    // TODO: the presence of a persistent compiler cache (as
+                    // opposed to vere's, which is per-event) makes it more
+                    // likely that changes to the compiler will cause spurious
+                    // cache hits.  add the battery of the ut core and possibly
+                    // its context as cache keys for all compiler jets.  This
+                    // will separate the caches of versions of the compiler.
+                    // THESE JETS WILL BE SUBTLY BROKEN UNTIL THIS IS DONE.
                     new ChildCore[] {
-                      gate("crop", (c, ax) ->
-                           CropNodeGen.create(new SlotNode(Axis.IDENTITY), // cor
-                                              new SlotNode(Axis.SAMPLE),   // ref
-                                              // vet / (peg u3x_con u3qfu_van_vet)
-                                              new SlotNode(Axis.get(502L)),
-                                              // sam / (peg u3x_con u3x_sam)
-                                              new SlotNode(Axis.get(30L)),
-                                              c)),
-                      gate("fish", (c, ax) ->
-                           FishNodeGen.create(new SlotNode(Axis.IDENTITY), // cor
-                                              new SlotNode(Axis.SAMPLE),   // axe
-                                              // vet / (peg u3x_con u3qfu_van_vet)
-                                              new SlotNode(Axis.get(502L)),
-                                              // sam / (peg u3x_con u3x_sam)
-                                              new SlotNode(Axis.get(30L)),
-                                              c)),
-                      gate("fond", (c, ax) ->
-                           FondNodeGen.create(new SlotNode(Axis.IDENTITY), // cor
-                                              new SlotNode(Axis.SAM_2),    // way
-                                              new SlotNode(Axis.SAM_3),    // hyp
-                                              // vet / (peg u3x_con u3qfu_van_vet)
-                                              new SlotNode(Axis.get(502L)),
-                                              // sam / (peg u3x_con u3x_sam)
-                                              new SlotNode(Axis.get(30L)),
-                                              c)),
-                      gate("fuse", (c, ax) ->
-                           FuseNodeGen.create(new SlotNode(Axis.IDENTITY), // cor
-                                              new SlotNode(Axis.SAMPLE),   // ref
-                                              // vet / (peg u3x_con u3qfu_van_vet)
-                                              new SlotNode(Axis.get(502L)),
-                                              // sam / (peg u3x_con u3x_sam)
-                                              new SlotNode(Axis.get(30L)),
-                                              c)),
-                      gate("mint", (c, ax) ->
-                           MintNodeGen.create(new SlotNode(Axis.IDENTITY), // cor
-                                              new SlotNode(Axis.SAM_2), // gol
-                                              new SlotNode(Axis.SAM_3), // gen
-                                              // vrf / (peg u3x_con u3qfu_van_vrf)
-                                              new SlotNode(Axis.get(251L)),
-                                              // sam / (peg u3x_con u3x_sam)
-                                              new SlotNode(Axis.get(30L)),
-                                              c)),
-                      gate("mull", (c, ax) ->
-                           MullNodeGen.create(new SlotNode(Axis.IDENTITY),  // cor
-                                              new SlotNode(Axis.SAM_2),     // gol
-                                              new SlotNode(Axis.SAM_6),     // dox
-                                              new SlotNode(Axis.SAM_7),     // gen
-                                              // vet / (peg u3x_con u3qfu_van_vet)
-                                              new SlotNode(Axis.get(502L)),
-                                              // sut / (peg u3x_con u3x_sam)
-                                              new SlotNode(Axis.get(30L)),
-                                              c)),
-
+                      // vet / (peg u3x_con u3qfu_van_vet)
+                      // sut / (peg u3x_con u3x_sam)
+                      // ref / u3x_sam
+                      decapitate("crop", 502, 30, 6),
+                      decapitate("fish", 502, 30, 6),
+                      // vet / (peg u3x_con u3qfu_van_vet)
+                      // sut / (peg u3x_con u3x_sam)
+                      // way / sam_2
+                      // hyp / sam_3
+                      decapitate("fond", 502, 30, 12, 13),
+                      // vet / (peg u3x_con u3qfu_van_vet)
+                      // sut / (peg u3x_con u3x_sam)
+                      // ref / u3x_sam
+                      decapitate("fuse", 502, 30, 6),
+                      // vrf / (peg u3x_con u3qfu_van_vrf)
+                      // sut / (peg u3x_con u3x_sam)
+                      // gol / sam_2
+                      // gen / sam_3
+                      decapitate("mint", 251, 30, 12, 13),
+                      // vet / (peg u3x_con u3qfu_van_vet)
+                      // sut / (peg u3x_con u3x_sam)
+                      // gol / sam_2
+                      // dox / sam_6
+                      // gen / sam_7
+                      decapitate("mull", 502, 30, 12, 26, 27),
                       // Matching +nest requires matching a tree of nested cores.
                       jetUtNestCore,
-
-                      gate("peek", (c, ax) ->
-                           PeekNodeGen.create(new SlotNode(Axis.IDENTITY), // cor
-                                              new SlotNode(Axis.SAM_2),    // way
-                                              new SlotNode(Axis.SAM_3),    // hyp
-                                              // vet / (peg u3x_con u3qfu_van_vet)
-                                              new SlotNode(Axis.get(502L)),
-                                              // sam / (peg u3x_con u3x_sam)
-                                              new SlotNode(Axis.get(30L)),
-                                              c)),
-                      gate("play", (c, ax) ->
-                           PlayNodeGen.create(new SlotNode(Axis.IDENTITY), // cor
-                                              new SlotNode(Axis.SAMPLE),  // gen
-                                              // vrf / (peg u3x_con u3qfu_van_vrf)
-                                              new SlotNode(Axis.get(251L)),
-                                              // sam / (peg u3x_con u3x_sam)
-                                              new SlotNode(Axis.get(30L)),
-                                              c)),
-                      gate("rest", (c, ax) ->
-                           RestNodeGen.create(new SlotNode(Axis.IDENTITY), // cor
-                                              new SlotNode(Axis.SAMPLE),  // gen
-                                              // vet / (peg u3x_con u3qfu_van_vet)
-                                              new SlotNode(Axis.get(502L)),
-                                              // sam / (peg u3x_con u3x_sam)
-                                              new SlotNode(Axis.get(30L)),
-                                              c)),
-                    });
+                      // vet / (peg u3x_con u3qfu_van_vet)
+                      // sut / (peg u3x_con u3x_sam)
+                      // way / sam_2
+                      // hyp / sam_3
+                      decapitate("peek", 502, 30, 12, 13),
+                      // vrf / (peg u3x_con u3qfu_van_vrf)
+                      // sut / (peg u3x_con u3x_sam)
+                      // gen / sam
+                      decapitate("play", 251, 30, 6),
+                      // vet / (peg u3x_con u3qfu_van_vet)
+                      // sut / (peg u3x_con u3x_sam)
+                      // gen / sam
+                      decapitate("rest", 502, 30, 6)});
 
   private static final ChildCore edCore =
       new ChildCore("ed",
@@ -451,10 +423,10 @@ public class ArvoJetDashboard {
                       gate("trip", (c, ax) ->
                            TripNodeGen.create(new SlotNode(Axis.SAMPLE))),
 
-                      // gate("mink", (c, ax) ->
-                      //      MinkNodeGen.create(new SlotNode(Axis.SAM_4),
-                      //                         new SlotNode(Axis.SAM_5),
-                      //                         new SlotNode(Axis.SAM_3))),
+                      gate("mink", (c, ax) ->
+                           MinkNodeGen.create(c, new SlotNode(Axis.SAM_4),
+                                              new SlotNode(Axis.SAM_5),
+                                              new SlotNode(Axis.SAM_3))),
 
                       jetLayerFive
                     });
