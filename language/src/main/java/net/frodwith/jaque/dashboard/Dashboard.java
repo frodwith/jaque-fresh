@@ -194,7 +194,8 @@ public final class Dashboard {
   }
 
   // unconditional (will not short-circuit)
-  public void 
+  @TruffleBoundary
+  public void
     register(Cell core, FastClue clue)
       throws ExitException {
     Location location;
@@ -240,6 +241,7 @@ public final class Dashboard {
       .setNockClass(new LocatedClass(b, getStableAssumption(), location));
   }
 
+  @TruffleBoundary
   public Assumption getStableAssumption() {
     return stable.getAssumption();
   }

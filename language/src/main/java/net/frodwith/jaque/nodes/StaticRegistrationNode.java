@@ -3,6 +3,7 @@ package net.frodwith.jaque.nodes;
 import java.util.function.Supplier;
 
 import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.FastClue;
@@ -24,6 +25,18 @@ public final class StaticRegistrationNode extends RegistrationNode {
     this.clue = clue;
   }
 
+  @TruffleBoundary
+  private RegistrationNode buildFineReplacement(NockClass klass) {
+    return new FineRegistrationNode(
+              this.clue, klass.getFine(this.core),
+              dashboard);
+  }
+
+  @TruffleBoundary
+  private RegistrationNode buildFullyDynamic() {
+    return new FullyDynamicRegistrationNode(dashboard);
+  }
+
   @Override
   public void executeRegister(Object core, Object clue) {
     RegistrationNode replacement;
@@ -35,9 +48,7 @@ public final class StaticRegistrationNode extends RegistrationNode {
         NockClass klass;
         try {
           klass = this.core.getMeta().getNockClass(this.core, dashboard);
-          replacement = new FineRegistrationNode(
-              this.clue, klass.getFine(this.core),
-              dashboard);
+          replacement = buildFineReplacement(klass);
         }
         catch ( ExitException e ) {
           // XX log non-core registration
@@ -46,7 +57,7 @@ public final class StaticRegistrationNode extends RegistrationNode {
       }
     }
     else {
-      replacement = new FullyDynamicRegistrationNode(dashboard);
+      replacement = buildFullyDynamic();
     }
     CompilerDirectives.transferToInterpreter();
     replace(replacement);
