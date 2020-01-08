@@ -3,6 +3,7 @@ package net.frodwith.jaque.nodes.jet.ut;
 import com.oracle.truffle.api.TruffleLogger;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 
 import net.frodwith.jaque.NounsKey;
 import net.frodwith.jaque.AstContext;
@@ -43,6 +44,17 @@ public final class DecapitatedNode extends SubjectNode {
     this.nockNode = new NockHeadCallNode(eval);
   }
 
+  @TruffleBoundary
+  private void printHitOrMiss(boolean hit) {
+    // We must not call System.err.print() on the inlineable side of a truffle
+    // boundary, since it will try to inline into a lock on the stream io.
+    if (hit) {
+      System.err.print("H");
+    } else {
+      System.err.print(".");
+    }
+  }
+
   public final Object executeGeneric(VirtualFrame frame) {
     NounsKey key;
     Object product;
@@ -58,10 +70,13 @@ public final class DecapitatedNode extends SubjectNode {
 
     product = astContext.getNockContext().lookupMemo(key);
 
-    if ( null == product ) {
+    boolean cacheMiss = null == product;
+    if ( cacheMiss ) {
       product = nockNode.executeGeneric(frame);
       saveNode.executeSave(frame, key, product);
     }
+
+    //printHitOrMiss(!cacheMiss);
 
     return product;
   }
