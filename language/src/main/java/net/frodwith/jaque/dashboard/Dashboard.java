@@ -162,6 +162,7 @@ public final class Dashboard {
       : Optional.empty();
   }
 
+  @TruffleBoundary
   public Battery createBattery(Cell cell) {
     Optional<Optional<Registration>> knownUnknowns = hashDiscovery
       ? Optional.empty()

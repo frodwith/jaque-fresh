@@ -78,10 +78,12 @@ public final class NockContext {
   }
 
   // the keys are objects which must override .equals() and .hashCode()
+  @TruffleBoundary
   public Object lookupMemo(Object key) {
     return memoCache.getIfPresent(key);
   }
 
+  @TruffleBoundary
   public void recordMemo(Object key, Object product) {
     memoCache.put(key, product);
   }
