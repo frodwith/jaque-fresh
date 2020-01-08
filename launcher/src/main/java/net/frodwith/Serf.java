@@ -175,8 +175,8 @@ public class Serf implements Thread.UncaughtExceptionHandler
           // System.err.println("poke work");
           onWorkMessage(message);
         } else if (tag == C3__EXIT) {
-          System.err.println("poke exit");
-          // TODO: Exit immediately.
+          //System.err.println("poke exit");
+          onExitMessage(message);
         } else if (tag == C3__SAVE) {
           //System.err.println("poke save");
           // TODO: I have no idea at all.
@@ -270,6 +270,19 @@ public class Serf implements Thread.UncaughtExceptionHandler
       throw new NounShapeException("Couldn't unpack work message", e);
     } catch (ArrayIndexOutOfBoundsException e) {
       throw new NounShapeException("Couldn't unpack work message", e);
+    }
+  }
+
+  private void onExitMessage(Value message)
+      throws NounShapeException
+  {
+    try {
+      int exitCode = message.getArrayElement(1).asInt();
+      System.exit(exitCode);
+    } catch (UnsupportedOperationException e) {
+      throw new NounShapeException("Couldn't unpack exit message", e);
+    } catch (ArrayIndexOutOfBoundsException e) {
+      throw new NounShapeException("Couldn't unpack exit message", e);
     }
   }
 
