@@ -63,6 +63,9 @@ public final class Murmug {
           continue advance;
         }
       }
+      else {
+        assert false : "Murmug received a non-nock datatype!";
+      }
 
       retreat:
       while (true) {
@@ -95,15 +98,7 @@ public final class Murmug {
     return currentMug;
   }
 
-  public static int calculate(Cell c) {
-    return both(get(c.head), get(c.tail));
-  }
-
-  public static int calculate(BigAtom a) {
-    return bytes(a.asByteArray());
-  }
-
-  public static int both(int a, int b) {
+  private static int both(int a, int b) {
     return get((long)(a ^ (0x7fffffff ^ b)));
   }
 

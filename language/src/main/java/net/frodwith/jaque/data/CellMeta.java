@@ -74,7 +74,7 @@ public final class CellMeta {
   // mugs (cached hashes)
   public int mug(Cell cell) {
     if ( 0 == mug ) {
-      mug = Murmug.calculate(cell);
+      mug = Murmug.get(cell);
     }
     return mug;
   }
