@@ -56,6 +56,27 @@ public class MathTest {
       HoonMath.mod(simple("510.015.580.149.921.683.080.168"), 805306368L));
   }
 
+  @Test
+  public void shalExamples() throws ExitException {
+    assertNounEquals("(shal 64 0)",
+                     simple("6.756.433.270.247.411.179.955.344.271.290.860.428.196.519.276.306.619.770.861.134.681.094.926.084.110.998.387.270.479.862.864.333.985.199.987.953.846.750.880.615.535.480.720.605.515.890.594.991.962.974.587"),
+                     HoonMath.shal(64L, 0L));
+  }
+
+  @Test
+  public void shanExamples() throws ExitException {
+    assertNounEquals("(shan 1)",
+                     simple("1.093.523.068.179.437.076.151.307.713.719.293.877.757.258.358.775"),
+                     HoonMath.shan(1L));
+  }
+
+  @Test
+  public void shayExamples() throws ExitException {
+    assertNounEquals("(shay 64 0)",
+                     simple("34.367.557.581.685.318.425.726.328.262.320.917.488.681.687.905.898.731.619.088.842.829.451.262.535.157"),
+                     HoonMath.shay(64L, 0L));
+  }
+
   // subtraction reverses addition
   @Property
   public void addSub(@From(AtomGenerator.class) Object a,

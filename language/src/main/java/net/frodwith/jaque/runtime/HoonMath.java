@@ -809,7 +809,7 @@ public final class HoonMath {
   private static Object sha_help(Object len, Object atom, String algo)
       throws ExitException {
     int leni = Atom.requireInt(len);
-    byte[] in = Atom.toByteArray(atom);
+    byte[] in = Atom.forceBytes(atom, leni);
     return Atom.fromByteArray(doSha(algo, in));
   }
 
