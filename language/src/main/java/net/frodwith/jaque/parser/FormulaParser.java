@@ -21,6 +21,7 @@ import net.frodwith.jaque.runtime.Atom;
 import net.frodwith.jaque.exception.ExitException;
 
 import net.frodwith.jaque.nodes.*;
+import net.frodwith.jaque.nodes.expression.*;
 
 public final class FormulaParser {
 
@@ -95,7 +96,7 @@ public final class FormulaParser {
     parseBump(Object arg, Axis axis)
       throws ExitException {
     Function<AstContext,NockExpressionNode> e = parseUnary(arg, axis);
-    return (c) -> axe(axis, BumpNodeGen.create(e.apply(c)));
+    return (c) -> axe(axis, BumpExpressionNodeGen.create(e.apply(c)));
   }
 
   private static Function<AstContext,NockExpressionNode>
