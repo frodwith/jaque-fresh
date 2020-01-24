@@ -89,7 +89,7 @@ public final class FormulaParser {
     parseDeep(Object arg, Axis axis)
       throws ExitException {
     Function<AstContext,NockExpressionNode> e = parseUnary(arg, axis);
-    return (c) -> axe(axis, DeepNodeGen.create(e.apply(c)));
+    return (c) -> axe(axis, DeepExpressionNodeGen.create(e.apply(c)));
   }
 
   private static Function<AstContext,NockExpressionNode>

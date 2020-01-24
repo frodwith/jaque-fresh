@@ -19,7 +19,7 @@ public abstract class SameExpressionNode extends NockExpressionNode {
   }
 
   @Specialization
-  protected long direct(Object left, Object right, boolean same) {
+  protected long test(Object left, Object right, boolean same) {
     return same ? 0L : 1L;
   }
 }
