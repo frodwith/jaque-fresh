@@ -38,7 +38,7 @@ import net.frodwith.jaque.exception.ExitException;
 import net.frodwith.jaque.dashboard.Dashboard;
 import net.frodwith.jaque.dashboard.BatteryHash;
 
-import net.frodwith.jaque.nodes.SlotNode;
+import net.frodwith.jaque.nodes.expression.SlotExpressionNode;
 import net.frodwith.jaque.nodes.SubjectNode;
 import net.frodwith.jaque.nodes.jet.DecNodeGen;
 import net.frodwith.jaque.nodes.jet.AddNodeGen;
@@ -124,10 +124,10 @@ public class MemoTest {
             new JetHook[0],
             new ChildCore[] {
               gate("dec", (c, ax) ->
-                  DecNodeGen.create(new SlotNode(Axis.SAMPLE))),
+                  DecNodeGen.create(new SlotExpressionNode(Axis.SAMPLE))),
               gate("add", (c, ax) ->
-                  AddNodeGen.create(new SlotNode(Axis.get(12L)),
-                                    new SlotNode(Axis.get(13L)))),
+                  AddNodeGen.create(new SlotExpressionNode(Axis.get(12L)),
+                                    new SlotExpressionNode(Axis.get(13L)))),
               new ChildCore("two",
                 Axis.TAIL,
                 new HashCode[0],

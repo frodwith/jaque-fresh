@@ -5,13 +5,13 @@ import com.oracle.truffle.api.dsl.NodeChildren;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.dsl.Fallback;
 
-import net.frodwith.jaque.nodes.SlotNode;
+import net.frodwith.jaque.nodes.expression.SlotExpressionNode;
 import net.frodwith.jaque.nodes.SubjectNode;
 import net.frodwith.jaque.runtime.HoonMath;
 
 @NodeChildren({
-  @NodeChild(value="a", type=SlotNode.class),
-  @NodeChild(value="b", type=SlotNode.class)
+  @NodeChild(value="a", type=SlotExpressionNode.class),
+  @NodeChild(value="b", type=SlotExpressionNode.class)
 })
 public abstract class AddNode extends SubjectNode {
   // overflow is rare - most times we can return a long

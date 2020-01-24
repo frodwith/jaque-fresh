@@ -21,7 +21,7 @@ import net.frodwith.jaque.dashboard.BatteryHash;
 import net.frodwith.jaque.dashboard.FragHook;
 import net.frodwith.jaque.dashboard.PullHook;
 
-import net.frodwith.jaque.nodes.SlotNode;
+import net.frodwith.jaque.nodes.expression.SlotExpressionNode;
 import net.frodwith.jaque.nodes.SubjectNode;
 import net.frodwith.jaque.nodes.jet.AddNodeGen;
 import net.frodwith.jaque.nodes.jet.BexNodeGen;
@@ -111,13 +111,13 @@ public class ArvoJetDashboard {
                          new JetHook[0],
                          new ChildCore[] {
                            gate("en", (c, cx) -> AesEcbNodeGen.create(
-                               new SlotNode(Axis.CON_SAM),
-                               new SlotNode(Axis.SAMPLE),
+                               new SlotExpressionNode(Axis.CON_SAM),
+                               new SlotExpressionNode(Axis.SAMPLE),
                                Cipher.ENCRYPT_MODE,
                                keysize)),
                            gate("de", (c, cx) -> AesEcbNodeGen.create(
-                               new SlotNode(Axis.CON_SAM),
-                               new SlotNode(Axis.SAMPLE),
+                               new SlotExpressionNode(Axis.CON_SAM),
+                               new SlotExpressionNode(Axis.SAMPLE),
                                Cipher.DECRYPT_MODE,
                                keysize)),
                          });
@@ -132,15 +132,15 @@ public class ArvoJetDashboard {
                          new JetHook[0],
                          new ChildCore[] {
                            gate("en", (c, cx) -> AesCbcNodeGen.create(
-                               new SlotNode(Axis.get(61L)),
-                               new SlotNode(Axis.get(60L)),
-                               new SlotNode(Axis.SAMPLE),
+                               new SlotExpressionNode(Axis.get(61L)),
+                               new SlotExpressionNode(Axis.get(60L)),
+                               new SlotExpressionNode(Axis.SAMPLE),
                                Cipher.ENCRYPT_MODE,
                                keysize)),
                            gate("de", (c, cx) -> AesCbcNodeGen.create(
-                               new SlotNode(Axis.get(61L)),
-                               new SlotNode(Axis.get(60L)),
-                               new SlotNode(Axis.SAMPLE),
+                               new SlotExpressionNode(Axis.get(61L)),
+                               new SlotExpressionNode(Axis.get(60L)),
+                               new SlotExpressionNode(Axis.SAMPLE),
                                Cipher.DECRYPT_MODE,
                                keysize)),
                          });
@@ -158,7 +158,7 @@ public class ArvoJetDashboard {
     SubjectNode[] nodes = new SubjectNode[axes.length];
 
     for ( int i = 0; i < axes.length; ++i ) {
-      nodes[i] = new SlotNode(Axis.get(axes[i]));
+      nodes[i] = new SlotExpressionNode(Axis.get(axes[i]));
     }
 
     return nodes;
@@ -189,9 +189,9 @@ public class ArvoJetDashboard {
                       new DecapitatedNode(c, ax,
                         new NestSaveNode(c,
                           // seg / (peg u3x_pay u3x_sam_2)
-                          new SlotNode(Axis.get(28L)),
+                          new SlotExpressionNode(Axis.get(28L)),
                           // reg / (peg u3x_pay u3x_sam_6)
-                          new SlotNode(Axis.get(58L))),
+                          new SlotExpressionNode(Axis.get(58L))),
                         // vet / :(peg u3x_pay u3x_con u3x_con u3qfu_van_vet)
                         // sut / :(peg u3x_pay u3x_con u3x_con u3x_sam)
                         // ref / (peg (peg u3x_pay u3x_con) u3x_sam_3)
@@ -314,39 +314,39 @@ public class ArvoJetDashboard {
                     new JetHook[0],
                     new ChildCore[] {
                       gate("point-add", (c, ax) ->
-                           EdPointAddNodeGen.create(new SlotNode(Axis.SAM_2),
-                                                    new SlotNode(Axis.SAM_3))),
+                           EdPointAddNodeGen.create(new SlotExpressionNode(Axis.SAM_2),
+                                                    new SlotExpressionNode(Axis.SAM_3))),
                       gate("scalarmult", (c, ax) ->
                            EdScalarmultNodeGen.create(
-                               new SlotNode(Axis.SAM_2),
-                               new SlotNode(Axis.SAM_3))),
+                               new SlotExpressionNode(Axis.SAM_2),
+                               new SlotExpressionNode(Axis.SAM_3))),
                       gate("scalarmult-base", (c, ax) ->
                            EdScalarmultBaseNodeGen.create(
-                               new SlotNode(Axis.SAMPLE))),
+                               new SlotExpressionNode(Axis.SAMPLE))),
                       gate("add-scalarmult-scalarmult-base", (c, ax) ->
                            EdAddScalarmultScalarmultBaseNodeGen.create(
-                               new SlotNode(Axis.SAM_2),
-                               new SlotNode(Axis.SAM_6),
-                               new SlotNode(Axis.SAM_7))),
+                               new SlotExpressionNode(Axis.SAM_2),
+                               new SlotExpressionNode(Axis.SAM_6),
+                               new SlotExpressionNode(Axis.SAM_7))),
                       gate("add-double-scalarmult", (c, ax) ->
                            EdAddDoubleScalarmultNodeGen.create(
-                               new SlotNode(Axis.SAM_2),
-                               new SlotNode(Axis.SAM_6),
-                               new SlotNode(Axis.SAM_14),
-                               new SlotNode(Axis.SAM_15))),
+                               new SlotExpressionNode(Axis.SAM_2),
+                               new SlotExpressionNode(Axis.SAM_6),
+                               new SlotExpressionNode(Axis.SAM_14),
+                               new SlotExpressionNode(Axis.SAM_15))),
 
                       gate("puck", (c, ax) ->
-                           EdPuckNodeGen.create(new SlotNode(Axis.SAMPLE))),
+                           EdPuckNodeGen.create(new SlotExpressionNode(Axis.SAMPLE))),
                       gate("shar", (c, ax) ->
-                           EdSharNodeGen.create(new SlotNode(Axis.SAM_2),
-                                                new SlotNode(Axis.SAM_3))),
+                           EdSharNodeGen.create(new SlotExpressionNode(Axis.SAM_2),
+                                                new SlotExpressionNode(Axis.SAM_3))),
                       gate("sign", (c, ax) ->
-                           EdSignNodeGen.create(new SlotNode(Axis.SAM_2),
-                                                new SlotNode(Axis.SAM_3))),
+                           EdSignNodeGen.create(new SlotExpressionNode(Axis.SAM_2),
+                                                new SlotExpressionNode(Axis.SAM_3))),
                       gate("veri", (c, ax) ->
-                           EdVeriNodeGen.create(new SlotNode(Axis.SAM_2),
-                                                new SlotNode(Axis.SAM_6),
-                                                new SlotNode(Axis.SAM_7))),
+                           EdVeriNodeGen.create(new SlotExpressionNode(Axis.SAM_2),
+                                                new SlotExpressionNode(Axis.SAM_6),
+                                                new SlotExpressionNode(Axis.SAM_7))),
                     });
 
   private static final ChildCore coedCore =
@@ -386,11 +386,11 @@ public class ArvoJetDashboard {
                       //
                       offsetGate("loss", Axis.get(63L),
                                  (c, ax) -> LossNodeGen.create(
-                                     new SlotNode(Axis.SAM_2),
-                                     new SlotNode(Axis.SAM_3))),
+                                     new SlotExpressionNode(Axis.SAM_2),
+                                     new SlotExpressionNode(Axis.SAM_3))),
                       offsetGate("lore", Axis.get(63L),
                                  (c, ax) -> LoreNodeGen.create(
-                                     new SlotNode(Axis.SAMPLE))),
+                                     new SlotExpressionNode(Axis.SAMPLE))),
 
                       coedCore,
                       aesCore
@@ -421,12 +421,12 @@ public class ArvoJetDashboard {
                     },
                     new ChildCore[] {
                       gate("trip", (c, ax) ->
-                           TripNodeGen.create(new SlotNode(Axis.SAMPLE))),
+                           TripNodeGen.create(new SlotExpressionNode(Axis.SAMPLE))),
 
                       gate("mink", (c, ax) ->
-                           MinkNodeGen.create(c, new SlotNode(Axis.SAM_4),
-                                              new SlotNode(Axis.SAM_5),
-                                              new SlotNode(Axis.SAM_3))),
+                           MinkNodeGen.create(c, new SlotExpressionNode(Axis.SAM_4),
+                                              new SlotExpressionNode(Axis.SAM_5),
+                                              new SlotExpressionNode(Axis.SAM_3))),
 
                       jetLayerFive
                     });
@@ -439,13 +439,13 @@ public class ArvoJetDashboard {
                     new JetHook[0],
                     new ChildCore[] {
                       gate("shal", (c, ax) ->
-                           ShalNodeGen.create(new SlotNode(Axis.SAM_2),
-                                              new SlotNode(Axis.SAM_3))),
+                           ShalNodeGen.create(new SlotExpressionNode(Axis.SAM_2),
+                                              new SlotExpressionNode(Axis.SAM_3))),
                       gate("shan", (c, ax) ->
-                           ShanNodeGen.create(new SlotNode(Axis.SAMPLE))),
+                           ShanNodeGen.create(new SlotExpressionNode(Axis.SAMPLE))),
                       gate("shay", (c, ax) ->
-                           ShayNodeGen.create(new SlotNode(Axis.SAM_2),
-                                              new SlotNode(Axis.SAM_3))),
+                           ShayNodeGen.create(new SlotExpressionNode(Axis.SAM_2),
+                                              new SlotExpressionNode(Axis.SAM_3))),
 
                       jetLayerFour
                     });
@@ -458,72 +458,72 @@ public class ArvoJetDashboard {
                     new JetHook[0],
                     new ChildCore[] {
                       gate("bex", (c, ax) ->
-                           BexNodeGen.create(new SlotNode(Axis.SAMPLE))),
+                           BexNodeGen.create(new SlotExpressionNode(Axis.SAMPLE))),
                       gate("can", (c, ax) ->
-                           CanNodeGen.create(new SlotNode(Axis.SAM_2),
-                                             new SlotNode(Axis.SAM_3))),
+                           CanNodeGen.create(new SlotExpressionNode(Axis.SAM_2),
+                                             new SlotExpressionNode(Axis.SAM_3))),
                       gate("cat", (c, ax) ->
-                           CatNodeGen.create(new SlotNode(Axis.SAM_2),
-                                             new SlotNode(Axis.SAM_6),
-                                             new SlotNode(Axis.SAM_7))),
+                           CatNodeGen.create(new SlotExpressionNode(Axis.SAM_2),
+                                             new SlotExpressionNode(Axis.SAM_6),
+                                             new SlotExpressionNode(Axis.SAM_7))),
                       gate("cut", (c, ax) ->
-                           CutNodeGen.create(new SlotNode(Axis.SAM_2),
-                                             new SlotNode(Axis.SAM_12),
-                                             new SlotNode(Axis.SAM_13),
-                                             new SlotNode(Axis.SAM_7))),
+                           CutNodeGen.create(new SlotExpressionNode(Axis.SAM_2),
+                                             new SlotExpressionNode(Axis.SAM_12),
+                                             new SlotExpressionNode(Axis.SAM_13),
+                                             new SlotExpressionNode(Axis.SAM_7))),
                       gate("end", (c, ax) ->
-                           EndNodeGen.create(new SlotNode(Axis.SAM_2),
-                                             new SlotNode(Axis.SAM_6),
-                                             new SlotNode(Axis.SAM_7))),
+                           EndNodeGen.create(new SlotExpressionNode(Axis.SAM_2),
+                                             new SlotExpressionNode(Axis.SAM_6),
+                                             new SlotExpressionNode(Axis.SAM_7))),
                       gate("lsh", (c, ax) ->
-                           LshNodeGen.create(new SlotNode(Axis.SAM_2),
-                                             new SlotNode(Axis.SAM_6),
-                                             new SlotNode(Axis.SAM_7))),
+                           LshNodeGen.create(new SlotExpressionNode(Axis.SAM_2),
+                                             new SlotExpressionNode(Axis.SAM_6),
+                                             new SlotExpressionNode(Axis.SAM_7))),
                       gate("met", (c, ax) ->
-                           MetNodeGen.create(new SlotNode(Axis.SAM_2),
-                                             new SlotNode(Axis.SAM_3))),
+                           MetNodeGen.create(new SlotExpressionNode(Axis.SAM_2),
+                                             new SlotExpressionNode(Axis.SAM_3))),
                       gate("rap", (c, ax) ->
-                           RapNodeGen.create(new SlotNode(Axis.SAM_2),
-                                             new SlotNode(Axis.SAM_3))),
+                           RapNodeGen.create(new SlotExpressionNode(Axis.SAM_2),
+                                             new SlotExpressionNode(Axis.SAM_3))),
                       gate("rep", (c, ax) ->
-                           RepNodeGen.create(new SlotNode(Axis.SAM_2),
-                                             new SlotNode(Axis.SAM_3))),
+                           RepNodeGen.create(new SlotExpressionNode(Axis.SAM_2),
+                                             new SlotExpressionNode(Axis.SAM_3))),
                       gate("rip", (c, ax) ->
-                           RipNodeGen.create(new SlotNode(Axis.SAM_2),
-                                             new SlotNode(Axis.SAM_3))),
+                           RipNodeGen.create(new SlotExpressionNode(Axis.SAM_2),
+                                             new SlotExpressionNode(Axis.SAM_3))),
                       gate("rsh", (c, ax) ->
-                           RshNodeGen.create(new SlotNode(Axis.SAM_2),
-                                             new SlotNode(Axis.SAM_6),
-                                             new SlotNode(Axis.SAM_7))),
+                           RshNodeGen.create(new SlotExpressionNode(Axis.SAM_2),
+                                             new SlotExpressionNode(Axis.SAM_6),
+                                             new SlotExpressionNode(Axis.SAM_7))),
                       gate("con", (c, ax) ->
-                           ConNodeGen.create(new SlotNode(Axis.SAM_2),
-                                             new SlotNode(Axis.SAM_3))),
+                           ConNodeGen.create(new SlotExpressionNode(Axis.SAM_2),
+                                             new SlotExpressionNode(Axis.SAM_3))),
                       gate("dis", (c, ax) ->
-                           DisNodeGen.create(new SlotNode(Axis.SAM_2),
-                                             new SlotNode(Axis.SAM_3))),
+                           DisNodeGen.create(new SlotExpressionNode(Axis.SAM_2),
+                                             new SlotExpressionNode(Axis.SAM_3))),
                       gate("mix", (c, ax) ->
-                           MixNodeGen.create(new SlotNode(Axis.SAM_2),
-                                             new SlotNode(Axis.SAM_3))),
+                           MixNodeGen.create(new SlotExpressionNode(Axis.SAM_2),
+                                             new SlotExpressionNode(Axis.SAM_3))),
 
                       gate("mug", (c, ax) ->
-                          MugNodeGen.create(new SlotNode(Axis.SAMPLE))),
+                          MugNodeGen.create(new SlotExpressionNode(Axis.SAMPLE))),
 
                       gate("dor", (c, ax) ->
-                           DorNodeGen.create(new SlotNode(Axis.SAM_2),
-                                             new SlotNode(Axis.SAM_3))),
+                           DorNodeGen.create(new SlotExpressionNode(Axis.SAM_2),
+                                             new SlotExpressionNode(Axis.SAM_3))),
                       gate("gor", (c, ax) ->
-                           GorNodeGen.create(new SlotNode(Axis.SAM_2),
-                                             new SlotNode(Axis.SAM_3))),
+                           GorNodeGen.create(new SlotExpressionNode(Axis.SAM_2),
+                                             new SlotExpressionNode(Axis.SAM_3))),
                       gate("mor", (c, ax) ->
-                           MorNodeGen.create(new SlotNode(Axis.SAM_2),
-                                             new SlotNode(Axis.SAM_3))),
+                           MorNodeGen.create(new SlotExpressionNode(Axis.SAM_2),
+                                             new SlotExpressionNode(Axis.SAM_3))),
 
                       // ???????
 
                       gate("jam", (c, ax) ->
-                           JamNodeGen.create(new SlotNode(Axis.SAMPLE))),
+                           JamNodeGen.create(new SlotExpressionNode(Axis.SAMPLE))),
                       gate("cue", (c, ax) ->
-                           CueNodeGen.create(new SlotNode(Axis.SAMPLE))),
+                           CueNodeGen.create(new SlotExpressionNode(Axis.SAMPLE))),
 
                       jetLayerThree
                     });
@@ -537,40 +537,40 @@ public class ArvoJetDashboard {
                     new JetHook[0],
                     new ChildCore[] {
                       gate("add", (c, ax) ->
-                           AddNodeGen.create(new SlotNode(Axis.SAM_2),
-                                             new SlotNode(Axis.SAM_3))),
+                           AddNodeGen.create(new SlotExpressionNode(Axis.SAM_2),
+                                             new SlotExpressionNode(Axis.SAM_3))),
                       gate("dec", (c, ax) ->
-                           DecNodeGen.create(new SlotNode(Axis.SAMPLE))),
+                           DecNodeGen.create(new SlotExpressionNode(Axis.SAMPLE))),
                       gate("div", (c, ax) ->
-                           DivNodeGen.create(new SlotNode(Axis.SAM_2),
-                                             new SlotNode(Axis.SAM_3))),
+                           DivNodeGen.create(new SlotExpressionNode(Axis.SAM_2),
+                                             new SlotExpressionNode(Axis.SAM_3))),
                       // Skipping +dvr since it's just a call to div and mod.
                       // +gte is just !lth
                       // +gth is just !lte
                       gate("lte", (c, ax) ->
-                           LteNodeGen.create(new SlotNode(Axis.SAM_2),
-                                             new SlotNode(Axis.SAM_3))),
+                           LteNodeGen.create(new SlotExpressionNode(Axis.SAM_2),
+                                             new SlotExpressionNode(Axis.SAM_3))),
                       gate("lth", (c, ax) ->
-                           LthNodeGen.create(new SlotNode(Axis.SAM_2),
-                                             new SlotNode(Axis.SAM_3))),
+                           LthNodeGen.create(new SlotExpressionNode(Axis.SAM_2),
+                                             new SlotExpressionNode(Axis.SAM_3))),
                       // +max is just a call to +gth
                       // +min is just a call to +lth
                       gate("mod", (c, ax) ->
-                           ModNodeGen.create(new SlotNode(Axis.SAM_2),
-                                             new SlotNode(Axis.SAM_3))),
+                           ModNodeGen.create(new SlotExpressionNode(Axis.SAM_2),
+                                             new SlotExpressionNode(Axis.SAM_3))),
                       gate("mul", (c, ax) ->
-                           MulNodeGen.create(new SlotNode(Axis.SAM_2),
-                                             new SlotNode(Axis.SAM_3))),
+                           MulNodeGen.create(new SlotExpressionNode(Axis.SAM_2),
+                                             new SlotExpressionNode(Axis.SAM_3))),
                       gate("sub", (c, ax) ->
-                           SubNodeGen.create(new SlotNode(Axis.SAM_2),
-                                             new SlotNode(Axis.SAM_3))),
+                           SubNodeGen.create(new SlotExpressionNode(Axis.SAM_2),
+                                             new SlotExpressionNode(Axis.SAM_3))),
                       gate("cap", (c, ax) ->
-                           CapNodeGen.create(new SlotNode(Axis.SAMPLE))),
+                           CapNodeGen.create(new SlotExpressionNode(Axis.SAMPLE))),
                       gate("mas", (c, ax) ->
-                           MasNodeGen.create(new SlotNode(Axis.SAMPLE))),
+                           MasNodeGen.create(new SlotExpressionNode(Axis.SAMPLE))),
                       gate("peg", (c, ax) ->
-                           PegNodeGen.create(new SlotNode(Axis.SAM_2),
-                                             new SlotNode(Axis.SAM_3))),
+                           PegNodeGen.create(new SlotExpressionNode(Axis.SAM_2),
+                                             new SlotExpressionNode(Axis.SAM_3))),
                       jetLayerTwo
                     });  //,
 

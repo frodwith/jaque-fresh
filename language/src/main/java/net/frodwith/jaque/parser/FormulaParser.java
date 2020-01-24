@@ -49,7 +49,7 @@ public final class FormulaParser {
       ? new BailNode()
       : axis.isIdentity()
       ? new IdentityNode()
-      : new SlotNode(axis);
+      : new SlotExpressionNode(axis);
   }
 
   private static NockExpressionNode parseQuot(Object arg) {

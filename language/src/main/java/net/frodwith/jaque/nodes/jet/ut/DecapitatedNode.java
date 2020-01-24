@@ -11,7 +11,7 @@ import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.data.NockCall;
 import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.NockLanguage;
-import net.frodwith.jaque.nodes.SlotNode;
+import net.frodwith.jaque.nodes.expression.SlotExpressionNode;
 import net.frodwith.jaque.nodes.PullNodeGen;
 import net.frodwith.jaque.nodes.SubjectNode;
 import net.frodwith.jaque.nodes.IdentityNode;
@@ -38,7 +38,7 @@ public final class DecapitatedNode extends SubjectNode {
     this.keyNode = keyNode;
     this.saveNode = saveNode;
 
-    SlotNode slot = new SlotNode(armAxis);
+    SlotExpressionNode slot = new SlotExpressionNode(armAxis);
     NockFunctionLookupNode look = NockFunctionLookupNodeGen.create(slot, astContext);
     NockEvalNode eval = new NockEvalNode(look, new IdentityNode());
     this.nockNode = new NockHeadCallNode(eval);

@@ -7,7 +7,7 @@ import com.oracle.truffle.api.dsl.NodeField;
 import com.oracle.truffle.api.dsl.NodeFields;
 import com.oracle.truffle.api.dsl.Specialization;
 
-import net.frodwith.jaque.nodes.SlotNode;
+import net.frodwith.jaque.nodes.expression.SlotExpressionNode;
 import net.frodwith.jaque.nodes.SubjectNode;
 import net.frodwith.jaque.runtime.Atom;
 import net.frodwith.jaque.runtime.AtomAes;
@@ -16,9 +16,9 @@ import net.frodwith.jaque.exception.ExitException;
 import net.frodwith.jaque.exception.NockException;
 
 @NodeChildren({
-  @NodeChild(value="key", type=SlotNode.class),
-  @NodeChild(value="iv", type=SlotNode.class),
-  @NodeChild(value="msg", type=SlotNode.class),
+  @NodeChild(value="key", type=SlotExpressionNode.class),
+  @NodeChild(value="iv", type=SlotExpressionNode.class),
+  @NodeChild(value="msg", type=SlotExpressionNode.class),
 })
 @NodeFields({
   @NodeField(name="mode", type=Integer.class),

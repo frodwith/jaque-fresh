@@ -26,7 +26,7 @@ import net.frodwith.jaque.jet.JetTree;
 import net.frodwith.jaque.NockLanguage;
 import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.data.Cell;
-import net.frodwith.jaque.nodes.SlotNode;
+import net.frodwith.jaque.nodes.expression.SlotExpressionNode;
 import net.frodwith.jaque.runtime.Cords;
 import net.frodwith.jaque.dashboard.Dashboard;
 import net.frodwith.jaque.dashboard.BatteryHash;
@@ -100,7 +100,7 @@ public class AckermanTest {
             new HashCode[] { BatteryHash.read(DEC_HASH) },
             new JetArm[] {
               new AxisArm(Axis.HEAD, (c, ax) ->
-                  MockDecNodeGen.create(new SlotNode(Axis.SAMPLE)))
+                  MockDecNodeGen.create(new SlotExpressionNode(Axis.SAMPLE)))
             },
             new JetHook[0],
             new ChildCore[0])})});

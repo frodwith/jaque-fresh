@@ -5,21 +5,21 @@ import com.oracle.truffle.api.dsl.Specialization;
 
 import net.frodwith.jaque.AstContext;
 import net.frodwith.jaque.data.Cell;
-import net.frodwith.jaque.nodes.SlotNode;
+import net.frodwith.jaque.nodes.expression.SlotExpressionNode;
 import net.frodwith.jaque.nodes.SoftNode;
 import net.frodwith.jaque.nodes.SubjectNode;
 
 public abstract class MinkNode extends SubjectNode {
-  protected @Child @Executed SlotNode subjectSlot;
-  protected @Child @Executed SlotNode formulaSlot;
-  protected @Child @Executed SlotNode flySlot;
+  protected @Child @Executed SlotExpressionNode subjectSlot;
+  protected @Child @Executed SlotExpressionNode formulaSlot;
+  protected @Child @Executed SlotExpressionNode flySlot;
   protected @Child @Executed(with={"subjectSlot", "formulaSlot", "flySlot"})
     SoftNode softNode;
 
   protected MinkNode(AstContext astContext,
-                     SlotNode subjectSlot,
-                     SlotNode formulaSlot,
-                     SlotNode flySlot) {
+                     SlotExpressionNode subjectSlot,
+                     SlotExpressionNode formulaSlot,
+                     SlotExpressionNode flySlot) {
     this.subjectSlot = subjectSlot;
     this.formulaSlot = formulaSlot;
     this.flySlot = flySlot;

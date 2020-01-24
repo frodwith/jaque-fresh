@@ -5,7 +5,7 @@ import com.oracle.truffle.api.dsl.NodeChildren;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.dsl.Fallback;
 
-import net.frodwith.jaque.nodes.SlotNode;
+import net.frodwith.jaque.nodes.expression.SlotExpressionNode;
 import net.frodwith.jaque.nodes.SubjectNode;
 import net.frodwith.jaque.runtime.Atom;
 import net.frodwith.jaque.runtime.HoonMath;
@@ -16,9 +16,9 @@ import net.frodwith.jaque.Ed25519;
 import net.frodwith.jaque.Ed25519Exception;
 
 @NodeChildren({
-  @NodeChild(value="s", type=SlotNode.class),
-  @NodeChild(value="m", type=SlotNode.class),
-  @NodeChild(value="pk", type=SlotNode.class)
+  @NodeChild(value="s", type=SlotExpressionNode.class),
+  @NodeChild(value="m", type=SlotExpressionNode.class),
+  @NodeChild(value="pk", type=SlotExpressionNode.class)
 })
 public abstract class EdVeriNode extends SubjectNode {
   @Specialization
