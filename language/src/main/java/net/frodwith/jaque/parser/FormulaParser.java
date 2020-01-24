@@ -107,7 +107,8 @@ public final class FormulaParser {
       left = parseExpr(args.head, axis.peg(6), false),
       right = parseExpr(args.tail, axis.peg(7), false);
 
-    return (c) -> axe(axis, SameNodeGen.create(left.apply(c), right.apply(c)));
+    return (c) -> axe(axis,
+        SameExpressionNodeGen.create(left.apply(c), right.apply(c)));
   }
 
   private static Function<AstContext,NockExpressionNode>
