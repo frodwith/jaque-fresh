@@ -20,6 +20,7 @@ public final class Bindings implements TruffleObject {
   static final TruffleObject jam = new InteropJam();
   static final TruffleObject cue = new InteropCue();
   static final TruffleObject mug = new InteropMug();
+  static final TruffleObject mink = new InteropMink();
   static final TruffleObject toBytes = new InteropToBytes();
   static final TruffleObject fromBytes = new InteropFromBytes();
   static final TruffleObject debugDump = new InteropDebugDump();
@@ -36,7 +37,7 @@ public final class Bindings implements TruffleObject {
   @ExportMessage
   public Object getMembers(boolean includeInternal) {
     return new InteropArray("installArvoJets", "setDashboard", "fromBytes", "toBytes",
-                            "toNoun", "jam", "cue", "mug", "debugDump");
+                            "toNoun", "jam", "cue", "mug", "mink", "debugDump");
   }
 
   @ExportMessage
@@ -49,6 +50,7 @@ public final class Bindings implements TruffleObject {
         || member.equals("jam")
         || member.equals("cue")
         || member.equals("mug")
+        || member.equals("mink")
         || member.equals("debugDump");
   }
 
@@ -60,6 +62,7 @@ public final class Bindings implements TruffleObject {
         || member.equals("jam")
         || member.equals("cue")
         || member.equals("mug")
+        || member.equals("mink")
         || member.equals("debugDump");
   }
 
@@ -85,6 +88,9 @@ public final class Bindings implements TruffleObject {
     else if ( member.equals("mug") ) {
       return mug;
     }
+    else if ( member.equals("mink") ) {
+      return mink;
+    }
     else if ( member.equals("debugDump") ) {
       return debugDump;
     }
@@ -106,6 +112,7 @@ public final class Bindings implements TruffleObject {
       @CachedLibrary("jam") InteropLibrary marshallsJam,
       @CachedLibrary("cue") InteropLibrary marshallsCue,
       @CachedLibrary("mug") InteropLibrary marshallsMug,
+      @CachedLibrary("mink") InteropLibrary marshallsMink,
       @CachedLibrary("debugDump") InteropLibrary marshallsDebugDump)
     throws ArityException,
            UnsupportedTypeException,
@@ -152,6 +159,9 @@ public final class Bindings implements TruffleObject {
     }
     else if ( member.equals("mug") ) {
       return marshallsMug.execute(mug, arguments);
+    }
+    else if ( member.equals("mink") ) {
+      return marshallsMink.execute(mink, arguments);
     }
     else if ( member.equals("debugDump") ) {
       return marshallsDebugDump.execute(debugDump, arguments);

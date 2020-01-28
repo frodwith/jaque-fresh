@@ -1,13 +1,14 @@
 package net.frodwith.jaque.exception;
 
+import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.nodes.ControlFlowException;
 
-import net.frodwith.jaque.data.NockCall;
-
 public final class NockControlFlowException extends ControlFlowException {
-  public final NockCall call;
+  public final CallTarget target;
+  public final Object subject;
 
-  public NockControlFlowException(NockCall call) {
-    this.call = call;
+  public NockControlFlowException(CallTarget target, Object subject) {
+    this.target = target;
+    this.subject = subject;
   }
 }

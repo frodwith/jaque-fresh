@@ -23,8 +23,8 @@ import net.frodwith.jaque.data.NockFunction;
 import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.parser.SimpleAtomParser;
 import net.frodwith.jaque.exception.ExitException;
-import net.frodwith.jaque.nodes.NockCallDispatchNode;
-import net.frodwith.jaque.nodes.NockCallDispatchNodeGen;
+import net.frodwith.jaque.nodes.op.HeadDispatchOpNode;
+import net.frodwith.jaque.nodes.op.HeadDispatchOpNodeGen;
 
 @ExportLibrary(InteropLibrary.class)
 public final class ContextCell implements TruffleObject {
@@ -101,10 +101,6 @@ public final class ContextCell implements TruffleObject {
     }
   }
 
-  protected static NockCallDispatchNode makeDispatch() {
-    return NockCallDispatchNodeGen.create();
-  }
-
   private CallTarget
     getArm(String member) 
       throws UnknownIdentifierException,
@@ -145,8 +141,8 @@ public final class ContextCell implements TruffleObject {
   @ExportMessage
   public Object invokeMember(String member, Object[] arguments,
     @CachedLanguage NockLanguage language,
-    @Cached(value="makeDispatch()", allowUncached=true)
-    NockCallDispatchNode dispatch)
+    @Cached(value="create()", allowUncached=true)
+    HeadDispatchOpNode dispatchNode)
       throws UnsupportedMessageException,
              UnsupportedTypeException,
              UnknownIdentifierException {
@@ -165,14 +161,14 @@ public final class ContextCell implements TruffleObject {
       }
     }
 
-    return dispatch.executeCall(new NockCall(getArm(member), subject));
+    return dispatchNode.executeDispatch(getArm(member), subject);
   }
 
   @ExportMessage
   public Object execute(Object[] arguments,
     @CachedLanguage NockLanguage language,
-    @Cached(value="makeDispatch()", allowUncached=true)
-    NockCallDispatchNode dispatch)
+    @Cached(value="create()", allowUncached=true)
+    HeadDispatchOpNode dispatchNode)
       throws ArityException,
              UnsupportedTypeException,
              UnsupportedMessageException {
@@ -184,6 +180,6 @@ public final class ContextCell implements TruffleObject {
       throw UnsupportedMessageException.create();
     }
     Object subject = language.argumentsToSubject(arguments);
-    return dispatch.executeCall(new NockCall(f.callTarget, subject));
+    return dispatchNode.executeDispatch(f.callTarget, subject);
   }
 }

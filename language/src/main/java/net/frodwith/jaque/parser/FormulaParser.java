@@ -69,14 +69,8 @@ public final class FormulaParser {
       subject = parseExpr(args.head, axis.peg(6), false),
       formula = parseExpr(args.tail, axis.peg(7), false);
 
-    return (c) -> {
-      NockExpressionNode e = formula.apply(c);
-      NockFunctionLookupNode lookup = NockFunctionLookupNodeGen.create(e, c);
-      NockEvalNode eval = new NockEvalNode(lookup, subject.apply(c));
-      return axe(axis, tail
-        ? new NockTailCallNode(eval)
-        : new NockHeadCallNode(eval));
-    };
+    return (c) -> axe(axis, 
+      new EvalExpressionNode(subject.apply(c), formula.apply(c), tail));
   }
 
   private static Function<AstContext,NockExpressionNode>

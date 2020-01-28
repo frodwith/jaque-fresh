@@ -1,7 +1,5 @@
 package net.frodwith.jaque;
 
-import net.frodwith.jaque.NockLanguage;
-
 import java.util.logging.Level;
 import java.util.logging.Handler;
 import java.util.logging.Formatter;

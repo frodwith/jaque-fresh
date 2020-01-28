@@ -10,28 +10,42 @@ import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.exception.NockException;
 import net.frodwith.jaque.exception.NeedException;
+import net.frodwith.jaque.nodes.expression.SlotExpressionNode;
 
 public final class EscapeNode extends NockNode {
-  private @Child SubjectNode callNode;
+  private @Child NockExpressionNode slamNode;
 
   public EscapeNode(AstContext astContext) {
-    // [9 2 [10 6 0 3] 0 2]
-    NockExpressionNode large = new SlotNode(Axis.HEAD);
-    NockExpressionNode small = new SlotNode(Axis.TAIL);
+    this.slamNode = createSlamNode(astContext);
+  }
+
+  private static NockExpressionNode createSlamNode(AstContext c) {
+    // [9 2 10 [6 0 3] 0 2], or, slam the head of the subject with the tail
+    // TODO FIXME etc. (mainly, etc): Use the operation nodes directly, after
+    // making edit ops nodes.
+    NockExpressionNode large = new SlotExpressionNode(Axis.HEAD);
+    NockExpressionNode small = new SlotExpressionNode(Axis.TAIL);
     EditPartNode chain =
       new EditHeadNode(new EditTailNode(new EditTermNode(small)));
-    this.callNode =
-      new NockEditNode(large, chain, Axis.SAMPLE, astContext.dashboard);
+    NockEditNode editNode =
+      new NockEditNode(large, chain, Axis.SAMPLE, c.dashboard);
+    NockCallLookupNode pull = PullNodeGen.create(editNode, Axis.HEAD, c);
+
+    return new NockHeadCallNode(pull);
   }
 
   public Object executeEscape(VirtualFrame frame, Object ref, Object gof, Object fly) {
-    Object oldSubject = NockLanguage.getSubject(frame);
-    NockLanguage.setSubject(frame, new Cell(fly, new Cell(ref, gof)));
-    Object product = callNode.executeGeneric(frame);
+    Object subject, product, gateAndSample;
+
+    subject = NockLanguage.getSubject(frame);
+    gateAndSample = new Cell(fly, new Cell(ref, gof));
+    NockLanguage.setSubject(frame, gateAndSample);
+    product = slamNode.executeGeneric(frame);
+    NockLanguage.setSubject(frame, subject);
+
     if ( product instanceof Cell ) {
       Object u = ((Cell) product).tail;
       if ( u instanceof Cell ) {
-        NockLanguage.setSubject(frame, oldSubject);
         return ((Cell) u).tail;
       }
       else {
