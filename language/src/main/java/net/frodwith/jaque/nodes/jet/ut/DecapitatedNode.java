@@ -13,8 +13,8 @@ import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.NockLanguage;
 import net.frodwith.jaque.nodes.SubjectNode;
 import net.frodwith.jaque.nodes.NockExpressionNode;
-import net.frodwith.jaque.nodes.expression.SlotExpressionNode;
-import net.frodwith.jaque.nodes.expression.EvalExpressionNodeGen;
+import net.frodwith.jaque.nodes.op.SlotOpNode;
+import net.frodwith.jaque.nodes.op.EvalOpNodeGen;
 import net.frodwith.jaque.nodes.IdentityNode;
 import net.frodwith.jaque.exception.NockException;
 
@@ -22,7 +22,8 @@ public final class DecapitatedNode extends SubjectNode {
   protected final AstContext astContext;
   private @Child SaveNode saveNode;
   private @Child NounsKeyNode keyNode;
-  private @Child NockExpressionNode nockNode;
+  private @Child EvalOpNode nockNode;
+  private @Child SlotOpNode slotNode;
 
   private final static TruffleLogger LOG =
     TruffleLogger.getLogger(NockLanguage.ID, DecapitatedNode.class);
@@ -34,9 +35,8 @@ public final class DecapitatedNode extends SubjectNode {
     this.astContext = astContext;
     this.keyNode = keyNode;
     this.saveNode = saveNode;
-
-    this.nockNode = EvalExpressionNodeGen.create(new IdentityNode(),
-      new SlotExpressionNode(armAxis), astContext, false);
+    this.slotNode = SlotOpNode.fromAxis(armAxis);
+    this.nockNode = EvalOpNodeGen.create(astContext, false);
   }
 
   @TruffleBoundary
@@ -50,9 +50,13 @@ public final class DecapitatedNode extends SubjectNode {
     }
   }
 
+  private Object nock(Object core) {
+    return nockNode.executeNock(core, slotNode.executeSlot(core));
+  }
+
   public final Object executeGeneric(VirtualFrame frame) {
     NounsKey key;
-    Object product;
+    Object product, core = NockLanguage.getSubject(frame);
 
     try {
       key = keyNode.executeKey(frame);
@@ -60,14 +64,14 @@ public final class DecapitatedNode extends SubjectNode {
     catch ( NockException e ) {
       CompilerDirectives.transferToInterpreter();
       LOG.warning(e.getMessage());
-      return nockNode.executeGeneric(frame);
+      return nock(core);
     }
 
     product = astContext.getNockContext().lookupMemo(key);
 
     boolean cacheMiss = null == product;
     if ( cacheMiss ) {
-      product = nockNode.executeGeneric(frame);
+      product = nock(core);
       saveNode.executeSave(frame, key, product);
     }
 

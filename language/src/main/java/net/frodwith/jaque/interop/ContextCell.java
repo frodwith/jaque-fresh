@@ -23,8 +23,7 @@ import net.frodwith.jaque.data.NockFunction;
 import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.parser.SimpleAtomParser;
 import net.frodwith.jaque.exception.ExitException;
-import net.frodwith.jaque.nodes.op.HeadDispatchOpNode;
-import net.frodwith.jaque.nodes.op.HeadDispatchOpNodeGen;
+import net.frodwith.jaque.nodes.dispatch.HeadDispatchNode;
 
 @ExportLibrary(InteropLibrary.class)
 public final class ContextCell implements TruffleObject {
@@ -142,7 +141,7 @@ public final class ContextCell implements TruffleObject {
   public Object invokeMember(String member, Object[] arguments,
     @CachedLanguage NockLanguage language,
     @Cached(value="create()", allowUncached=true)
-    HeadDispatchOpNode dispatchNode)
+    HeadDispatchNode dispatchNode)
       throws UnsupportedMessageException,
              UnsupportedTypeException,
              UnknownIdentifierException {
@@ -168,7 +167,7 @@ public final class ContextCell implements TruffleObject {
   public Object execute(Object[] arguments,
     @CachedLanguage NockLanguage language,
     @Cached(value="create()", allowUncached=true)
-    HeadDispatchOpNode dispatchNode)
+    HeadDispatchNode dispatchNode)
       throws ArityException,
              UnsupportedTypeException,
              UnsupportedMessageException {

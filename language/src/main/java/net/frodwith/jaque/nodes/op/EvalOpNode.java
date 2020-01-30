@@ -11,10 +11,8 @@ public final class EvalOpNode extends NockNode {
   private @Child DispatchNode dispatchNode;
 
   public EvalOpNode(AstContext astContext, boolean tailPosition) {
-    this.lookupNode = FormulaLookupOpNode.create(astContext);
-    this.dispatchNode = tailPosition
-                      ? new TailDispatchNode()
-                      : HeadDispatchNodeGen.create();
+    this.lookupNode = FormulaLookupOpNodeGen.create(astContext);
+    this.dispatchNode = DispatchNode.create(tailPosition);
   }
 
   public Object executeNock(Object subject, Object formula) {

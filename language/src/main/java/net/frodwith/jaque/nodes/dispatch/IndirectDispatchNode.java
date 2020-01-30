@@ -4,6 +4,7 @@ import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.nodes.IndirectCallNode;
 import com.oracle.truffle.api.profiles.BranchProfile;
 
+import net.frodwith.jaque.nodes.NockNode;
 import net.frodwith.jaque.exception.NockControlFlowException;
 
 public final class IndirectDispatchNode extends NockNode {

@@ -12,7 +12,7 @@ import com.oracle.truffle.api.interop.UnsupportedTypeException;
 
 import net.frodwith.jaque.NockLanguage;
 import net.frodwith.jaque.data.NockCall;
-import net.frodwith.jaque.nodes.op.HeadDispatchOpNode;
+import net.frodwith.jaque.nodes.dispatch.HeadDispatchNode;
 
 @ExportLibrary(InteropLibrary.class)
 public final class Formula implements TruffleObject {
@@ -31,7 +31,7 @@ public final class Formula implements TruffleObject {
   public Object execute(Object[] arguments,
     @CachedLanguage NockLanguage language,
     @Cached(value="create()", allowUncached=true)
-    HeadDispatchOpNode dispatch) throws UnsupportedTypeException {
+    HeadDispatchNode dispatch) throws UnsupportedTypeException {
     Object subject = language.argumentsToSubject(arguments);
     return dispatch.executeDispatch(target, subject);
   }

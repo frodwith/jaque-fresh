@@ -12,7 +12,7 @@ import net.frodwith.jaque.AstContext;
 import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.data.AxisMap;
 import net.frodwith.jaque.data.Cell;
-import net.frodwith.jaque.nodes.FragmentNode;
+import net.frodwith.jaque.nodes.op.SlotOpNode;
 import net.frodwith.jaque.parser.FormulaParser;
 import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.exception.ExitException;
@@ -75,11 +75,11 @@ public abstract class NockClass {
     return getArm(axis, context, () -> axis.fragment(core));
   }
 
-  // if you have a FragmentNode, we can use it
+  // if you have a SlotNode, we can use it
   public final CallTarget
-    getArm(Cell core, Axis axis, FragmentNode fragmentNode, AstContext context)
+    getArm(Cell core, Axis axis, SlotOpNode slotNode, AstContext context)
       throws ExitException {
-    return getArm(axis, context, () -> fragmentNode.executeFragment(core));
+    return getArm(axis, context, () -> slotNode.executeSlot(core));
   }
 
   protected abstract FineCheck buildFine(Cell core) throws ExitException;

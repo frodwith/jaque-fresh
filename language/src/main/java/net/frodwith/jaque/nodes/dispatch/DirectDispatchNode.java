@@ -1,9 +1,11 @@
 package net.frodwith.jaque.nodes.dispatch;
 
 import com.oracle.truffle.api.CallTarget;
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.profiles.BranchProfile;
 
+import net.frodwith.jaque.nodes.NockNode;
 import net.frodwith.jaque.exception.NockControlFlowException;
 
 public final class DirectDispatchNode extends NockNode {

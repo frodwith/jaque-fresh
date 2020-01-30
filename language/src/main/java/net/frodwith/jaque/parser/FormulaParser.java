@@ -70,7 +70,7 @@ public final class FormulaParser {
       formula = parseExpr(args.tail, axis.peg(7), false);
 
     return (c) -> axe(axis, 
-      new EvalExpressionNode(subject.apply(c), formula.apply(c), tail));
+      new EvalExpressionNode(subject.apply(c), formula.apply(c), c, tail));
   }
 
   private static Function<AstContext,NockExpressionNode>
@@ -172,14 +172,8 @@ public final class FormulaParser {
       parseExpr(args.tail, coreAxis, false);
 
     if ( armAxis.inHead() ) {
-      return (c) -> {
-        NockCallLookupNode pull =
-          PullNodeGen.create(core.apply(c), armAxis, c);
-
-        return axe(axis, tail
-          ? new NockTailCallNode(pull)
-          : new NockHeadCallNode(pull));
-      };
+      return (c) -> axe(axis,
+        PullExpressionNodeGen.create(core.apply(c), armAxis, c, tail));
     }
     else {
       // Only pulls out of the battery of a core are treated as method calls,
@@ -189,16 +183,8 @@ public final class FormulaParser {
         formula = axe(axis.peg(6), parseSlot(armAxis));
 
       return (c) -> {
-        NockFunctionLookupNode
-          lookup = NockFunctionLookupNodeGen.create(formula, c);
-
-        NockCallLookupNode
-          eval = new NockEvalNode(lookup, subject);
-        NockExpressionNode
-          call = axe(axis, tail
-               ? new NockHeadCallNode(eval)
-               : new NockTailCallNode(eval));
-
+        EvalExpressionNode call = axe(axis,
+          new EvalExpressionNode(subject, formula, c, tail));
         return axe(axis, new ComposeNode(core.apply(c), call));
       };
     }
@@ -316,29 +302,8 @@ public final class FormulaParser {
       small = parseExpr(spec.tail, axis.peg(13), false),
       large = parseExpr(args.tail, axis.peg(7), false);
 
-    if ( editAxis.isIdentity() ) {
-      // NockEditNode specializes to producing a cell, but edit 1 is valid
-      // and could produce an atom.
-      return (c) -> axe(axis, new TossNode(large.apply(c), small.apply(c)));
-    }
-    else {
-      ArrayDeque<Boolean> path = new ArrayDeque<>();
-      for ( boolean right : editAxis ) {
-        path.push(right);
-      }
-      return (c) -> {
-        EditPartNode chain = new EditTermNode(small.apply(c));
-
-        while ( !path.isEmpty() ) {
-          chain = path.pop()
-                ? new EditTailNode(chain)
-                : new EditHeadNode(chain);
-        }
-
-        return axe(axis,
-          new NockEditNode(large.apply(c), chain, editAxis, c.dashboard));
-      };
-    }
+    return (c) -> axe(axis, EditExpressionNodeGen.create(
+      large.apply(c), small.apply(c), editAxis, c.dashboard));
   }
 
   private static Function<AstContext,NockExpressionNode>

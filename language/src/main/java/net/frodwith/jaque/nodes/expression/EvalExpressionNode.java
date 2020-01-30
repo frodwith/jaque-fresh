@@ -15,7 +15,7 @@ public abstract class EvalExpressionNode extends NockExpressionNode {
 
   protected EvalExpressionNode(NockExpressionNode subjectNode,
                                NockExpressionNode formulaNode,
-                               AstContext context,
+                               AstContext astContext,
                                boolean tailPosition) {
     this.subjectNode = subjectNode;
     this.formulaNode = formulaNode;
