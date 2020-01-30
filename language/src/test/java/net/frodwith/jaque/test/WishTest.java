@@ -23,13 +23,16 @@ public class WishTest {
     runtime = context.getPolyglotBindings().getMember("nock");
   }
 
-  @Ignore
   @Test
   public void testBasicWish() {
     Value formula = context.eval("nock", 
         "[1 12 [1 151 1.836.020.833 116 0] 1 97 98 99 0]").execute();
     Value scry = context.eval("nock", "[1 [1 0 0 42] 0]").execute();
     Value product = runtime.invokeMember("mink", 0L, formula, scry);
-    assertEquals(42L, product.as(Number.class));
+    Value head = context.eval("nock", "[0 2]"),
+          tail = context.eval("nock", "[0 3]");
+    assertEquals(0L, head.execute(product).as(Number.class));
+    assertEquals(42L, tail.execute(product).as(Number.class));
+    // XX: more tests!
   }
 }

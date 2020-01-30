@@ -44,11 +44,7 @@ public final class InteropMink implements TruffleObject {
       throw ArityException.create(3, arguments.length);
     }
 
-    for ( int i = 0; i < 10; i++) {
-      System.err.println(softNode.toString());
-    }
-
-    return null;
+    return softNode.executeSoft(arguments[0], arguments[1], arguments[2]);
   }
 
   /*
