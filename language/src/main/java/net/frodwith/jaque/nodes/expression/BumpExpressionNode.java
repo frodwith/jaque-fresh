@@ -6,7 +6,6 @@ import com.oracle.truffle.api.dsl.Specialization;
 import net.frodwith.jaque.data.BigAtom;
 import net.frodwith.jaque.nodes.op.BumpOpNode;
 import net.frodwith.jaque.nodes.op.BumpOpNodeGen;
-import net.frodwith.jaque.nodes.NockExpressionNode;
 
 public abstract class BumpExpressionNode extends NockExpressionNode {
   protected @Child @Executed NockExpressionNode expressionNode;

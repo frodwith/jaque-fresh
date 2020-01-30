@@ -12,7 +12,6 @@ import net.frodwith.jaque.data.NockCall;
 import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.NockLanguage;
 import net.frodwith.jaque.nodes.SubjectNode;
-import net.frodwith.jaque.nodes.NockExpressionNode;
 import net.frodwith.jaque.nodes.op.SlotOpNode;
 import net.frodwith.jaque.nodes.op.EvalOpNode;
 import net.frodwith.jaque.nodes.expression.IdentityExpressionNode;

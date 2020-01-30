@@ -1,4 +1,4 @@
-package net.frodwith.jaque.nodes;
+package net.frodwith.jaque.nodes.op;
 
 import java.util.function.Supplier;
 
@@ -7,11 +7,12 @@ import net.frodwith.jaque.data.FastClue;
 import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.exception.ExitException;
 import net.frodwith.jaque.dashboard.Dashboard;
+import net.frodwith.jaque.nodes.NockNode;
 
-public abstract class RegistrationNode extends NockNode {
+public abstract class RegisterOpNode extends NockNode {
   protected final Dashboard dashboard;
 
-  protected RegistrationNode(Dashboard dashboard) {
+  protected RegisterOpNode(Dashboard dashboard) {
     this.dashboard = dashboard;
   }
 

@@ -6,7 +6,6 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.oracle.truffle.api.profiles.ConditionProfile;
 
 import net.frodwith.jaque.exception.NockException;
-import net.frodwith.jaque.nodes.NockExpressionNode;
 
 public final class IfExpressionNode extends NockExpressionNode {
   @Child private NockExpressionNode testNode;

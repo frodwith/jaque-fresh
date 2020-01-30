@@ -5,7 +5,6 @@ import com.oracle.truffle.api.dsl.Specialization;
 
 import net.frodwith.jaque.nodes.op.DeepOpNode;
 import net.frodwith.jaque.nodes.op.DeepOpNodeGen;
-import net.frodwith.jaque.nodes.NockExpressionNode;
 
 public abstract class DeepExpressionNode extends NockExpressionNode {
   protected @Child @Executed NockExpressionNode expressionNode;

@@ -1,4 +1,4 @@
-package net.frodwith.jaque.nodes;
+package net.frodwith.jaque.nodes.expression;
 
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.dsl.Fallback;
@@ -8,11 +8,10 @@ import com.oracle.truffle.api.dsl.NodeField;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.dashboard.Dashboard;
 import net.frodwith.jaque.exception.ExitException;
-import net.frodwith.jaque.nodes.NockExpressionNode;
 
 @NodeChild(value="body", type=NockExpressionNode.class)
 @NodeField(name="dashboard", type=Dashboard.class)
-public abstract class CoreNode extends NockExpressionNode {
+public abstract class CoreExpressionNode extends NockExpressionNode {
   protected abstract Dashboard getDashboard();
 
   @Specialization

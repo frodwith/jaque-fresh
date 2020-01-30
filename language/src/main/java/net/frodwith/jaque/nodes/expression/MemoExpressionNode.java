@@ -1,4 +1,4 @@
-package net.frodwith.jaque.nodes;
+package net.frodwith.jaque.nodes.expression;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.CompilerDirectives;
@@ -11,7 +11,7 @@ import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.runtime.Equality;
 import net.frodwith.jaque.runtime.NockContext;
 
-public final class MemoNode extends NockExpressionNode {
+public final class MemoExpressionNode extends NockExpressionNode {
   @CompilationFinal private NounsKey oneKey;
   @CompilationFinal private Object oneProduct; 
 
@@ -21,8 +21,9 @@ public final class MemoNode extends NockExpressionNode {
   private final Cell formula;
   private final ContextReference<NockContext> contextReference;
 
-  public MemoNode(ContextReference<NockContext> contextReference, Cell formula, 
-                  NockExpressionNode tossNode, NockExpressionNode valueNode) {
+  public MemoExpressionNode(ContextReference<NockContext> contextReference,
+                            Cell formula, NockExpressionNode tossNode,
+                            NockExpressionNode valueNode) {
     this.contextReference = contextReference;
     this.formula = formula;
     this.tossNode = tossNode;

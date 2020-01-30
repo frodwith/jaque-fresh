@@ -1,5 +1,4 @@
-package net.frodwith.jaque.nodes;
-
+package net.frodwith.jaque.nodes.op;
 
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.FastClue;
@@ -7,9 +6,9 @@ import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.exception.ExitException;
 import net.frodwith.jaque.dashboard.Dashboard;
 
-public final class FullyDynamicRegistrationNode extends RegistrationNode {
+public final class FullyDynamicRegisterOpNode extends RegisterOpNode {
 
-  public FullyDynamicRegistrationNode(Dashboard dashboard) {
+  public FullyDynamicRegisterOpNode(Dashboard dashboard) {
     super(dashboard);
   }
 

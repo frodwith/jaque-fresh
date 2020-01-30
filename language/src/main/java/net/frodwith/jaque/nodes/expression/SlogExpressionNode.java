@@ -1,4 +1,4 @@
-package net.frodwith.jaque.nodes;
+package net.frodwith.jaque.nodes.expression;
 
 import java.util.logging.Level;
 
@@ -14,14 +14,14 @@ import net.frodwith.jaque.runtime.Lists;
 import net.frodwith.jaque.runtime.Tapes;
 import net.frodwith.jaque.exception.ExitException;
 
-public final class SlogNode extends NockExpressionNode {
+public final class SlogExpressionNode extends NockExpressionNode {
   @Child private NockExpressionNode clueNode;
   @Child private NockExpressionNode valueNode;
 
   private static final TruffleLogger LOG =
-    TruffleLogger.getLogger(NockLanguage.ID, SlogNode.class);
+    TruffleLogger.getLogger(NockLanguage.ID, SlogExpressionNode.class);
 
-  public SlogNode(NockExpressionNode clueNode, NockExpressionNode valueNode) {
+  public SlogExpressionNode(NockExpressionNode clueNode, NockExpressionNode valueNode) {
     this.clueNode = clueNode;
     this.valueNode = valueNode;
   }

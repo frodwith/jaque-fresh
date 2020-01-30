@@ -5,7 +5,6 @@ import com.oracle.truffle.api.dsl.NodeChildren;
 import com.oracle.truffle.api.dsl.Specialization;
 
 import net.frodwith.jaque.data.Cell;
-import net.frodwith.jaque.nodes.NockExpressionNode;
 
 @NodeChildren({
   @NodeChild(value = "head", type = NockExpressionNode.class),

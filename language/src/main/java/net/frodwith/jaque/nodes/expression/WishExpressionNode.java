@@ -6,7 +6,6 @@ import com.oracle.truffle.api.TruffleLanguage.ContextReference;
 import net.frodwith.jaque.AstContext;
 import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.exception.NockException;
-import net.frodwith.jaque.nodes.NockExpressionNode;
 import net.frodwith.jaque.nodes.op.EscapeOpNode;
 
 public final class WishExpressionNode extends NockExpressionNode {

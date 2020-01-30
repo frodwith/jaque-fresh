@@ -1,4 +1,4 @@
-package net.frodwith.jaque.nodes;
+package net.frodwith.jaque.nodes.expression;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.source.SourceSection;
@@ -15,6 +15,9 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.BigAtom;
+import net.frodwith.jaque.nodes.SubjectNode;
+import net.frodwith.jaque.nodes.NockRootNode;
+import net.frodwith.jaque.nodes.NockTypesGen;
 
 @GenerateWrapper
 public abstract class NockExpressionNode extends SubjectNode implements InstrumentableNode {

@@ -1,4 +1,4 @@
-package net.frodwith.jaque.nodes;
+package net.frodwith.jaque.nodes.op;
 
 import java.util.function.Supplier;
 
@@ -14,32 +14,31 @@ import net.frodwith.jaque.dashboard.NockClass;
 import net.frodwith.jaque.exception.ExitException;
 
 // A core we have already registred (noun-equal).
-public final class StaticRegistrationNode extends RegistrationNode {
+public final class StaticRegisterOpNode extends RegisterOpNode {
   private final Cell core;
   private final FastClue clue;
 
-  public StaticRegistrationNode(Cell core, FastClue clue,
-    Dashboard dashboard) {
+  public StaticRegisterOpNode(Cell core, FastClue clue, Dashboard dashboard) {
     super(dashboard);
     this.core = core;
     this.clue = clue;
   }
 
   @TruffleBoundary
-  private RegistrationNode buildFineReplacement(NockClass klass) {
-    return new FineRegistrationNode(
+  private RegisterOpNode buildFineReplacement(NockClass klass) {
+    return new FineRegisterOpNode(
               this.clue, klass.getFine(this.core),
               dashboard);
   }
 
   @TruffleBoundary
-  private RegistrationNode buildFullyDynamic() {
-    return new FullyDynamicRegistrationNode(dashboard);
+  private RegisterOpNode buildFullyDynamic() {
+    return new FullyDynamicRegisterOpNode(dashboard);
   }
 
   @Override
   public void executeRegister(Object core, Object clue) {
-    RegistrationNode replacement;
+    RegisterOpNode replacement;
     if ( Equality.equals(this.clue.noun, clue) ) {
       if ( Equality.equals(this.core, core) ) {
         return;

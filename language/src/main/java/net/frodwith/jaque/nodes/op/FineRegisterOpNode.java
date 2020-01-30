@@ -1,4 +1,4 @@
-package net.frodwith.jaque.nodes;
+package net.frodwith.jaque.nodes.op;
 
 import com.oracle.truffle.api.CompilerDirectives;
 
@@ -13,11 +13,11 @@ import net.frodwith.jaque.dashboard.Dashboard;
 import net.frodwith.jaque.exception.ExitException;
 
 // A core we have already registred (noun-equal).
-public final class FineRegistrationNode extends RegistrationNode {
+public final class FineRegisterOpNode extends RegisterOpNode {
   private final FastClue clue;
   private final FineCheck fine;
 
-  public FineRegistrationNode(FastClue clue, FineCheck fine,
+  public FineRegisterOpNode(FastClue clue, FineCheck fine,
       Dashboard dashboard) {
     super(dashboard);
     this.clue = clue;
@@ -33,18 +33,18 @@ public final class FineRegistrationNode extends RegistrationNode {
       return;
     }
 
-    RegistrationNode replacement;
+    RegisterOpNode replacement;
     if ( Equality.equals(this.clue.noun, clue) ) {
       if ( fine.check(cc, dashboard) ) {
         return;
       }
       else {
         replacement =
-          new StaticClueRegistrationNode(this.clue, dashboard);
+          new StaticClueRegisterOpNode(this.clue, dashboard);
       }
     }
     else {
-      replacement = new FullyDynamicRegistrationNode(dashboard);
+      replacement = new FullyDynamicRegisterOpNode(dashboard);
     }
     CompilerDirectives.transferToInterpreter();
     replace(replacement);

@@ -6,7 +6,6 @@ import com.oracle.truffle.api.dsl.Specialization;
 
 import net.frodwith.jaque.AstContext;
 import net.frodwith.jaque.nodes.op.EvalOpNode;
-import net.frodwith.jaque.nodes.NockExpressionNode;
 
 public abstract class EvalExpressionNode extends NockExpressionNode {
   protected @Child @Executed NockExpressionNode subjectNode;

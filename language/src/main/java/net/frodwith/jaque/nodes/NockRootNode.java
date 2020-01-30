@@ -12,6 +12,7 @@ import net.frodwith.jaque.NockLanguage;
 import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.data.SourceMappedNoun;
 import net.frodwith.jaque.data.SourceMappedNoun.IndexLength;
+import net.frodwith.jaque.nodes.expression.NockExpressionNode;
 
 @NodeInfo(language = "nock")
 public final class NockRootNode extends RootNode {

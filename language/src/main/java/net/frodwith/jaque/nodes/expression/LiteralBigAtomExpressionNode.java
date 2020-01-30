@@ -5,7 +5,6 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 
 import net.frodwith.jaque.data.BigAtom;
-import net.frodwith.jaque.nodes.NockExpressionNode;
 
 @NodeInfo(shortName = "1")
 public final class LiteralBigAtomExpressionNode extends NockExpressionNode {

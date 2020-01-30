@@ -1,4 +1,4 @@
-package net.frodwith.jaque.nodes;
+package net.frodwith.jaque.nodes.op;
 
 import java.io.StringWriter;
 import java.io.IOException;
@@ -14,12 +14,12 @@ import net.frodwith.jaque.dashboard.Dashboard;
 import net.frodwith.jaque.exception.ExitException;
 import net.frodwith.jaque.printer.MappedNounPrinter;
 
-public final class InitialRegistrationNode extends RegistrationNode {
+public final class InitialRegisterOpNode extends RegisterOpNode {
 
   private final static TruffleLogger LOG =
-    TruffleLogger.getLogger(NockLanguage.ID, InitialRegistrationNode.class);
+    TruffleLogger.getLogger(NockLanguage.ID, InitialRegisterOpNode.class);
 
-  public InitialRegistrationNode(Dashboard dashboard) {
+  public InitialRegisterOpNode(Dashboard dashboard) {
     super(dashboard);
   }
 
@@ -29,8 +29,7 @@ public final class InitialRegistrationNode extends RegistrationNode {
       Cell cc     = Cell.require(core);
       FastClue fc = FastClue.parse(clue);
       register(cc, fc);
-      StaticRegistrationNode stat 
-        = new StaticRegistrationNode(cc, fc, dashboard);
+      StaticRegisterOpNode stat = new StaticRegisterOpNode(cc, fc, dashboard);
       CompilerDirectives.transferToInterpreter();
       replace(stat);
     }

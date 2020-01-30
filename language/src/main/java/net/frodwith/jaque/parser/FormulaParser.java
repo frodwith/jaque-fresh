@@ -197,7 +197,7 @@ public final class FormulaParser {
       switch ( Atom.requireInt(tag) ) {
         case Motes.CORE:
           next = parseExpr(nextNoun, nextAxis, false);
-          return (c) -> CoreNodeGen.create(next.apply(c), c.dashboard);
+          return (c) -> CoreExpressionNodeGen.create(next.apply(c), c.dashboard);
       }
     }
     catch ( ExitException e ) {
@@ -220,14 +220,14 @@ public final class FormulaParser {
     }
     catch ( ExitException e ) {
       next = parseExpr(nextNoun, nextAxis, tail);
-      return (c) -> axe(axis, new TossNode(clue.apply(c), next.apply(c)));
+      return (c) -> axe(axis, new TossExpressionNode(clue.apply(c), next.apply(c)));
     }
     switch ( tag ) {
       case Motes.MEMO: {
         next = parseExpr(nextNoun, nextAxis, false);
         Cell key = Cell.require(nextNoun);
         return (c) -> {
-          return axe(axis, new MemoNode(
+          return axe(axis, new MemoExpressionNode(
             c.language.getContextReference(),
             key,
             clue.apply(c),
@@ -240,20 +240,20 @@ public final class FormulaParser {
         return (c) -> {
           NockExpressionNode clueNode = clue.apply(c);
           return axe(axis, c.dashboard.fastHints
-            ? new FastNode(c.dashboard, clueNode, next.apply(c))
-            : new TossNode(clueNode,
-                CoreNodeGen.create(next.apply(c), c.dashboard)));
+            ? new FastExpressionNode(c.dashboard, clueNode, next.apply(c))
+            : new TossExpressionNode(clueNode,
+                CoreExpressionNodeGen.create(next.apply(c), c.dashboard)));
         };
       }
 
       case Motes.SLOG: {
         next = parseExpr(nextNoun, nextAxis, false);
-        return (c) -> new SlogNode(clue.apply(c), next.apply(c));
+        return (c) -> new SlogExpressionNode(clue.apply(c), next.apply(c));
       }
 
       default:
         next = parseExpr(nextNoun, nextAxis, tail);
-        return (c) -> axe(axis, new TossNode(clue.apply(c), next.apply(c)));
+        return (c) -> axe(axis, new TossExpressionNode(clue.apply(c), next.apply(c)));
       /*
       case Motes.MEAN:
       case Motes.HUNK:

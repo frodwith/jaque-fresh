@@ -5,7 +5,6 @@ import com.oracle.truffle.api.dsl.Specialization;
 
 import net.frodwith.jaque.nodes.op.SameOpNode;
 import net.frodwith.jaque.nodes.op.SameOpNodeGen;
-import net.frodwith.jaque.nodes.NockExpressionNode;
 
 public abstract class SameExpressionNode extends NockExpressionNode {
   protected @Child @Executed NockExpressionNode leftNode;

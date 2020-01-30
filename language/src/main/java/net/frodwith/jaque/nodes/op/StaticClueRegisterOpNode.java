@@ -1,4 +1,4 @@
-package net.frodwith.jaque.nodes;
+package net.frodwith.jaque.nodes.op;
 
 import com.oracle.truffle.api.CompilerDirectives;
 
@@ -9,10 +9,10 @@ import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.dashboard.Dashboard;
 import net.frodwith.jaque.exception.ExitException;
 
-public final class StaticClueRegistrationNode extends RegistrationNode {
+public final class StaticClueRegisterOpNode extends RegisterOpNode {
   private final FastClue clue;
 
-  public StaticClueRegistrationNode(FastClue clue, Dashboard dashboard) {
+  public StaticClueRegisterOpNode(FastClue clue, Dashboard dashboard) {
     super(dashboard);
     this.clue = clue;
   }
@@ -35,7 +35,7 @@ public final class StaticClueRegistrationNode extends RegistrationNode {
       }
     }
     else {
-      RegistrationNode replacement = new FullyDynamicRegistrationNode(dashboard);
+      RegisterOpNode replacement = new FullyDynamicRegisterOpNode(dashboard);
       CompilerDirectives.transferToInterpreter();
       replace(replacement);
       replacement.executeRegister(core, clue);

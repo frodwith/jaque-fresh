@@ -1,23 +1,25 @@
-package net.frodwith.jaque.nodes;
+package net.frodwith.jaque.nodes.expression;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 
 import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.dashboard.Dashboard;
+import net.frodwith.jaque.nodes.op.RegisterOpNode;
+import net.frodwith.jaque.nodes.op.InitialRegisterOpNode;
 
 import java.io.StringWriter;
 import net.frodwith.jaque.interop.InteropDebugDump;
 
-public final class FastNode extends NockExpressionNode {
+public final class FastExpressionNode extends NockExpressionNode {
   private @Child NockExpressionNode hintNode;
   private @Child NockExpressionNode nextNode;
-  private @Child RegistrationNode registerNode;
+  private @Child RegisterOpNode registerNode;
 
-  public FastNode(Dashboard dashboard,
+  public FastExpressionNode(Dashboard dashboard,
       NockExpressionNode hintNode, NockExpressionNode nextNode) {
     this.hintNode = hintNode;
     this.nextNode = nextNode;
-    this.registerNode = new InitialRegistrationNode(dashboard);
+    this.registerNode = new InitialRegisterOpNode(dashboard);
   }
 
   @Override
