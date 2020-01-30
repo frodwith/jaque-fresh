@@ -14,7 +14,7 @@ import net.frodwith.jaque.NockLanguage;
 import net.frodwith.jaque.nodes.SubjectNode;
 import net.frodwith.jaque.nodes.NockExpressionNode;
 import net.frodwith.jaque.nodes.op.SlotOpNode;
-import net.frodwith.jaque.nodes.op.EvalOpNodeGen;
+import net.frodwith.jaque.nodes.op.EvalOpNode;
 import net.frodwith.jaque.nodes.IdentityNode;
 import net.frodwith.jaque.exception.NockException;
 
@@ -36,7 +36,7 @@ public final class DecapitatedNode extends SubjectNode {
     this.keyNode = keyNode;
     this.saveNode = saveNode;
     this.slotNode = SlotOpNode.fromAxis(armAxis);
-    this.nockNode = EvalOpNodeGen.create(astContext, false);
+    this.nockNode = new EvalOpNode(astContext, false);
   }
 
   @TruffleBoundary

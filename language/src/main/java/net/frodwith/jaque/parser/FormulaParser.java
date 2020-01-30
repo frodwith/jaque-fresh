@@ -70,7 +70,7 @@ public final class FormulaParser {
       formula = parseExpr(args.tail, axis.peg(7), false);
 
     return (c) -> axe(axis, 
-      new EvalExpressionNode(subject.apply(c), formula.apply(c), c, tail));
+      EvalExpressionNodeGen.create(subject.apply(c), formula.apply(c), c, tail));
   }
 
   private static Function<AstContext,NockExpressionNode>
@@ -182,11 +182,8 @@ public final class FormulaParser {
         subject = axe(coreAxis, new IdentityNode()),
         formula = axe(axis.peg(6), parseSlot(armAxis));
 
-      return (c) -> {
-        EvalExpressionNode call = axe(axis,
-          new EvalExpressionNode(subject, formula, c, tail));
-        return axe(axis, new ComposeNode(core.apply(c), call));
-      };
+      return (c) -> axe(axis, new ComposeNode(core.apply(c), 
+        axe(axis, EvalExpressionNodeGen.create(subject, formula, c, tail))));
     }
   }
 
@@ -289,7 +286,7 @@ public final class FormulaParser {
       right = parseExpr(args.tail, axis.peg(7), false);
 
     return (c) -> axe(axis,
-      new WishNode(c, left.apply(c), right.apply(c)));
+      new WishExpressionNode(c, left.apply(c), right.apply(c)));
   }
 
   private static Function<AstContext,NockExpressionNode>

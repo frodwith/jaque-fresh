@@ -1,4 +1,4 @@
-package net.frodwith.jaque.expression;
+package net.frodwith.jaque.nodes.expression;
 
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.dsl.Executed;
@@ -9,9 +9,9 @@ import net.frodwith.jaque.nodes.op.EditOpNode;
 import net.frodwith.jaque.nodes.NockExpressionNode;
 
 public abstract class EditExpressionNode extends NockExpressionNode {
-  private @Child @Executed NockExpressionNode wholeNode;
-  private @Child @Executed NockExpressionNode partNode;
-  private @Child @Executed(with={"wholeNode", "partNode"}) EditOpNode editNode;
+  protected @Child @Executed NockExpressionNode wholeNode;
+  protected @Child @Executed NockExpressionNode partNode;
+  protected @Child @Executed(with={"wholeNode", "partNode"}) EditOpNode editNode;
 
   public EditExpressionNode(NockExpressionNode wholeNode,
                             NockExpressionNode partNode,

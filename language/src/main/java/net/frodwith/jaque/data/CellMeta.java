@@ -22,8 +22,6 @@ import net.frodwith.jaque.dashboard.NockClass;
 import net.frodwith.jaque.dashboard.LocatedClass;
 import net.frodwith.jaque.exception.ExitException;
 
-import net.frodwith.jaque.nodes.FragmentNode;
-
 public final class CellMeta {
   private int mug;
   private Optional<NockClass> klass;

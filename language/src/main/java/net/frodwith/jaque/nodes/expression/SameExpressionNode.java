@@ -10,12 +10,12 @@ import net.frodwith.jaque.nodes.NockExpressionNode;
 public abstract class SameExpressionNode extends NockExpressionNode {
   protected @Child @Executed NockExpressionNode leftNode;
   protected @Child @Executed NockExpressionNode rightNode;
-  protected @Child @Executed(with={"leftNode", "rightNode"}) SameOpNode opNode;
+  protected @Child @Executed(with={"leftNode", "rightNode"}) SameOpNode sameNode;
 
   protected SameExpressionNode(NockExpressionNode left, NockExpressionNode right) {
     this.leftNode = left;
     this.rightNode = right;
-    this.opNode = SameOpNodeGen.create();
+    this.sameNode = SameOpNodeGen.create();
   }
 
   @Specialization

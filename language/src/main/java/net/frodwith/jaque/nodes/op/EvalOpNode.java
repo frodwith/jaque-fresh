@@ -3,8 +3,6 @@ package net.frodwith.jaque.nodes.op;
 import net.frodwith.jaque.AstContext;
 import net.frodwith.jaque.nodes.NockNode;
 import net.frodwith.jaque.nodes.dispatch.DispatchNode;
-import net.frodwith.jaque.nodes.dispatch.TailDispatchNode;
-import net.frodwith.jaque.nodes.dispatch.HeadDispatchNodeGen;
 
 public final class EvalOpNode extends NockNode {
   private @Child FormulaLookupOpNode lookupNode;

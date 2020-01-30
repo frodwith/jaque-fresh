@@ -12,7 +12,6 @@ import net.frodwith.jaque.jet.Drivers;
 import net.frodwith.jaque.data.Axis;
 import net.frodwith.jaque.data.Cell;
 import net.frodwith.jaque.data.AxisMap;
-import net.frodwith.jaque.nodes.FragmentNode;
 import net.frodwith.jaque.parser.FormulaParser;
 import net.frodwith.jaque.exception.ExitException;
 

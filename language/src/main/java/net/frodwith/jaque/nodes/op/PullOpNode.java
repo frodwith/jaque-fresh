@@ -85,4 +85,15 @@ public abstract class PullOpNode extends NockNode {
   protected final boolean fine(Cell core, NockClass klass) {
     return klass.getFine(core).check(core, astContext.dashboard);
   }
+
+  @TruffleBoundary
+  protected final NockClass getNockClass(Cell core) {
+    try {
+      return core.getMeta().getNockClass(core, astContext.dashboard);
+    }
+    catch ( ExitException e ) {
+      throw new NockException("core resolution failed", this);
+    }
+  }
+
 }
