@@ -1,4 +1,4 @@
-package net.frodwith.jaque.nodes;
+package net.frodwith.jaque.nodes.expression;
 
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -6,16 +6,17 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.oracle.truffle.api.profiles.ConditionProfile;
 
 import net.frodwith.jaque.exception.NockException;
+import net.frodwith.jaque.nodes.NockExpressionNode;
 
-public final class IfNode extends NockExpressionNode {
+public final class IfExpressionNode extends NockExpressionNode {
   @Child private NockExpressionNode testNode;
   @Child private NockExpressionNode yesNode;
   @Child private NockExpressionNode noNode;
   private final ConditionProfile testCondition;
 
-  public IfNode(NockExpressionNode testNode,
-                NockExpressionNode yesNode,
-                NockExpressionNode noNode) {
+  public IfExpressionNode(NockExpressionNode testNode,
+                          NockExpressionNode yesNode,
+                          NockExpressionNode noNode) {
     this.testNode      = testNode;
     this.yesNode       = yesNode;
     this.noNode        = noNode;

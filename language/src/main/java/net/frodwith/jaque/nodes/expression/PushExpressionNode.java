@@ -1,4 +1,4 @@
-package net.frodwith.jaque.nodes;
+package net.frodwith.jaque.nodes.expression;
 
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
@@ -6,13 +6,15 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.oracle.truffle.api.profiles.ConditionProfile;
 
 import net.frodwith.jaque.NockLanguage;
+import net.frodwith.jaque.data.Cell;
+import net.frodwith.jaque.nodes.NockExpressionNode;
 
-public final class ComposeNode extends NockExpressionNode {
+public final class PushExpressionNode extends NockExpressionNode {
   @Child private NockExpressionNode headNode;
   @Child private NockExpressionNode tailNode;
 
-  public ComposeNode(NockExpressionNode headNode,
-                     NockExpressionNode tailNode) {
+  public PushExpressionNode(NockExpressionNode headNode,
+                  NockExpressionNode tailNode) {
     this.headNode = headNode;
     this.tailNode = tailNode;
   }
@@ -20,7 +22,7 @@ public final class ComposeNode extends NockExpressionNode {
   public Object executeGeneric(VirtualFrame frame) {
     Object oldSubject  = NockLanguage.getSubject(frame);
     Object headProduct = headNode.executeGeneric(frame);
-    NockLanguage.setSubject(frame, headProduct);
+    NockLanguage.setSubject(frame, new Cell(headProduct, oldSubject));
     Object tailProduct = tailNode.executeGeneric(frame);
     NockLanguage.setSubject(frame, oldSubject);
     return tailProduct;

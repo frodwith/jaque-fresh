@@ -41,23 +41,24 @@ public final class FormulaParser {
       head = parseExpr(headNoun, axis.peg(2), false),
       tail = parseExpr(tailNoun, axis.peg(3), false);
 
-    return (c) -> axe(axis, ConsNodeGen.create(head.apply(c), tail.apply(c)));
+    return (c) -> axe(axis,
+      ConsExpressionNodeGen.create(head.apply(c), tail.apply(c)));
   }
 
   private static NockExpressionNode parseSlot(Axis axis) {
     return axis.isCrash()
-      ? new BailNode()
+      ? new BailExpressionNode()
       : axis.isIdentity()
-      ? new IdentityNode()
+      ? new IdentityExpressionNode()
       : new SlotExpressionNode(axis);
   }
 
   private static NockExpressionNode parseQuot(Object arg) {
     return ( arg instanceof Cell )
-      ? new LiteralCellNode((Cell) arg)
+      ? new LiteralCellExpressionNode((Cell) arg)
       : ( arg instanceof BigAtom )
-      ? new LiteralBigAtomNode((BigAtom) arg)
-      : new LiteralLongNode((long) arg);
+      ? new LiteralBigAtomExpressionNode((BigAtom) arg)
+      : new LiteralLongExpressionNode((long) arg);
   }
 
   private static Function<AstContext,NockExpressionNode>
@@ -120,14 +121,14 @@ public final class FormulaParser {
     }
     catch ( ExitException e ) {
       yex = e;
-      yes = wrap(new BailNode());
+      yes = wrap(new BailExpressionNode());
     }
     try {
       no  = parseExpr(args.r, axis.peg(15), tail);
     }
     catch ( ExitException e) {
       nex = e;
-      no  = wrap(new BailNode());
+      no  = wrap(new BailExpressionNode());
     }
 
     if ( null != yex && null != nex ) {
@@ -136,7 +137,7 @@ public final class FormulaParser {
     else {
       final Function<AstContext,NockExpressionNode> y = yes, n = no;
       return (c) -> axe(axis,
-        new IfNode(test.apply(c), y.apply(c), n.apply(c)));
+        new IfExpressionNode(test.apply(c), y.apply(c), n.apply(c)));
     }
   }
 
@@ -148,7 +149,7 @@ public final class FormulaParser {
       f = parseExpr(args.head, axis.peg(6), false),
       g = parseExpr(args.tail, axis.peg(7), tail);
 
-    return (c) -> axe(axis, new ComposeNode(f.apply(c), g.apply(c)));
+    return (c) -> axe(axis, new ComposeExpressionNode(f.apply(c), g.apply(c)));
   }
 
   private static Function<AstContext,NockExpressionNode>
@@ -158,7 +159,7 @@ public final class FormulaParser {
     Function<AstContext,NockExpressionNode>
       f = parseExpr(args.head, axis.peg(6), false),
       g = parseExpr(args.tail, axis.peg(7), tail);
-    return (c) -> axe(axis, new PushNode(f.apply(c), g.apply(c)));
+    return (c) -> axe(axis, new PushExpressionNode(f.apply(c), g.apply(c)));
   }
 
   private static Function<AstContext,NockExpressionNode>
@@ -179,10 +180,10 @@ public final class FormulaParser {
       // Only pulls out of the battery of a core are treated as method calls,
       // pulls out of the payload get rewritten to an eval.
       NockExpressionNode
-        subject = axe(coreAxis, new IdentityNode()),
+        subject = axe(coreAxis, new IdentityExpressionNode()),
         formula = axe(axis.peg(6), parseSlot(armAxis));
 
-      return (c) -> axe(axis, new ComposeNode(core.apply(c), 
+      return (c) -> axe(axis, new ComposeExpressionNode(core.apply(c), 
         axe(axis, EvalExpressionNodeGen.create(subject, formula, c, tail))));
     }
   }

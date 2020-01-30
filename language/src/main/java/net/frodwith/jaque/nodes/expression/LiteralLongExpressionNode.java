@@ -1,21 +1,20 @@
-package net.frodwith.jaque.nodes;
+package net.frodwith.jaque.nodes.expression;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
-
-import net.frodwith.jaque.data.BigAtom;
+import net.frodwith.jaque.nodes.NockExpressionNode;
 
 @NodeInfo(shortName = "1")
-public final class LiteralBigAtomNode extends NockExpressionNode {
-  private final BigAtom value;
+public final class LiteralLongExpressionNode extends NockExpressionNode {
+  private final long value;
 
-  public LiteralBigAtomNode(BigAtom value) {
+  public LiteralLongExpressionNode(long value) {
     this.value = value;
   }
 
   @Override
-  public BigAtom executeBigAtom(VirtualFrame frame) throws UnexpectedResultException {
+  public long executeLong(VirtualFrame frame) throws UnexpectedResultException {
     return value;
   }
 

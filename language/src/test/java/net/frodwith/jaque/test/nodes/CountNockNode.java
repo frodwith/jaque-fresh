@@ -18,7 +18,7 @@ import net.frodwith.jaque.nodes.SubjectNode;
 import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.dashboard.Dashboard;
 
-import net.frodwith.jaque.nodes.IdentityNode;
+import net.frodwith.jaque.nodes.expression.IdentityExpressionNode;
 import net.frodwith.jaque.nodes.expression.EvalExpressionNode;
 import net.frodwith.jaque.nodes.expression.EvalExpressionNodeGen;
 import net.frodwith.jaque.nodes.expression.SlotExpressionNode;
@@ -36,8 +36,8 @@ public final class CountNockNode extends SubjectNode {
     this.astContext = astContext;
     this.armAxis = armAxis;
     this.countName = countName;
-    this.evalNode = EvalExpressionNodeGen.create(
-      new IdentityNode(), new SlotExpressionNode(armAxis), astContext, true);
+    this.evalNode = EvalExpressionNodeGen.create(new IdentityExpressionNode(),
+      new SlotExpressionNode(armAxis), astContext, true);
   }
 
   private void bump() {
