@@ -18,15 +18,17 @@ import net.frodwith.jaque.nodes.SubjectNode;
 import net.frodwith.jaque.runtime.NockContext;
 import net.frodwith.jaque.dashboard.Dashboard;
 
-import net.frodwith.jaque.exception.ExitException;
-import net.frodwith.jaque.exception.NockException;
-import net.frodwith.jaque.exception.NockControlFlowException;
+import net.frodwith.jaque.nodes.IdentityNode;
+import net.frodwith.jaque.nodes.expression.EvalExpressionNode;
+import net.frodwith.jaque.nodes.expression.EvalExpressionNodeGen;
+import net.frodwith.jaque.nodes.expression.SlotExpressionNode;
 
 public final class CountNockNode extends SubjectNode {
   private final AstContext astContext;
   private final Axis armAxis;
   private final String countName;
   private static final Map<String,Integer> counts = new HashMap<>();
+  private @Child EvalExpressionNode evalNode;
 
   public CountNockNode(AstContext astContext,
                        Axis armAxis,
@@ -34,6 +36,8 @@ public final class CountNockNode extends SubjectNode {
     this.astContext = astContext;
     this.armAxis = armAxis;
     this.countName = countName;
+    this.evalNode = EvalExpressionNodeGen.create(
+      new IdentityNode(), new SlotExpressionNode(armAxis), astContext, true);
   }
 
   private void bump() {
@@ -41,18 +45,8 @@ public final class CountNockNode extends SubjectNode {
   }
 
   public Object executeGeneric(VirtualFrame frame) {
-    try {
-      Object subject = NockLanguage.getSubject(frame);
-      Cell formula = Cell.require(armAxis.fragment(subject));
-      CallTarget fn = formula.getMeta()
-        .getFunction(formula, astContext).callTarget;
-      NockCall call = new NockCall(fn, subject);
-      bump();
-      throw new NockControlFlowException(call);
-    }
-    catch ( ExitException e ) {
-      throw new NockException("count bail", this);
-    }
+    bump();
+    return evalNode.executeGeneric(frame);
   }
 
   public static int count(String name) {

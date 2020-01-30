@@ -11,7 +11,7 @@ public abstract class EditOpNode extends NockNode {
     return axis.isIdentity()
       ? new EditTermOpNode()
       : axis.inHead()
-      ? new EditHeadOpNode(axis.mas(), dashboard)
-      : new EditTailOpNode(axis.mas(), dashboard);
+      ? new EditHeadOpNode(axis, dashboard)
+      : new EditTailOpNode(axis, dashboard);
   }
 }
