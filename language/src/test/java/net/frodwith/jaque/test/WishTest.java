@@ -13,7 +13,7 @@ import org.graalvm.polyglot.PolyglotException;
 
 public class WishTest {
   private Context context;
-  private Value runtime, wisher, head, tail, same;
+  private Value runtime, wisher, head, tail, same, bc, abc, abcd, cd, test;
 
   // scry function: $-(path (unit (unit *)))
   // if ~, block (answer later)
@@ -33,10 +33,27 @@ public class WishTest {
     head = context.eval("nock", "[0 2]");
     tail = context.eval("nock", "[0 3]");
     same = context.eval("nock", "[5 [0 2] 0 3]");
+    bc   = context.eval("nock", "[1 98 99 0]").execute();
+    abc  = context.eval("nock", "[1 97 98 99 0]").execute();
+    abcd = context.eval("nock", "[1 97 98 99 100]").execute();
+    cd   = context.eval("nock", "[1 99 100]").execute();
+// [~ ~] on empty path,
+// block on paths starting with /b,
+// !! crash on /c,
+// else ``42
+    test = context.eval("nock",
+      "[1 [6 [6 [3 0 13] [1 1] 1 0] [1 0 0] 6 [5 [0 26] 1 98] [1 0] 6 [5 [0 26] 1 99] [0 0] 1 0 0 42] 0 0]"
+    ).execute();
   }
 
-  private Object scry(Object path, Object scry) {
-    return runtime.invokeMember("mink", path, wisher, scry);
+  private Object scry(Object path, Object... gates) {
+    Object[] arguments = new Object[gates.length+2];
+    arguments[0] = path;
+    arguments[1] = wisher;
+    for ( int i = 0; i < gates.length; ++i ) {
+      arguments[i+2] = gates[i];
+    }
+    return runtime.invokeMember("mink", arguments);
   }
 
   private void assertSuccess(Object got, Object expected) {
@@ -49,46 +66,51 @@ public class WishTest {
     assertEquals(0L, same.execute(tail.execute(got), path).as(Number.class));
   }
 
-  private void assertCrash(Object got) {
+  private void assertNever(Object got) {
     assertEquals(2L, head.execute(got).as(Number.class));
   }
 
+  @FunctionalInterface
+  private interface Executable {
+    public abstract void execute();
+  }
+
+  private void assertThrows(Executable code) {
+    try {
+      code.execute();
+      throw new AssertionError("code did not throw");
+    }
+    catch ( PolyglotException e ) {
+    }
+  }
+
   @Test
-  public void testBasicWish() {
+  public void testBasic() {
     Value always42 = context.eval("nock", "[1 [1 0 0 42] 0]").execute();
     assertSuccess(scry(0L, always42), 42L);
   }
 
   @Test
-  public void testBlock() {
-    // [~ ~] on empty path, block on paths starting with /b, 42 for all else
-    Value gate = context.eval("nock",
-      "[1 [6 [6 [3 0 13] [1 1] 1 0] [1 0 0] 6 [5 [0 26] 1 98] [1 0] 1 0 0 42] [0 0] 0]"
-    ).execute(),
-          bc = context.eval("nock", "[1 98 99 0]").execute(),
-          abc = context.eval("nock","[1 97 98 99 0]").execute();
-
-    assertCrash(scry(0L, gate));
-    assertBlock(scry(bc, gate), bc);
-    assertSuccess(scry(abc, gate), 42L);
+  public void testCrash() {
+    Value crash = context.eval("nock", "[1 [0 0] 0 0]").execute();
+    assertThrows(() -> scry(0L, crash));
   }
 
   @Test
-  public void testCrash() {
-    Value crash = context.eval("nock", "[1 [0 0] 0 0]").execute();
-    boolean threw = false;
-    try {
-      scry(0L, crash);
-    }
-    catch ( PolyglotException e ) {
-      threw = true;
-    }
-    assertTrue(threw);
+  public void testFull() {
+    assertNever(scry(0L, test));
+    assertThrows(() -> scry(cd, test));
+    assertBlock(scry(bc, test), bc);
+    assertSuccess(scry(abc, test), 42L);
   }
 
   @Test
   public void testNested() {
-    // mink should take a fly and an executable, then i can do two layers
-    // should change name from mink to virtualize
+    Value passThru = context.eval("nock", "[1 [[1 0] [1 0] 12 [0 12] 0 13] 0 0]")
+      .execute();;
+    assertSuccess(scry(abcd, test, passThru, passThru), 42L);
+    assertBlock(scry(bc, test, passThru), bc);
+    assertThrows(() -> scry(0L, test, passThru));
+    assertThrows(() -> scry(cd, test));
   }
 }

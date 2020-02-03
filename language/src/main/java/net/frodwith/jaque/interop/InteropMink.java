@@ -34,17 +34,31 @@ public final class InteropMink implements TruffleObject {
     return new SoftOpNode(context.getAstContext());
   }
 
+  // gates are pushed onto the fly stack left to right, so that the
+  // rightmost is at the top of the stack.
+  private static Object pushGates(int i,
+      Object[] arguments, NockContext context, SoftOpNode softNode) {
+    if ( arguments.length == (i+1) ) {
+      return softNode.executeSoft(arguments[0], arguments[1], arguments[i]);
+    }
+    else {
+      return context.withFly(arguments[i],
+          () -> pushGates(i+1, arguments, context, softNode));
+    }
+  }
+
   @ExportMessage
   public Object execute(Object[] arguments,
       @CachedContext(NockLanguage.class) NockContext context,
       @Cached(value="makeSoft(context)", allowUncached=true) SoftOpNode softNode)
       throws ArityException {
 
-    if ( 3 != arguments.length) {
+    if ( arguments.length < 3) {
       throw ArityException.create(3, arguments.length);
     }
-
-    return softNode.executeSoft(arguments[0], arguments[1], arguments[2]);
+    else {
+      return pushGates(2, arguments, context, softNode);
+    }
   }
 
   /*
