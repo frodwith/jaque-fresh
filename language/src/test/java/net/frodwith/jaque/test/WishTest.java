@@ -13,7 +13,7 @@ import org.graalvm.polyglot.PolyglotException;
 
 public class WishTest {
   private Context context;
-  private Value runtime, wisher, head, tail, same, bc, abc, abcd, cd, test;
+  private Value runtime, wisher, head, tail, same, bc, abcd, cd, test;
 
   // scry function: $-(path (unit (unit *)))
   // if ~, block (answer later)
@@ -34,7 +34,6 @@ public class WishTest {
     tail = context.eval("nock", "[0 3]");
     same = context.eval("nock", "[5 [0 2] 0 3]");
     bc   = context.eval("nock", "[1 98 99 0]").execute();
-    abc  = context.eval("nock", "[1 97 98 99 0]").execute();
     abcd = context.eval("nock", "[1 97 98 99 100]").execute();
     cd   = context.eval("nock", "[1 99 100]").execute();
 // [~ ~] on empty path,
@@ -101,7 +100,13 @@ public class WishTest {
     assertNever(scry(0L, test));
     assertThrows(() -> scry(cd, test));
     assertBlock(scry(bc, test), bc);
-    assertSuccess(scry(abc, test), 42L);
+    assertSuccess(scry(abcd, test), 42L);
+  }
+
+  @Test
+  public void testTop() {
+    // scry /a/b/c/ on top, should throw because top scries always crash
+    assertThrows(() -> context.eval("nock", "[12 [1 0] 1 97 98 99 0]").execute());
   }
 
   @Test
