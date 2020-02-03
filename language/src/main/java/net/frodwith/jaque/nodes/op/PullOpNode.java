@@ -31,20 +31,9 @@ public abstract class PullOpNode extends NockNode {
 
   public abstract Object executePull(Object core);
 
-  @Specialization(limit = "1",
-                  guards = "same(cachedCore, core)",
-                  assumptions = "klass.valid")
-  protected final Object doMemo(Cell core,
-    @Cached("core") Cell cachedCore,
-    @Cached("getNockClass(cachedCore)") NockClass klass,
-    @Cached("doSlow(cachedCore)") Object product) {
-    return product;
-  }
-
   @Specialization(limit = "2",
                   guards = "fine(core, klass)",
-                  assumptions = "klass.valid",
-                  replaces = "doMemo")
+                  assumptions = "klass.valid")
   protected final Object doFine(Cell core,
     @Cached("getNockClass(core)") NockClass klass,
     @Cached("getArm(core)") CallTarget arm) {
@@ -75,12 +64,6 @@ public abstract class PullOpNode extends NockNode {
       throw new NockException("fail to fetch arm from battery", e, this);
     }
   }
-
-  @TruffleBoundary
-  protected final boolean same(Cell a, Cell b) {
-    return Equality.equals(a, b);
-  }
-
   @TruffleBoundary
   protected final boolean fine(Cell core, NockClass klass) {
     return klass.getFine(core).check(core, astContext.dashboard);
